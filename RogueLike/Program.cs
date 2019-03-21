@@ -17,18 +17,20 @@ namespace RogueLike {
         ///     .BoxDrawingL_XX
         ///         drawing boxes with pixels, each of the last 2 characters explain the positioning of the lines in the pixel
         /// </summary>
-
+        const int c_SideBar = 40;
         const int c_WinWidth = 240;
         const int c_WinHeight = 64;
         const int c_PixelWidth = 4;
         const int c_PixelHeight = 8;
-        const int intBlankSpot = 0;
+        const int BlankSpotColor = 0;
         const ConsoleKey keyClose = ConsoleKey.Escape;
+        private static int GameSpeed = 20;
         private static bool GameState = true;
-        private static int intPlayerColor = 1;
-        public static Point pntPlayerPosition = new Point(10, 10);
-        public static Point pntPLayerLastPosition = pntPlayerPosition;
-        private static Random rndRandomNum = new Random();
+        private static int PlayerColor = 1;
+        public static Point PlayerPosition = new Point(10, 10);
+        public static Point PLayerLastPosition = PlayerPosition;
+        public static List<Item> ItemsInRoom = new List<Item>();
+        private static Random RandomNum = new Random();
         private static ConsoleEngine Engine;
         private static Thread AwaitUserInput = new Thread(() => AwaitUserInput_DoWork());
                 
@@ -39,15 +41,15 @@ namespace RogueLike {
             Engine.SetBackground(0);
             Console.Title = "WHAT IS EVEN GOING ON?!";
             CreateWalls();
-            AddItem();
+            AddItems();
 
             AwaitUserInput.Start();
 
             while (!(Engine.GetKey(keyClose))) {
-                Engine.SetPixel(pntPlayerPosition, intPlayerColor, ConsoleCharacter.Full);
+                Engine.SetPixel(PlayerPosition, PlayerColor, ConsoleCharacter.Full);
                 Engine.DisplayBuffer();
-                Engine.SetPixel(pntPLayerLastPosition, intBlankSpot, ConsoleCharacter.Full);
-                pntPLayerLastPosition = pntPlayerPosition;
+                Engine.SetPixel(PLayerLastPosition, BlankSpotColor, ConsoleCharacter.Full);
+                PLayerLastPosition = PlayerPosition;
             }
             GameState = false;
         }
@@ -57,15 +59,16 @@ namespace RogueLike {
         ///     depending on coordinates from a "map"
         /// </summary>
         static void CreateWalls() {
-            Engine.Rectangle(new Point(0, 0), new Point(c_WinWidth - 1, c_WinHeight - 1), 2, ConsoleCharacter.Light);
+            Engine.Rectangle(new Point(0, 0), new Point(c_WinWidth - c_SideBar - 1, c_WinHeight - 1), 2, ConsoleCharacter.Light);
         }
 
-        static void AddItem() {
+        static void AddItems() {
             var pntItem = new Point(0,0);
-            var itemColor = 0;
-            var strItem = ".";
-            RandomizePixel(ref pntItem,ref itemColor);
-            Engine.WriteText(pntItem, strItem, itemColor);
+            var itemAmount = RandomNum.Next(1, 99);
+            RandomizePixelPoint(ref pntItem);
+            Gold item = new Gold(itemAmount, pntItem);
+            ItemsInRoom.Add(item);
+            Engine.WriteText(item.Position, item.Character.ToString(), item.Color);
         }
 
         /// <summary>
@@ -92,19 +95,22 @@ namespace RogueLike {
                         case 'D':
                             moveX = 1;
                             break;
-                        default:
-                            break;
                     }
                 }
-                if ((pntPlayerPosition.X + moveX < c_WinWidth - 1) && (pntPlayerPosition.X + moveX > 0))
-                    pntPlayerPosition.X += moveX;
+                if ((PlayerPosition.X + moveX < c_WinWidth - c_SideBar - 1) && (PlayerPosition.X + moveX > 0))
+                    PlayerPosition.X += moveX;
                 else
                     moveX *= -1;
-                if ((pntPlayerPosition.Y + moveY < c_WinHeight - 1) && (pntPlayerPosition.Y + moveY > 0))
-                    pntPlayerPosition.Y += moveY;
+                if ((PlayerPosition.Y + moveY < c_WinHeight - 1) && (PlayerPosition.Y + moveY > 0))
+                    PlayerPosition.Y += moveY;
                 else
                     moveY *= -1;
-                System.Threading.Thread.Sleep(10);
+                foreach (Item i in ItemsInRoom) {
+                    if (PlayerPosition == i.Position) {
+
+                    }
+                }
+                Thread.Sleep(GameSpeed);
             }
         }
 
@@ -112,17 +118,23 @@ namespace RogueLike {
         ///     Used this for testing, but may find a use for it in the future
         /// </summary>
         /// <param name="point">starting point, to be changed to another random point</param>
-        /// <param name="color">color of the point, which will be changed</param>
-        static void RandomizePixel(ref Point point, ref int color) {
+        static void RandomizePixelPoint(ref Point point) {
             var newPoint = new Point();
             do {
-                newPoint.X = rndRandomNum.Next(1, c_WinWidth - 1);
-                newPoint.Y = rndRandomNum.Next(1, c_WinHeight - 1);
+                newPoint.X = RandomNum.Next(1, c_WinWidth - 1);
+                newPoint.Y = RandomNum.Next(1, c_WinHeight - 1);
             } while (newPoint.X == point.X && newPoint.Y == point.Y);
             point = newPoint;
+        }
+
+        /// <summary>
+        ///     Used for testing, but may find a use for it in the future
+        /// </summary>
+        /// <param name="color">color of the point, which will be changed</param>
+        static void RandomizePixelColor(ref int color) {
             var newColor = 0;
             do {
-                newColor = rndRandomNum.Next(0, 256);
+                newColor = RandomNum.Next(0, 256);
             } while (newColor == color);
             color = newColor;
         }
