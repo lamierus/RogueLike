@@ -11,12 +11,12 @@ namespace RogueLike {
             Amount = amount;
         }
 
-        public Gold(int amount, Point Pos) {
+        public Gold(int amount, Position Pos) {
             Index = 999;
             Character = '*';
             Color = 99;
             Amount = amount;
-            Position = Pos;
+            XY = Pos;
         }
     }
 }

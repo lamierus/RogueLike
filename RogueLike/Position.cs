@@ -10,16 +10,17 @@ namespace RogueLike {
         public const float Rad2Deg = 180f / (float)Math.PI;
         public const float Deg2Rad = (float)Math.PI / 180f;
 
-        /// <summary> new Point(0, 0); </summary>
+        /// <summary> new Position(0, 0); </summary>
         public static Position Zero { get; private set; } = new Position(0, 0);
 
         public Position(int x, int y) {
-            this.X = x;
-            this.Y = y;
+            X = x;
+            Y = y;
         }
 
         public Vector ToVector() => new Vector((float)X, (float)Y);
         public override string ToString() => String.Format("({0}, {1})", X, Y);
+        public Point ToPoint() => new Point(X, Y);
 
         public static Position operator +(Position a, Position b) {
             return new Position(a.X + b.X, a.Y + b.Y);

@@ -27,8 +27,8 @@ namespace RogueLike {
         private static int GameSpeed = 20;
         private static bool GameState = true;
         private static int PlayerColor = 1;
-        public static Point PlayerPosition = new Point(10, 10);
-        public static Point PLayerLastPosition = PlayerPosition;
+        public static Position PlayerPosition = new Position(10, 10);
+        public static Position PLayerLastPosition = PlayerPosition;
         public static List<Item> ItemsInRoom = new List<Item>();
         private static Random RandomNum = new Random();
         private static ConsoleEngine Engine;
@@ -46,9 +46,9 @@ namespace RogueLike {
             AwaitUserInput.Start();
 
             while (!(Engine.GetKey(keyClose))) {
-                Engine.SetPixel(PlayerPosition, PlayerColor, ConsoleCharacter.Full);
+                Engine.SetPixel(PlayerPosition.ToPoint(), PlayerColor, ConsoleCharacter.Full);
                 Engine.DisplayBuffer();
-                Engine.SetPixel(PLayerLastPosition, BlankSpotColor, ConsoleCharacter.Full);
+                Engine.SetPixel(PLayerLastPosition.ToPoint(), BlankSpotColor, ConsoleCharacter.Full);
                 PLayerLastPosition = PlayerPosition;
             }
             GameState = false;
@@ -63,12 +63,12 @@ namespace RogueLike {
         }
 
         static void AddItems() {
-            var pntItem = new Point(0,0);
+            var pntItem = new Position(0,0);
             var itemAmount = RandomNum.Next(1, 99);
             RandomizePixelPoint(ref pntItem);
             Gold item = new Gold(itemAmount, pntItem);
             ItemsInRoom.Add(item);
-            Engine.WriteText(item.Position, item.Character.ToString(), item.Color);
+            Engine.WriteText(item.XY.ToPoint(), item.Character.ToString(), item.Color);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace RogueLike {
                 else
                     moveY *= -1;
                 foreach (Item i in ItemsInRoom) {
-                    if (PlayerPosition == i.Position) {
+                    if (PlayerPosition == i.XY) {
 
                     }
                 }
@@ -117,14 +117,14 @@ namespace RogueLike {
         /// <summary>
         ///     Used this for testing, but may find a use for it in the future
         /// </summary>
-        /// <param name="point">starting point, to be changed to another random point</param>
-        static void RandomizePixelPoint(ref Point point) {
-            var newPoint = new Point();
+        /// <param name="position">starting point, to be changed to another random point</param>
+        static void RandomizePixelPoint(ref Position position) {
+            var newPosition = new Position();
             do {
-                newPoint.X = RandomNum.Next(1, c_WinWidth - 1);
-                newPoint.Y = RandomNum.Next(1, c_WinHeight - 1);
-            } while (newPoint.X == point.X && newPoint.Y == point.Y);
-            point = newPoint;
+                newPosition.X = RandomNum.Next(1, c_WinWidth - 1);
+                newPosition.Y = RandomNum.Next(1, c_WinHeight - 1);
+            } while (newPosition != position);
+            position = newPosition;
         }
 
         /// <summary>
