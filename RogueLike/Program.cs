@@ -32,15 +32,12 @@ namespace RogueLike {
         public static Map CurrentLevel = new Map();
         public static Room CurrentRoom;
         
-        private static int GameSpeed = 20;
+        private static int GameSpeed = 15;
         private static bool GameState = true;
-        private static int PlayerColor = 1;
         private static Random RandomNum = new Random();
         private static Thread AwaitUserInput = new Thread(() => AwaitUserInput_DoWork());
-                
 
         static void Main(string[] args) {
-            //Console.SetBufferSize(c_WinWidth, c_WinHeight);
             Engine = new ConsoleEngine(c_WinWidth, c_WinHeight, c_PixelWidth, c_PixelHeight);
             Engine.SetBackground(0);
             Console.Title = "Ummm... Isn't this Snake?  SNAKE!...  SNNNAAAAAAKKKKEEEE!!!";
@@ -52,9 +49,9 @@ namespace RogueLike {
             AwaitUserInput.Start();
 
             while (!(Engine.GetKey(keyClose))) {
-                Engine.SetPixel(You.XY.ToPoint(), PlayerColor, ConsoleCharacter.Full);
+                Engine.SetPixel(You.XY.ToPoint(), You.RGBColor.GetHashCode(), ConsoleCharacter.Full);
                 Engine.DisplayBuffer();
-                Engine.SetPixel(You.XY.ToPoint(), BlankSpotColor, ConsoleCharacter.Full);
+                Engine.SetPixel(PlayerLastPosition.ToPoint(), BlankSpotColor, ConsoleCharacter.Full);
                 PlayerLastPosition = You.XY;
             }
             GameState = false;
@@ -80,6 +77,11 @@ namespace RogueLike {
             CurrentRoom = newRoom;
         }
 
+        static void DrawSideBar() {
+            Position GoldCounter = new Position(c_WinWidth - c_SideBar + 2, 0);
+            Engine.WriteText(GoldCounter.ToPoint(), "Gold: " /*+ You.*/, 255);
+        }
+
         /// <summary>
         ///     Thread for capturing player key presses and creating movement
         /// </summary>
@@ -91,7 +93,7 @@ namespace RogueLike {
                     keyPress = Console.ReadKey();
                     moveX = 0;
                     moveY = 0;
-                    switch (Char.ToUpper(keyPress.KeyChar)) {
+                    switch (char.ToUpper(keyPress.KeyChar)) {
                         case 'W':
                             moveY = -1;
                             break;
@@ -108,19 +110,23 @@ namespace RogueLike {
                 }
                 if ((You.XY.X + moveX < c_WinWidth - c_SideBar - 1) && (You.XY.X + moveX > 0))
                     You.XY.X += moveX;
-                else
-                    moveX *= -1;
                 if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
                     You.XY.Y += moveY;
-                else
-                    moveY *= -1;
                 foreach (Item i in CurrentRoom.ItemsInRoom) {
                     if (You.XY == i.XY) {
                         You.PickUpItem(i);
+                        UpdateSideBar();
                     }
                 }
                 Thread.Sleep(GameSpeed);
             }
+        }
+
+        /// <summary>
+        ///     
+        /// </summary>
+        static void UpdateSideBar() {
+            
         }
 
         /// <summary>
@@ -130,8 +136,8 @@ namespace RogueLike {
         static void RandomizePixelPoint(ref Position position) {
             var newPosition = new Position();
             do {
-                newPosition.X = RandomNum.Next(1, c_WinWidth - 1);
-                newPosition.Y = RandomNum.Next(1, c_WinHeight - 1);
+                newPosition.X = RandomNum.Next(1, c_WinWidth - c_SideBar - 1);
+                newPosition.Y = RandomNum.Next(1, c_WinHeight - c_SideBar - 1);
             } while (newPosition == position);
             position = newPosition;
         }
