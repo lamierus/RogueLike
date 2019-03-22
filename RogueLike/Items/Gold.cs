@@ -5,14 +5,14 @@ namespace RogueLike {
         public int Amount { get; set; }
 
         public Gold(int amount) {
-            Index = 999;
+            ID = 999;
             Character = '*';
             Color = 99;
             Amount = amount;
         }
 
         public Gold(int amount, Position Pos) {
-            Index = 999;
+            ID = 999;
             Character = '*';
             Color = 99;
             Amount = amount;

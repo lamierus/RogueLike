@@ -17,6 +17,8 @@ namespace RogueLike {
         ///     .BoxDrawingL_XX
         ///         drawing boxes with pixels, each of the last 2 characters explain the positioning of the lines in the pixel
         /// </summary>
+        private static ConsoleEngine Engine;
+
         const int c_SideBar = 40;
         const int c_WinWidth = 240;
         const int c_WinHeight = 64;
@@ -24,14 +26,16 @@ namespace RogueLike {
         const int c_PixelHeight = 8;
         const int BlankSpotColor = 0;
         const ConsoleKey keyClose = ConsoleKey.Escape;
+
+        public static Player You = new Player();
+        public static Position PlayerLastPosition;
+        public static Map CurrentLevel = new Map();
+        public static Room CurrentRoom;
+        
         private static int GameSpeed = 20;
         private static bool GameState = true;
         private static int PlayerColor = 1;
-        public static Position PlayerPosition = new Position(10, 10);
-        public static Position PLayerLastPosition = PlayerPosition;
-        public static List<Item> ItemsInRoom = new List<Item>();
         private static Random RandomNum = new Random();
-        private static ConsoleEngine Engine;
         private static Thread AwaitUserInput = new Thread(() => AwaitUserInput_DoWork());
                 
 
@@ -39,17 +43,19 @@ namespace RogueLike {
             //Console.SetBufferSize(c_WinWidth, c_WinHeight);
             Engine = new ConsoleEngine(c_WinWidth, c_WinHeight, c_PixelWidth, c_PixelHeight);
             Engine.SetBackground(0);
-            Console.Title = "WHAT IS EVEN GOING ON?!";
+            Console.Title = "Ummm... Isn't this Snake?  SNAKE!...  SNNNAAAAAAKKKKEEEE!!!";
             CreateWalls();
             AddItems();
+            You.XY = new Position(10, 10);
+            PlayerLastPosition = You.XY;
 
             AwaitUserInput.Start();
 
             while (!(Engine.GetKey(keyClose))) {
-                Engine.SetPixel(PlayerPosition.ToPoint(), PlayerColor, ConsoleCharacter.Full);
+                Engine.SetPixel(You.XY.ToPoint(), PlayerColor, ConsoleCharacter.Full);
                 Engine.DisplayBuffer();
-                Engine.SetPixel(PLayerLastPosition.ToPoint(), BlankSpotColor, ConsoleCharacter.Full);
-                PLayerLastPosition = PlayerPosition;
+                Engine.SetPixel(You.XY.ToPoint(), BlankSpotColor, ConsoleCharacter.Full);
+                PlayerLastPosition = You.XY;
             }
             GameState = false;
         }
@@ -65,10 +71,13 @@ namespace RogueLike {
         static void AddItems() {
             var pntItem = new Position(0,0);
             var itemAmount = RandomNum.Next(1, 99);
+            var newRoom = new Room();
             RandomizePixelPoint(ref pntItem);
             Gold item = new Gold(itemAmount, pntItem);
-            ItemsInRoom.Add(item);
+            newRoom.ItemsInRoom.Add(item);
             Engine.WriteText(item.XY.ToPoint(), item.Character.ToString(), item.Color);
+            CurrentLevel.Rooms.Add(newRoom);
+            CurrentRoom = newRoom;
         }
 
         /// <summary>
@@ -97,17 +106,17 @@ namespace RogueLike {
                             break;
                     }
                 }
-                if ((PlayerPosition.X + moveX < c_WinWidth - c_SideBar - 1) && (PlayerPosition.X + moveX > 0))
-                    PlayerPosition.X += moveX;
+                if ((You.XY.X + moveX < c_WinWidth - c_SideBar - 1) && (You.XY.X + moveX > 0))
+                    You.XY.X += moveX;
                 else
                     moveX *= -1;
-                if ((PlayerPosition.Y + moveY < c_WinHeight - 1) && (PlayerPosition.Y + moveY > 0))
-                    PlayerPosition.Y += moveY;
+                if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
+                    You.XY.Y += moveY;
                 else
                     moveY *= -1;
-                foreach (Item i in ItemsInRoom) {
-                    if (PlayerPosition == i.XY) {
-
+                foreach (Item i in CurrentRoom.ItemsInRoom) {
+                    if (You.XY == i.XY) {
+                        You.PickUpItem(i);
                     }
                 }
                 Thread.Sleep(GameSpeed);
@@ -123,7 +132,7 @@ namespace RogueLike {
             do {
                 newPosition.X = RandomNum.Next(1, c_WinWidth - 1);
                 newPosition.Y = RandomNum.Next(1, c_WinHeight - 1);
-            } while (newPosition != position);
+            } while (newPosition == position);
             position = newPosition;
         }
 
