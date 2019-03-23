@@ -45,6 +45,7 @@ namespace RogueLike {
             AddItems();
             You.XY = new Position(10, 10);
             PlayerLastPosition = You.XY;
+            DrawSideBar();
 
             AwaitUserInput.Start();
 
@@ -79,7 +80,7 @@ namespace RogueLike {
 
         static void DrawSideBar() {
             Position GoldCounter = new Position(c_WinWidth - c_SideBar + 2, 0);
-            Engine.WriteText(GoldCounter.ToPoint(), "Gold: " /*+ You.*/, 255);
+            Engine.WriteText(GoldCounter.ToPoint(), "Gold: " + You.GoldAmt, 255);
         }
 
         /// <summary>
@@ -115,7 +116,7 @@ namespace RogueLike {
                 foreach (Item i in CurrentRoom.ItemsInRoom) {
                     if (You.XY == i.XY) {
                         You.PickUpItem(i);
-                        UpdateSideBar();
+                        DrawSideBar();
                     }
                 }
                 Thread.Sleep(GameSpeed);

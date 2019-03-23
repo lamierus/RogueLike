@@ -26,7 +26,10 @@ namespace RogueLike {
         }
 
         public bool PickUpItem (Item pickedUp) {
-            //if (pickedUp.GetType())
+            if (pickedUp is Gold) {
+                GoldAmt += (pickedUp as Gold).Amount;
+                return true;
+            }
             return Inventory.AddItem(pickedUp);
         }
 
