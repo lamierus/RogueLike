@@ -4,7 +4,26 @@ using System.Text;
 
 namespace RogueLike {
     public class Room:Map {
-        public List<Item> ItemsInRoom = new List<Item>();
-        public List<Mob> MobsInRoom = new List<Mob>();
+        public Object[,] Grid;
+
+        public Room(int width, int height) {
+            Grid = new Object[width, height];
+        }
+
+        public bool AddItem(Object objToAdd) {
+            if (Grid[objToAdd.XY.X, objToAdd.XY.Y] == null) {
+                Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Item;
+                return true;
+            }
+            return false;
+        }
+
+        private void RemoveObject(Object objToRemove) {
+            Grid[objToRemove.XY.X, objToRemove.XY.Y] = null;
+        }
+
+        public void PickUpItem(Item itemPickedUp) {
+            RemoveObject(itemPickedUp);
+        }
     }
 }

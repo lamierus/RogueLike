@@ -1,10 +1,13 @@
-﻿using ConsoleGameEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace RogueLike {
-    public class Item {
+    public class Object {
         public int ID { get; set; }
         public char Character { get; set; }
-        public Position XY { get; set; }
         public int Color { get; set; }
+
+        public Position XY;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleGameEngine;
@@ -17,13 +18,20 @@ namespace RogueLike {
         ///     .BoxDrawingL_XX
         ///         drawing boxes with pixels, each of the last 2 characters explain the positioning of the lines in the pixel
         /// </summary>
-        //private static ConsoleEngine Engine;
+        /*
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetConsoleWindow();
 
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+        */
         const int c_SideBar = 40;
         const int c_WinWidth = 170;
         const int c_WinHeight = 50;
-        const int c_PixelWidth = 4;
-        const int c_PixelHeight = 8;
+        const int c_PixelWidth = 8;
+        const int c_PixelHeight = 14;
+        const int c_MaxWinWidth = c_WinWidth - 1;
+        const int c_MaxWinHeight = c_WinHeight - 1;
         const int BlankSpotColor = 0;
         const ConsoleKey keyClose = ConsoleKey.Escape;
 
@@ -37,16 +45,21 @@ namespace RogueLike {
 
         static void Main(string[] args) {
             new RogueLike().Construct(c_WinWidth, c_WinHeight, c_PixelWidth, c_PixelHeight, FramerateMode.MaxFps);
+
         }
 
         public override void Create() {
             Engine.SetPalette(Palettes.Default);
             Engine.SetBackground(0);
-            Console.Title = "Ummm... Isn't this Snake?  SNAKE!...  SNNNAAAAAAKKKKEEEE!!!";
+            //Engine.Borderless();
+            //IntPtr ptr = GetConsoleWindow();
+            //MoveWindow(ptr, 0, 0, Console.WindowWidth, Console.WindowHeight, true);
+            Console.Title = "Dungeon of IT";
             TargetFramerate = 60;
 
-            CreateWalls();
+            DrawGameBoard();
             AddItems();
+            AddMobs();
             DrawSideBar();
             Restart();
         }
@@ -55,24 +68,41 @@ namespace RogueLike {
         ///     currently only draws the rectangle around the edge, but can be modified to add "doorways" by blanking out sections,
         ///     depending on coordinates from a "map"
         /// </summary>
-        void CreateWalls() {
-            Engine.Rectangle(new Point(0, 0), new Point(c_WinWidth - c_SideBar - 1, c_WinHeight - 1), 2, ConsoleCharacter.Light);
+        void DrawGameBoard() {
+            
+            Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 2, ConsoleCharacter.Light);
+            Engine.Line(new Point(c_MaxWinWidth - c_SideBar, 1), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight - 1), 2, ConsoleCharacter.Light);
+
+            //Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight), 2, ConsoleCharacter.Light);
+            //Engine.Rectangle(new Point(c_MaxWinWidth - c_SideBar + 1, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 3, ConsoleCharacter.Light);
+            
+            int i = 0;
+            //for (int y = 1; y <= 8; y++) {
+                for (int x = 1; x <= 48; x += 3) {
+                    Engine.WriteText(new Point(x, c_MaxWinHeight - 1), i.ToString("###"), i++);
+                }
+            //}
+            
         }
 
         void AddItems() {
             var pntItem = new Position(0,0);
             var itemAmount = RandomNum.Next(1, 99);
-            var newRoom = new Room();
+            var newRoom = new Room(c_MaxWinWidth -1, c_MaxWinHeight -1);
             RandomizePixelPoint(ref pntItem);
             Gold item = new Gold(itemAmount, pntItem);
-            newRoom.ItemsInRoom.Add(item);
+            newRoom.AddItem(item);
             Engine.WriteText(item.XY.ToPoint(), item.Character.ToString(), item.Color);
             CurrentLevel.Rooms.Add(newRoom);
             CurrentRoom = newRoom;
         }
 
+        void AddMobs() {
+            //TODO: add code to randomize mobs, based on level, and place in the room
+        }
+
         void DrawSideBar() {
-            Position GoldCounter = new Position(c_WinWidth - c_SideBar + 2, 0);
+            Position GoldCounter = new Position(c_WinWidth - c_SideBar + 1, 2);
             Engine.WriteText(GoldCounter.ToPoint(), "Gold: " + You.GoldAmt, 3);
         }
 
@@ -113,12 +143,14 @@ namespace RogueLike {
                         You.XY.X += moveX;
                     if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
                         You.XY.Y += moveY;
-                    foreach (Item i in CurrentRoom.ItemsInRoom) {
-                        if (You.XY == i.XY) {
-                            if (You.PickUpItem(i))
-                                //CurrentRoom.ItemsInRoom.RemoveAt(CurrentRoom.ItemsInRoom.IndexOf(i));
-                            UpdateSideBar();
-                        }
+                    if (CurrentRoom.Grid[You.XY.X, You.XY.Y] != null) {
+                        Object thing = CurrentRoom.Grid[You.XY.X, You.XY.Y];
+                        bool attacked;
+                        if (You.Interact(thing, out attacked))
+                            if (!attacked) {
+                                CurrentRoom.PickUpItem(thing as Item);
+                            }
+                        UpdateSideBar();
                     }
                 } else {
                     GameState = false;
@@ -129,8 +161,7 @@ namespace RogueLike {
         }
 
         public override void Render() {
-            Engine.WriteText(You.XY.ToPoint(), You.Character.ToString(), You.RGBColor.GetHashCode());
-            //Engine.SetPixel(You.XY.ToPoint(), You.RGBColor.GetHashCode(), ConsoleCharacter.Full);
+            Engine.WriteText(You.XY.ToPoint(), You.Character.ToString(), 2);
             Engine.DisplayBuffer();
             Engine.SetPixel(PlayerLastPosition.ToPoint(), BlankSpotColor, ConsoleCharacter.Full);
             PlayerLastPosition = You.XY;

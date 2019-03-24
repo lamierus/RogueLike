@@ -4,17 +4,15 @@ using System.Text;
 using ConsoleGameEngine;
 
 namespace RogueLike {
-    public class Mob {
+    public class Mob: Object {
         public string Name { get; set; }
-        public int ID { get; set; }
-        public char Character { get; set; }
-        public Color RGBColor { get; set; }
         public int Atk { get; set; }
         public int HP { get; set; }
         public int MP { get; set; }
         public bool MagicUser { get; set; }
-        public bool Alive { get; set; }
+        public bool isAlive { get; set; }
 
-        public Position XY;
+        public Mob() {
+        }
     }
 }

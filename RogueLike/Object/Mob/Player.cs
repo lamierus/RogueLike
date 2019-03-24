@@ -13,19 +13,19 @@ namespace RogueLike {
             ID = 0;
             Name = "Player";
             Character = '@';
-            RGBColor = new Color(255, 0, 255);
+            Color = 2;
             Atk = 1;
             HP = 10;
             MP = 5;
             MagicUser = true;
-            Alive = true;
+            isAlive = true;
         }
 
         public Backpack GetInventory() {
             return Inventory;
         }
 
-        public bool PickUpItem (Item pickedUp) {
+        private bool PickUpItem (Item pickedUp) {
             if (pickedUp is Gold) {
                 GoldAmt += (pickedUp as Gold).Amount;
                 return true;
@@ -35,6 +35,15 @@ namespace RogueLike {
 
         public Item DropItem(int slot) {
             return Inventory.RemoveItem(slot);
+        }
+        
+        public bool Interact(Object obj, out bool attacked) {
+            if (obj is Item) {
+                attacked = false;
+                return PickUpItem(obj as Item);
+            }
+            attacked = true;
+            return false;
         }
     }
 }
