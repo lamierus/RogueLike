@@ -33,6 +33,8 @@ namespace RogueLike {
         const int c_MaxWinWidth = c_WinWidth - 1;
         const int c_MaxWinHeight = c_WinHeight - 1;
         const int BlankSpotColor = 0;
+        const int LevelWallColor = 2;
+        const int InventoryTextColor = 3;
         const ConsoleKey keyClose = ConsoleKey.Escape;
 
         public Player You = new Player();
@@ -55,9 +57,9 @@ namespace RogueLike {
             //IntPtr ptr = GetConsoleWindow();
             //MoveWindow(ptr, 0, 0, Console.WindowWidth, Console.WindowHeight, true);
             Console.Title = "Dungeon of IT";
-            TargetFramerate = 60;
+            TargetFramerate = 30;
 
-            DrawGameBoard();
+            DrawLevel();
             AddItems();
             AddMobs();
             DrawSideBar();
@@ -68,17 +70,16 @@ namespace RogueLike {
         ///     currently only draws the rectangle around the edge, but can be modified to add "doorways" by blanking out sections,
         ///     depending on coordinates from a "map"
         /// </summary>
-        void DrawGameBoard() {
+        void DrawLevel() {
             
-            Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 2, ConsoleCharacter.Light);
-            Engine.Line(new Point(c_MaxWinWidth - c_SideBar, 1), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight - 1), 2, ConsoleCharacter.Light);
+            //Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 2, ConsoleCharacter.Light);
+            //Engine.Line(new Point(c_MaxWinWidth - c_SideBar, 1), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight - 1), 2, ConsoleCharacter.Light);
 
-            //Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight), 2, ConsoleCharacter.Light);
-            //Engine.Rectangle(new Point(c_MaxWinWidth - c_SideBar + 1, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 3, ConsoleCharacter.Light);
+            Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight), LevelWallColor, ConsoleCharacter.Light);
             
             int i = 0;
             //for (int y = 1; y <= 8; y++) {
-                for (int x = 1; x <= 48; x += 3) {
+                for (int x = 1; x <= 51/*96*/; x += 3) {
                     Engine.WriteText(new Point(x, c_MaxWinHeight - 1), i.ToString("###"), i++);
                 }
             //}
@@ -86,11 +87,11 @@ namespace RogueLike {
         }
 
         void AddItems() {
-            var pntItem = new Position(0,0);
+            var itemPos = new Position(0,0);
             var itemAmount = RandomNum.Next(1, 99);
             var newRoom = new Room(c_MaxWinWidth -1, c_MaxWinHeight -1);
-            RandomizePixelPoint(ref pntItem);
-            Gold item = new Gold(itemAmount, pntItem);
+            RandomizePixelPoint(ref itemPos);
+            Gold item = new Gold(itemAmount, itemPos);
             newRoom.AddItem(item);
             Engine.WriteText(item.XY.ToPoint(), item.Character.ToString(), item.Color);
             CurrentLevel.Rooms.Add(newRoom);
@@ -102,8 +103,17 @@ namespace RogueLike {
         }
 
         void DrawSideBar() {
-            Position GoldCounter = new Position(c_WinWidth - c_SideBar + 1, 2);
-            Engine.WriteText(GoldCounter.ToPoint(), "Gold: " + You.GoldAmt, 3);
+            Engine.Rectangle(new Point(c_MaxWinWidth - c_SideBar + 1, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 3, ConsoleCharacter.Light);
+            Position TextXY = new Position(c_WinWidth - c_SideBar + 2, 2);
+            Engine.WriteText(TextXY.ToPoint(), "Name: " + You.Name, InventoryTextColor);
+            TextXY.Y++;
+            Engine.WriteText(TextXY.ToPoint(), "HP:   " + You.HP.ToString(), InventoryTextColor);
+            TextXY.Y++;
+            Engine.WriteText(TextXY.ToPoint(), "MP:   " + You.MP.ToString(), InventoryTextColor);
+            TextXY.Y++;
+            Engine.WriteText(TextXY.ToPoint(), "Atk:  " + You.Atk.ToString(), InventoryTextColor);
+            TextXY.Y++;
+            Engine.WriteText(TextXY.ToPoint(), "Gold: " + You.GoldAmt.ToString(), InventoryTextColor);
         }
 
 
@@ -111,52 +121,48 @@ namespace RogueLike {
         ///     
         /// </summary>
         void UpdateSideBar() {
-            DrawSideBar();
+            Position TextXY = new Position(c_WinWidth - c_SideBar + 8, 3);
+            Engine.WriteText(TextXY.ToPoint(), You.HP.ToString(), InventoryTextColor);
+            TextXY.Y++;
+            Engine.WriteText(TextXY.ToPoint(), You.MP.ToString(), InventoryTextColor);
+            TextXY.Y++;
+            Engine.WriteText(TextXY.ToPoint(), You.Atk.ToString(), InventoryTextColor);
+            TextXY.Y++;
+            Engine.WriteText(TextXY.ToPoint(), You.GoldAmt.ToString(), InventoryTextColor);
+
+
         }
 
         public override void Update() {
             if (GameState) {
-                if (!(Engine.GetKey(keyClose))) {
+                int moveX = 0, moveY = 0;
 
-                    ConsoleKeyInfo keyPress;
-                    int moveX = 0, moveY = 0;
-                    if (Console.KeyAvailable) {
-                        keyPress = Console.ReadKey();
-                        moveX = 0;
-                        moveY = 0;
-                        switch (char.ToUpper(keyPress.KeyChar)) {
-                            case 'W':
-                                moveY = -1;
-                                break;
-                            case 'A':
-                                moveX = -1;
-                                break;
-                            case 'S':
-                                moveY = 1;
-                                break;
-                            case 'D':
-                                moveX = 1;
-                                break;
-                        }
-                    }
-                    if ((You.XY.X + moveX < c_WinWidth - c_SideBar - 1) && (You.XY.X + moveX > 0))
-                        You.XY.X += moveX;
-                    if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
-                        You.XY.Y += moveY;
-                    if (CurrentRoom.Grid[You.XY.X, You.XY.Y] != null) {
-                        Object thing = CurrentRoom.Grid[You.XY.X, You.XY.Y];
-                        bool attacked;
-                        if (You.Interact(thing, out attacked))
-                            if (!attacked) {
-                                CurrentRoom.PickUpItem(thing as Item);
-                            }
-                        UpdateSideBar();
-                    }
-                } else {
+                if (Engine.GetKey(ConsoleKey.UpArrow) || Engine.GetKey(ConsoleKey.W)) {
+                    moveY = -1;
+                } else if (Engine.GetKey(ConsoleKey.LeftArrow) || Engine.GetKey(ConsoleKey.A)) {
+                    moveX = -1;
+                } else if (Engine.GetKey(ConsoleKey.DownArrow) || Engine.GetKey(ConsoleKey.S)) {
+                    moveY = 1;
+                } else if (Engine.GetKey(ConsoleKey.RightArrow) || Engine.GetKey(ConsoleKey.D)) {
+                    moveX = 1;
+                } else if (Engine.GetKey(keyClose)){
                     GameState = false;
                 }
+                if ((You.XY.X + moveX < c_WinWidth - c_SideBar - 1) && (You.XY.X + moveX > 0))
+                    You.XY.X += moveX;
+                if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
+                    You.XY.Y += moveY;
+                if (CurrentRoom.Grid[You.XY.X, You.XY.Y] != null) {
+                    Object thing = CurrentRoom.Grid[You.XY.X, You.XY.Y];
+                    bool attacked;
+                    if (You.Interact(thing, out attacked))
+                        if (!attacked) {
+                            CurrentRoom.PickUpItem(thing as Item);
+                        }
+                    UpdateSideBar();
+                }
             } else {
-                Restart();
+                Environment.Exit(0); 
             }
         }
 
