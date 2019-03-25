@@ -39,8 +39,7 @@ namespace RogueLike {
 
         public Player You = new Player();
         public Position PlayerLastPosition;
-        public Map CurrentLevel = new Map();
-        public Room CurrentRoom;
+        public Level CurrentLevel;
         
         private bool GameState = true;
         private Random RandomNum = new Random();
@@ -59,7 +58,8 @@ namespace RogueLike {
             Console.Title = "Dungeon of IT";
             TargetFramerate = 10;
 
-            DrawLevel();
+            DrawFrame();
+            AddRooms();
             AddItems();
             AddMobs();
             DrawSideBar();
@@ -70,7 +70,7 @@ namespace RogueLike {
         ///     currently only draws the rectangle around the edge, but can be modified to add "doorways" by blanking out sections,
         ///     depending on coordinates from a "map"
         /// </summary>
-        void DrawLevel() {
+        void DrawFrame() {
             
             //Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 2, ConsoleCharacter.Light);
             //Engine.Line(new Point(c_MaxWinWidth - c_SideBar, 1), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight - 1), 2, ConsoleCharacter.Light);
@@ -86,16 +86,19 @@ namespace RogueLike {
             
         }
 
+        void AddRooms() {
+            var newRoom = new Level(c_MaxWinWidth, c_MaxWinHeight);
+            CurrentLevel = newRoom;
+        }
+
         void AddItems() {
             var itemPos = new Position(0,0);
             var itemAmount = RandomNum.Next(1, 99);
-            var newRoom = new Room(c_MaxWinWidth, c_MaxWinHeight);
             RandomizePixelPoint(ref itemPos);
             Gold item = new Gold(itemAmount, itemPos);
-            newRoom.AddItem(item);
+            CurrentLevel.AddItem(item);
             Engine.WriteText(item.XY.ToPoint(), item.Character.ToString(), item.Color);
-            CurrentLevel.Rooms.Add(newRoom);
-            CurrentRoom = newRoom;
+            
         }
 
         void AddMobs() {
@@ -107,13 +110,14 @@ namespace RogueLike {
             Position TextXY = new Position(c_WinWidth - c_SideBar + 2, 2);
             Engine.WriteText(TextXY.ToPoint(), "Name: " + You.Name, InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText(TextXY.ToPoint(), "HP:   " + You.HP.ToString(), InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), "HP:   ", InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText(TextXY.ToPoint(), "MP:   " + You.MP.ToString(), InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), "MP:   ", InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText(TextXY.ToPoint(), "Atk:  " + You.Atk.ToString(), InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), "Atk:  ", InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText(TextXY.ToPoint(), "Gold: " + You.GoldAmt.ToString(), InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), "Gold: ", InventoryTextColor);
+            UpdateSideBar();
         }
 
 
@@ -158,13 +162,13 @@ namespace RogueLike {
                         NextMove.X += moveX;
                     if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
                         NextMove.Y += moveY;
-                    if (CurrentRoom.Grid[NextMove.X, NextMove.Y] != null) {
-                        Object thing = CurrentRoom.Grid[NextMove.X, NextMove.Y];
+                    if (CurrentLevel.Grid[NextMove.X, NextMove.Y] != null) {
+                        Object thing = CurrentLevel.Grid[NextMove.X, NextMove.Y];
                         bool attacked;
                         string message;
                         if (You.Interact(thing, out attacked, out message))
                             if (!attacked) {
-                                CurrentRoom.PickUpItem(thing as Item);
+                                CurrentLevel.PickUpItem(thing as Item);
                                 //TODO: update the message somewhere on the screen
                                 MovePlayer(NextMove);
                             }//TODO: add code for attacking a monster
