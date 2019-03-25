@@ -57,7 +57,7 @@ namespace RogueLike {
             //IntPtr ptr = GetConsoleWindow();
             //MoveWindow(ptr, 0, 0, Console.WindowWidth, Console.WindowHeight, true);
             Console.Title = "Dungeon of IT";
-            TargetFramerate = 30;
+            TargetFramerate = 10;
 
             DrawLevel();
             AddItems();
@@ -89,7 +89,7 @@ namespace RogueLike {
         void AddItems() {
             var itemPos = new Position(0,0);
             var itemAmount = RandomNum.Next(1, 99);
-            var newRoom = new Room(c_MaxWinWidth -1, c_MaxWinHeight -1);
+            var newRoom = new Room(c_MaxWinWidth, c_MaxWinHeight);
             RandomizePixelPoint(ref itemPos);
             Gold item = new Gold(itemAmount, itemPos);
             newRoom.AddItem(item);
@@ -136,46 +136,67 @@ namespace RogueLike {
         public override void Update() {
             if (GameState) {
                 int moveX = 0, moveY = 0;
-
+                bool moved = false;
                 if (Engine.GetKey(ConsoleKey.UpArrow) || Engine.GetKey(ConsoleKey.W)) {
                     moveY = -1;
+                    moved = true;
                 } else if (Engine.GetKey(ConsoleKey.LeftArrow) || Engine.GetKey(ConsoleKey.A)) {
                     moveX = -1;
+                    moved = true;
                 } else if (Engine.GetKey(ConsoleKey.DownArrow) || Engine.GetKey(ConsoleKey.S)) {
                     moveY = 1;
+                    moved = true;
                 } else if (Engine.GetKey(ConsoleKey.RightArrow) || Engine.GetKey(ConsoleKey.D)) {
                     moveX = 1;
+                    moved = true;
                 } else if (Engine.GetKey(keyClose)){
                     GameState = false;
                 }
-
-                Position NextMove = You.XY;
-                if ((You.XY.X + moveX < c_WinWidth - c_SideBar - 1) && (You.XY.X + moveX > 0))
-                    NextMove.X += moveX;
-                if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
-                    NextMove.Y += moveY;
-                if (CurrentRoom.Grid[NextMove.X, NextMove.Y] != null) {
-                    Object thing = CurrentRoom.Grid[NextMove.X, NextMove.Y];
-                    bool attacked;
-                    string message;
-                    if (You.Interact(thing, out attacked, out message))
-                        if (!attacked) {
-                            CurrentRoom.PickUpItem(thing as Item);
-                            //TODO: update the message somewhere on the screen
-                            You.XY = NextMove;
-                        }//TODO: add code for attacking a monster
-                    UpdateSideBar();
+                if (moved) {
+                    Position NextMove = You.XY;
+                    if ((You.XY.X + moveX < c_WinWidth - c_SideBar - 1) && (You.XY.X + moveX > 0))
+                        NextMove.X += moveX;
+                    if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
+                        NextMove.Y += moveY;
+                    if (CurrentRoom.Grid[NextMove.X, NextMove.Y] != null) {
+                        Object thing = CurrentRoom.Grid[NextMove.X, NextMove.Y];
+                        bool attacked;
+                        string message;
+                        if (You.Interact(thing, out attacked, out message))
+                            if (!attacked) {
+                                CurrentRoom.PickUpItem(thing as Item);
+                                //TODO: update the message somewhere on the screen
+                                MovePlayer(NextMove);
+                            }//TODO: add code for attacking a monster
+                    } else {
+                        MovePlayer(NextMove);
+                    }
+                    //MoveMonsters();
                 }
             } else {
                 Environment.Exit(0); 
             }
         }
 
+        public void MovePlayer(Position XY) {
+            PlayerLastPosition = You.XY;
+            You.XY = XY;
+        }
+
+        public void MoveMonsters() {
+            //TODO: add code to move all monsters on the level, not just ones visible to the player.
+        }
+
+        /// <summary>
+        ///     Implement the abstract Render() module to update the game screen
+        /// </summary>
         public override void Render() {
             Engine.WriteText(You.XY.ToPoint(), You.Character.ToString(), 2);
-            Engine.DisplayBuffer();
+            if (PlayerLastPosition != You.XY) {
             Engine.SetPixel(PlayerLastPosition.ToPoint(), BlankSpotColor, ConsoleCharacter.Full);
-            PlayerLastPosition = You.XY;
+            }
+            UpdateSideBar();
+            Engine.DisplayBuffer();
         }
 
         void Restart() {

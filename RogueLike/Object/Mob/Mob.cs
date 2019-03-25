@@ -10,6 +10,7 @@ namespace RogueLike {
         public int MP { get; set; }
         public bool MagicUser { get; set; }
         public bool isAlive { get; set; }
+        public bool isAsleep { get; set; }
 
         public Mob() {
         }
