@@ -148,17 +148,22 @@ namespace RogueLike {
                 } else if (Engine.GetKey(keyClose)){
                     GameState = false;
                 }
+
+                Position NextMove = You.XY;
                 if ((You.XY.X + moveX < c_WinWidth - c_SideBar - 1) && (You.XY.X + moveX > 0))
-                    You.XY.X += moveX;
+                    NextMove.X += moveX;
                 if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
-                    You.XY.Y += moveY;
-                if (CurrentRoom.Grid[You.XY.X, You.XY.Y] != null) {
-                    Object thing = CurrentRoom.Grid[You.XY.X, You.XY.Y];
+                    NextMove.Y += moveY;
+                if (CurrentRoom.Grid[NextMove.X, NextMove.Y] != null) {
+                    Object thing = CurrentRoom.Grid[NextMove.X, NextMove.Y];
                     bool attacked;
-                    if (You.Interact(thing, out attacked))
+                    string message;
+                    if (You.Interact(thing, out attacked, out message))
                         if (!attacked) {
                             CurrentRoom.PickUpItem(thing as Item);
-                        }
+                            //TODO: update the message somewhere on the screen
+                            You.XY = NextMove;
+                        }//TODO: add code for attacking a monster
                     UpdateSideBar();
                 }
             } else {

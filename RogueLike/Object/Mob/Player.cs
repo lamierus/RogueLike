@@ -25,24 +25,27 @@ namespace RogueLike {
             return Inventory;
         }
 
-        private bool PickUpItem (Item pickedUp) {
+        private bool PickUpItem (Item pickedUp, out string message) {
             if (pickedUp is Gold) {
                 GoldAmt += (pickedUp as Gold).Amount;
+                message = "Picked up " + (pickedUp as Gold).Amount.ToString() + " pieces of gold!";
                 return true;
             }
-            return Inventory.AddItem(pickedUp);
+            
+            return Inventory.AddItem(pickedUp, out message);
         }
 
         public Item DropItem(int slot) {
             return Inventory.RemoveItem(slot);
         }
         
-        public bool Interact(Object obj, out bool attacked) {
+        public bool Interact(Object obj, out bool attacked, out string message) {
             if (obj is Item) {
                 attacked = false;
-                return PickUpItem(obj as Item);
+                return PickUpItem(obj as Item, out message);
             }
             attacked = true;
+            message = "Attacked a " + (obj as Mob).Name + "!";
             return false;
         }
     }

@@ -32,16 +32,16 @@ namespace RogueLike {
             return itemIDs;            
         }
 
-        public bool AddItem(Item itemToAdd) {
-            bool added = false;
+        public bool AddItem(Item itemToAdd, out string message) {
             for (int i = 0; i < Items.Length; i++) {
                 if (Items.GetValue(i) == null) {
                     Items[i] = itemToAdd;
-                    added = true;
-                    break;
+                    message = "Picked up " + itemToAdd.ID.ToString() + "!";
+                    return true;
                 }
             }
-            return added;
+            message = "Couldn't pick up the item.";
+            return false;
         }
 
         public Item RemoveItem (int slot) {
