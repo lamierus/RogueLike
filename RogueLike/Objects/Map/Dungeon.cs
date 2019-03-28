@@ -10,7 +10,6 @@ namespace RogueLike {
         private Dungeon RightBranch;
         private int Width, Height;
         private Position TopLeft;
-        public bool Split;
         public int MaxBranches;
 
         public Dungeon(int width, int height, int top, int left) {
@@ -19,7 +18,14 @@ namespace RogueLike {
             TopLeft = new Position(top, left);
         }
 
-        private void GenerateBranches() {
+        public bool Split() {
+            if (LeftBranch == null) {
+                return false;
+            }
+            return true;
+        }
+
+        public void GenerateBranches() {
             int VorH;
             int max;
             for (int i = 0; i < MaxBranches; i++) {
