@@ -1,8 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ConsoleGameEngine;
 
 namespace RogueLike {
+    public class Rectangle{
+        public Point TopLeft { get; set; }
+        public Point BottomRight { get; set; }
+        public int WallColor{ 
+            get {return 2;}
+            }
+        public ConsoleCharacter Wall{
+            get {return ConsoleCharacter.Medium;}
+        }
+    }
     public class Dungeon {
         private const int c_MinSize = 10;
         private Random Rand = new Random();
@@ -10,6 +21,7 @@ namespace RogueLike {
         private Dungeon RightBranch;
         private int Width, Height;
         private Position TopLeft;
+        private List<Rectangle> Rooms = new List<Rectangle>();
         public int MaxBranches;
 
         public Dungeon(int width, int height, int top, int left) {
@@ -36,6 +48,10 @@ namespace RogueLike {
                     
                 }
             }
+        }
+
+        public List<Rectangle> GetDungeonLevel (ref ConsoleEngine engine){
+            return Rooms;
         }
     }
 }
