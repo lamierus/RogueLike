@@ -9,7 +9,7 @@ namespace RogueLike {
         public Point BottomRight { get; set; }
         public int WallColor{ 
             get {return 2;}
-            }
+        }
         public ConsoleCharacter Wall{
             get {return ConsoleCharacter.Medium;}
         }

@@ -59,7 +59,7 @@ namespace RogueLike {
             TargetFramerate = 10;
 
             DrawFrame();
-            AddRooms();
+            BuildLevel();
             AddItems();
             AddMobs();
             DrawSideBar();
@@ -80,13 +80,13 @@ namespace RogueLike {
             int i = 0;
             //for (int y = 1; y <= 8; y++) {
                 for (int x = 1; x <= 51/*96*/; x += 3) {
-                    Engine.WriteText(new Point(x, c_MaxWinHeight - 1), i.ToString("###"), i++);
+                    Engine.WriteText(new Point(x, c_MaxWinHeight - 1), i.ToString(" ##"), i++);
                 }
             //}
             
         }
 
-        void AddRooms() {
+        void BuildLevel() {
             var newRoom = new Level(c_MaxWinWidth, c_MaxWinHeight);
             CurrentLevel = newRoom;
         }
