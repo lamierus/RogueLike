@@ -71,10 +71,6 @@ namespace RogueLike {
         ///     depending on coordinates from a "map"
         /// </summary>
         void DrawFrame() {
-            
-            //Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 2, ConsoleCharacter.Light);
-            //Engine.Line(new Point(c_MaxWinWidth - c_SideBar, 1), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight - 1), 2, ConsoleCharacter.Light);
-
             Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight), LevelWallColor, ConsoleCharacter.Light);
             
             int i = 0;
@@ -102,7 +98,7 @@ namespace RogueLike {
         }
 
         void AddMobs() {
-            //TODO: add code to randomize mobs, based on level, and place in the room
+            //TODO: add code to randomize mobs, based on level #, and place them in the room
         }
 
         void DrawSideBar() {
