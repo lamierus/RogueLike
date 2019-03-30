@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace RogueLike {
-    public class Level {
+    public class LevelGrid {
         public Object[,] Grid;
 
-        public Level(int width, int height) {
+        public LevelGrid(int width, int height) {
             Grid = new Object[width, height];
         }
 

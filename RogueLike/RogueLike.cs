@@ -39,7 +39,7 @@ namespace RogueLike {
 
         public Player You = new Player();
         public Position PlayerLastPosition;
-        public Level CurrentLevel;
+        public LevelGrid CurrentLevel;
         
         private bool GameState = true;
         private Random RandomNum = new Random();
@@ -83,8 +83,30 @@ namespace RogueLike {
         }
 
         void BuildLevel() {
-            var newRoom = new Level(c_MaxWinWidth, c_MaxWinHeight);
-            CurrentLevel = newRoom;
+            int LevelWidth = c_MaxWinWidth - c_SideBar - 2;
+            int levelHeight = c_MaxWinHeight - 2;
+            CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
+            List<Rectangle> rooms = new List<Rectangle>();
+            List<Dungeon> dungeonParts = new List<Dungeon>();
+            Dungeon dungeon = new Dungeon(LevelWidth, levelHeight, 1, 1);
+            dungeonParts.Add(dungeon);
+            while (dungeonParts.Count < 20) {
+                int splitIndex = RandomNum.Next(dungeonParts.Count);
+                Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
+                if (toSplit.Split()) {
+                    dungeonParts.Add(toSplit.LeftBranch);
+                    dungeonParts.Add(toSplit.RightBranch);
+                }
+                toSplit.GenerateRoom();
+                rooms.Add(toSplit.Room);
+            }
+            DrawLevel(rooms);
+        }
+
+        void DrawLevel(List<Rectangle> Rooms) {
+            foreach (Rectangle R in Rooms) {
+                Engine.Rectangle(R.TopLeft, R.BottomRight, R.WallColor, R.Wall);
+            }
         }
 
         void AddItems() {

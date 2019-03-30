@@ -23,8 +23,8 @@ namespace RogueLike {
     public class Dungeon {
         private const int c_MinSize = 10;
         private Random Rand = new Random();
-        private Dungeon LeftBranch;
-        private Dungeon RightBranch;
+        public Dungeon LeftBranch { get; private set; }
+        public Dungeon RightBranch { get; private set; }
         private int Width, Height;
         private Position TopLeft;
         public Rectangle Room { get; private set; }
@@ -36,7 +36,7 @@ namespace RogueLike {
         }
 
         public bool Split() {
-            if (LeftBranch == null) {
+            if (LeftBranch != null) {
                 return false;
             }
             double VorH = Rand.NextDouble();
