@@ -98,7 +98,9 @@ namespace RogueLike {
                     dungeonParts.Add(toSplit.RightBranch);
                 }
                 toSplit.GenerateRoom();
-                rooms.Add(toSplit.Room);
+                if (toSplit.Room != null) {
+                    rooms.Add(toSplit.Room);
+                }
             }
             DrawLevel(rooms);
         }
@@ -180,7 +182,7 @@ namespace RogueLike {
                         NextMove.X += moveX;
                     if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
                         NextMove.Y += moveY;
-                    if (CurrentLevel.Grid[NextMove.X, NextMove.Y] != null) {
+                    if (CurrentLevel.Grid[NextMove.X - 2, NextMove.Y - 2] != null) {
                         Object thing = CurrentLevel.Grid[NextMove.X, NextMove.Y];
                         bool attacked;
                         string message;

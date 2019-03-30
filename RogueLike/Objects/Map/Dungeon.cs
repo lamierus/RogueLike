@@ -7,6 +7,10 @@ namespace RogueLike {
     public class Rectangle{
         public Point TopLeft { get; private set; }
         public Point BottomRight { get; private set; }
+        public int Top { get; private set; }
+        public int Left { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
         public int WallColor{ 
             get {return 2;}
         }
@@ -17,6 +21,10 @@ namespace RogueLike {
         public Rectangle(int width, int height, int top, int left) {
             TopLeft = new Point(top, left);
             BottomRight = new Point(top + height, left + width);
+            Top = top;
+            Left = left;
+            Width = width;
+            Height = height;
         }
     }
 
@@ -25,14 +33,16 @@ namespace RogueLike {
         private Random Rand = new Random();
         public Dungeon LeftBranch { get; private set; }
         public Dungeon RightBranch { get; private set; }
-        private int Width, Height;
-        private Position TopLeft;
+        private int Width, Height, Top, Left;
+        //private Position TopLeft;
         public Rectangle Room { get; private set; }
 
         public Dungeon(int width, int height, int top, int left) {
             Width = width;
             Height = height;
-            TopLeft = new Position(top, left);
+            Top = top;
+            Left = left;
+            //TopLeft = new Position(top, left);
         }
 
         public bool Split() {
@@ -41,7 +51,7 @@ namespace RogueLike {
             }
             double VorH = Rand.NextDouble();
             bool vertical = (VorH > .5) ? true : false;
-            int max = ((vertical) ? Height : Width) - c_MinSize; //find the maximum height/width
+            int max = ((vertical) ? Width : Height) - c_MinSize; //find the maximum height/width
             if (max <= c_MinSize) {
                 return false;
             }
@@ -49,11 +59,11 @@ namespace RogueLike {
             if (splitPoint < c_MinSize)  // adjust split point so there's at least c_MinSize in both partitions
                 splitPoint = c_MinSize;
             if (vertical) {
-                LeftBranch = new Dungeon(Width - splitPoint, Height, TopLeft.X, TopLeft.Y);
-                RightBranch = new Dungeon(Width - splitPoint, Height, TopLeft.X + splitPoint, TopLeft.Y);
+                LeftBranch = new Dungeon(Width - splitPoint, Height, Top, Left);
+                RightBranch = new Dungeon(Width - splitPoint, Height, Top, Left + splitPoint);
             } else {
-                LeftBranch = new Dungeon(Width, Height - splitPoint, TopLeft.X, TopLeft.Y);
-                RightBranch = new Dungeon(Width, Height - splitPoint, TopLeft.X + splitPoint, TopLeft.Y);
+                LeftBranch = new Dungeon(Width, Height - splitPoint, Top, Left);
+                RightBranch = new Dungeon(Width, Height - splitPoint, Top + splitPoint, Left);
             }
             return true;
         }
@@ -67,7 +77,7 @@ namespace RogueLike {
                 int roomLeft = (Width - c_MinSize <= 0) ? 0 : Rand.Next(Width - c_MinSize);
                 int roomWidth = Math.Max(Rand.Next(Width - roomLeft), c_MinSize);
                 int roomHeight = Math.Max(Rand.Next(Height - roomTop), c_MinSize);
-                Room = new Rectangle(roomWidth, roomHeight, roomTop, roomLeft);
+                Room = new Rectangle(roomWidth, roomHeight, Top + roomTop, Left + roomLeft);
             }
             //TODO: add connections between the branches
         }
