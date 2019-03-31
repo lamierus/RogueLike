@@ -26,12 +26,12 @@ namespace RogueLike {
         internal static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
         */
         const int c_SideBar = 40;
-        const int c_WinWidth = 170;
-        const int c_WinHeight = 50;
         const int c_PixelWidth = 8;
         const int c_PixelHeight = 14;
-        const int c_MaxWinWidth = c_WinWidth - 1;
-        const int c_MaxWinHeight = c_WinHeight - 1;
+        const int c_MaxWinWidth = 170;
+        const int c_MaxWinHeight = 50;
+        const int c_WinWidth = c_MaxWinWidth - 1; //170;
+        const int c_WinHeight = c_MaxWinHeight - 1; //50;
         const int BlankSpotColor = 0;
         const int LevelWallColor = 2;
         const int InventoryTextColor = 3;
@@ -45,7 +45,7 @@ namespace RogueLike {
         private Random RandomNum = new Random();
 
         static void Main(string[] args) {
-            new RogueLike().Construct(c_WinWidth, c_WinHeight, c_PixelWidth, c_PixelHeight, FramerateMode.MaxFps);
+            new RogueLike().Construct(c_MaxWinWidth, c_MaxWinHeight, c_PixelWidth, c_PixelHeight, FramerateMode.MaxFps);
 
         }
 
@@ -76,15 +76,15 @@ namespace RogueLike {
             int i = 0;
             //for (int y = 1; y <= 8; y++) {
                 for (int x = 1; x <= 51/*96*/; x += 3) {
-                    Engine.WriteText(new Point(x, c_MaxWinHeight - 1), i.ToString(" ##"), i++);
+                    Engine.WriteText(new Point(x, c_WinHeight), i.ToString(" ##"), i++);
                 }
             //}
             
         }
 
         void BuildLevel() {
-            int LevelWidth = c_MaxWinWidth - c_SideBar - 2;
-            int levelHeight = c_MaxWinHeight - 2;
+            int LevelWidth = c_WinWidth - c_SideBar - 1;
+            int levelHeight = c_WinHeight - 1;
             CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
             List<Rectangle> rooms = new List<Rectangle>();
             List<Dungeon> dungeonParts = new List<Dungeon>();
@@ -96,8 +96,8 @@ namespace RogueLike {
                 if (toSplit.Split()) {
                     dungeonParts.Add(toSplit.LeftBranch);
                     dungeonParts.Add(toSplit.RightBranch);
+                    toSplit.GenerateRoom();
                 }
-                toSplit.GenerateRoom();
                 if (toSplit.Room != null) {
                     rooms.Add(toSplit.Room);
                 }

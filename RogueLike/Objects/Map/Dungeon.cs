@@ -59,10 +59,10 @@ namespace RogueLike {
             if (splitPoint < c_MinSize)  // adjust split point so there's at least c_MinSize in both partitions
                 splitPoint = c_MinSize;
             if (vertical) {
-                LeftBranch = new Dungeon(Width - splitPoint, Height, Top, Left);
+                LeftBranch = new Dungeon(splitPoint, Height, Top, Left);
                 RightBranch = new Dungeon(Width - splitPoint, Height, Top, Left + splitPoint);
             } else {
-                LeftBranch = new Dungeon(Width, Height - splitPoint, Top, Left);
+                LeftBranch = new Dungeon(Width, splitPoint, Top, Left);
                 RightBranch = new Dungeon(Width, Height - splitPoint, Top + splitPoint, Left);
             }
             return true;
@@ -73,10 +73,10 @@ namespace RogueLike {
                 LeftBranch.GenerateRoom();
                 RightBranch.GenerateRoom();
             } else {
-                int roomTop = (Height - c_MinSize <= 0) ? 0 : Rand.Next(Height - c_MinSize);
-                int roomLeft = (Width - c_MinSize <= 0) ? 0 : Rand.Next(Width - c_MinSize);
-                int roomWidth = Math.Max(Rand.Next(Width - roomLeft), c_MinSize);
-                int roomHeight = Math.Max(Rand.Next(Height - roomTop), c_MinSize);
+                int roomTop = (Width - c_MinSize <= 0) ? 0 : Rand.Next(Width - c_MinSize);
+                int roomLeft = (Height - c_MinSize <= 0) ? 0 : Rand.Next(Height - c_MinSize);
+                int roomWidth = Math.Max(Rand.Next(Width - roomTop), c_MinSize);
+                int roomHeight = Math.Max(Rand.Next(Height - roomLeft), c_MinSize);
                 Room = new Rectangle(roomWidth, roomHeight, Top + roomTop, Left + roomLeft);
             }
             //TODO: add connections between the branches
