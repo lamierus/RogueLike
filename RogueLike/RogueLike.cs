@@ -90,18 +90,35 @@ namespace RogueLike {
             List<Dungeon> dungeonParts = new List<Dungeon>();
             Dungeon dungeon = new Dungeon(LevelWidth, levelHeight, 1, 1);
             dungeonParts.Add(dungeon);
+
+            bool didSplit = true;
+
+            while (didSplit) {
+                didSplit = false;
+                for (int i = 0; i < dungeonParts.Count; i++) {
+                    if (dungeonParts[i].LeftBranch == null && dungeonParts[i].RightBranch == null) //if this leaf is not already split
+                    {
+                        if (dungeonParts[i].Split()) {
+                            //If we did split, add child branches
+                            dungeonParts.Add(dungeonParts[i].LeftBranch);
+                            dungeonParts.Add(dungeonParts[i].RightBranch);
+                            didSplit = true;
+                        }
+                    }
+                }
+            }
+
+            /*
             int splitIndex = 0;
             while (dungeonParts.Count < 9) {
                 Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
                 if (toSplit.Split()) {
                     dungeonParts.Add(toSplit.LeftBranch);
                     dungeonParts.Add(toSplit.RightBranch);
-                } /*else {
-                    toSplit.GenerateRoom();
-                    rooms.Add(toSplit.Room);
-                }*/
+                }
                 splitIndex++;
             }
+            */
             dungeon.GenerateRooms(ref rooms);
             DrawLevel(rooms);
         }
