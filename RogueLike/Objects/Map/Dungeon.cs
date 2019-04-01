@@ -29,11 +29,11 @@ namespace RogueLike {
     }
 
     public class Dungeon {
-        private const int c_MinSize = 10;
+        private const int c_MinSize = 15;
         private Random Rand = new Random();
+        private int Width, Height, X, Y;
         public Dungeon LeftBranch { get; private set; }
         public Dungeon RightBranch { get; private set; }
-        private int Width, Height, X, Y;
         public Rectangle Room { get; private set; }
 
         public Dungeon(int width, int height, int x, int y) {

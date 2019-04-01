@@ -92,18 +92,24 @@ namespace RogueLike {
             dungeonParts.Add(dungeon);
 
             bool didSplit = true;
+            int splitIndex = 0;
 
             while (didSplit) {
                 didSplit = false;
-                for (int i = 0; i < dungeonParts.Count; i++) {
-                    if (dungeonParts[i].LeftBranch == null && dungeonParts[i].RightBranch == null) //if this leaf is not already split
+                for (int i = 0; i <= dungeonParts.Count; i++) {
+                    Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
+                    //if (dungeonParts[i].LeftBranch == null && dungeonParts[i].RightBranch == null) //if this leaf is not already split
+                    if (toSplit.LeftBranch == null && toSplit.RightBranch == null) //if this leaf is not already split
                     {
-                        if (dungeonParts[i].Split()) {
+                        if (toSplit.Split()) {
                             //If we did split, add child branches
-                            dungeonParts.Add(dungeonParts[i].LeftBranch);
-                            dungeonParts.Add(dungeonParts[i].RightBranch);
+                            dungeonParts.Add(toSplit.LeftBranch);
+                            dungeonParts.Add(toSplit.RightBranch);
                             didSplit = true;
                         }
+                    } else {
+                        splitIndex = RandomNum.Next(dungeonParts.Count);
+                        i--;
                     }
                 }
             }
