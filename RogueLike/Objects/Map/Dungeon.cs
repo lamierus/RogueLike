@@ -7,10 +7,10 @@ namespace RogueLike {
     public class Rectangle{
         public Point TopLeft { get; private set; }
         public Point BottomRight { get; private set; }
-        public int Top { get; private set; }
+        /*public int Top { get; private set; }
         public int Left { get; private set; }
         public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int Height { get; private set; }*/
         public int WallColor{ 
             get {return 2;}
         }
@@ -20,16 +20,16 @@ namespace RogueLike {
 
         public Rectangle(int width, int height, int top, int left) {
             TopLeft = new Point(top, left);
-            BottomRight = new Point(top + height, left + width);
-            Top = top;
+            BottomRight = new Point(top + width, left + height);
+            /*Top = top;
             Left = left;
             Width = width;
-            Height = height;
+            Height = height;*/
         }
     }
 
     public class Dungeon {
-        private const int c_MinSize = 10;
+        private const int c_MinSize = 4;
         private Random Rand = new Random();
         public Dungeon LeftBranch { get; private set; }
         public Dungeon RightBranch { get; private set; }
@@ -68,16 +68,18 @@ namespace RogueLike {
             return true;
         }
 
-        public void GenerateRoom() {
+        public void GenerateRooms(ref List<Rectangle> rooms) {
             if (LeftBranch != null) {
-                LeftBranch.GenerateRoom();
-                RightBranch.GenerateRoom();
+                LeftBranch.GenerateRooms(ref rooms);
+                RightBranch.GenerateRooms(ref rooms);
             } else {
-                int roomTop = (Width - c_MinSize <= 0) ? 0 : Rand.Next(Width - c_MinSize);
-                int roomLeft = (Height - c_MinSize <= 0) ? 0 : Rand.Next(Height - c_MinSize);
-                int roomWidth = Math.Max(Rand.Next(Width - roomTop), c_MinSize);
-                int roomHeight = Math.Max(Rand.Next(Height - roomLeft), c_MinSize);
-                Room = new Rectangle(roomWidth, roomHeight, Top + roomTop, Left + roomLeft);
+                int roomTopOffset = (Height - c_MinSize <= 0) ? 0 : Rand.Next(Height - c_MinSize);
+                int roomLeftOffset = (Width - c_MinSize <= 0) ? 0 : Rand.Next(Width - c_MinSize);
+                int roomWidth = Math.Max(Rand.Next(Width - roomLeftOffset), c_MinSize);
+                int roomHeight = Math.Max(Rand.Next(Height - roomTopOffset), c_MinSize);
+                Room = new Rectangle(roomWidth, roomHeight, Top + roomTopOffset, Left + roomLeftOffset);
+                rooms.Add(Room);
+                //rooms.Add(new Rectangle(roomWidth, roomHeight, Top + roomTop, Left + roomLeft));
             }
             //TODO: add connections between the branches
         }

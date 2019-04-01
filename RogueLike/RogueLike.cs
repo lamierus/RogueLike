@@ -27,7 +27,7 @@ namespace RogueLike {
         */
         const int c_SideBar = 40;
         const int c_PixelWidth = 8;
-        const int c_PixelHeight = 14;
+        const int c_PixelHeight = 12;
         const int c_MaxWinWidth = 170;
         const int c_MaxWinHeight = 50;
         const int c_WinWidth = c_MaxWinWidth - 1; //170;
@@ -71,7 +71,7 @@ namespace RogueLike {
         ///     depending on coordinates from a "map"
         /// </summary>
         void DrawFrame() {
-            Engine.Rectangle(new Point(0, 0), new Point(c_MaxWinWidth - c_SideBar, c_MaxWinHeight), LevelWallColor, ConsoleCharacter.Light);
+            Engine.Rectangle(new Point(0, 0), new Point(c_WinWidth - c_SideBar, c_WinHeight), LevelWallColor, ConsoleCharacter.Light);
             
             int i = 0;
             //for (int y = 1; y <= 8; y++) {
@@ -90,18 +90,19 @@ namespace RogueLike {
             List<Dungeon> dungeonParts = new List<Dungeon>();
             Dungeon dungeon = new Dungeon(LevelWidth, levelHeight, 1, 1);
             dungeonParts.Add(dungeon);
-            while (dungeonParts.Count < 20) {
-                int splitIndex = RandomNum.Next(dungeonParts.Count);
+            int splitIndex = 0;
+            while (dungeonParts.Count < 9) {
                 Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
                 if (toSplit.Split()) {
                     dungeonParts.Add(toSplit.LeftBranch);
                     dungeonParts.Add(toSplit.RightBranch);
+                } /*else {
                     toSplit.GenerateRoom();
-                }
-                if (toSplit.Room != null) {
                     rooms.Add(toSplit.Room);
-                }
+                }*/
+                splitIndex++;
             }
+            dungeon.GenerateRooms(ref rooms);
             DrawLevel(rooms);
         }
 
@@ -126,7 +127,7 @@ namespace RogueLike {
         }
 
         void DrawSideBar() {
-            Engine.Rectangle(new Point(c_MaxWinWidth - c_SideBar + 1, 0), new Point(c_MaxWinWidth, c_MaxWinHeight), 3, ConsoleCharacter.Light);
+            Engine.Rectangle(new Point(c_WinWidth - c_SideBar + 1, 0), new Point(c_WinWidth, c_WinHeight), 3, ConsoleCharacter.Light);
             Position TextXY = new Position(c_WinWidth - c_SideBar + 2, 2);
             Engine.WriteText(TextXY.ToPoint(), "Name: " + You.Name, InventoryTextColor);
             TextXY.Y++;
