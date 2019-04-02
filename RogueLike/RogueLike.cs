@@ -106,14 +106,14 @@ namespace RogueLike {
                             dungeonParts.Add(toSplit.LeftBranch);
                             dungeonParts.Add(toSplit.RightBranch);
                             didSplit = true;
+                            i = 0;
                         }
                     } else {
-                        splitIndex = RandomNum.Next(dungeonParts.Count);
-                        i--;
                     }
+                    splitIndex = RandomNum.Next(dungeonParts.Count);
                 }
-                dungeon.GenerateRooms(ref rooms);
             }
+            dungeon.GenerateRooms(ref rooms);
 
             /*
             int splitIndex = 0;

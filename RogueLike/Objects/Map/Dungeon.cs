@@ -29,7 +29,7 @@ namespace RogueLike {
     }
 
     public class Dungeon {
-        private const int c_MinWidth = 16;
+        private const int c_MinWidth = 12;
         private const int c_MinHeight = 8;
         private Random Rand = new Random();
         private int Width, Height, X, Y;
