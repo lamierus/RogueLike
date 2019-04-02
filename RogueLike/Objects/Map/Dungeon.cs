@@ -29,19 +29,19 @@ namespace RogueLike {
     }
 
     public class Dungeon {
-        private const int c_MinWidth = 12;
-        private const int c_MinHeight = 8;
         private Random Rand = new Random();
-        private int Width, Height, X, Y;
+        private readonly int Width, Height, X, Y, MinWidth, MinHeight;
         public Dungeon LeftBranch { get; private set; }
         public Dungeon RightBranch { get; private set; }
         public Rectangle Room { get; private set; }
 
-        public Dungeon(int width, int height, int x, int y) {
-            Width = width;
-            Height = height;
+        public Dungeon(int fullWidth, int fullHeight, int x, int y, int minWidth = 12, int minHeight = 8) {
+            Width = fullWidth;
+            Height = fullHeight;
             X = x;
             Y = y;
+            MinWidth = minWidth;
+            MinHeight = minHeight;
         }
 
         public bool Split() {
@@ -51,27 +51,30 @@ namespace RogueLike {
             double VorH = Rand.NextDouble();
             bool vertical = (VorH > .5) ? true : false;
             //int max = ((vertical) ? Width : Height) - c_MinSize; //find the maximum height/width
-            int maxWidth = Width - c_MinWidth;
-            int maxHeight = Height - c_MinHeight;
-            if (maxWidth <= c_MinWidth || maxHeight <= c_MinHeight) {
+            int maxWidth = Width - MinWidth;
+            int maxHeight = Height - MinHeight;
+            if (maxWidth <= MinWidth || maxHeight <= MinHeight) {
                 return false;
             }
+
+            int minWidth = MinWidth;//(int)Math.Ceiling(MinWidth * .50);
+            int minHeight = MinHeight;//(int)Math.Ceiling(MinHeight * .50);
 
             int splitPoint;
             if (vertical) {
                 splitPoint = Rand.Next(maxWidth);
-                if (splitPoint < c_MinWidth) {  // adjust split point so there's at least c_MinSize in both partitions
-                    splitPoint = c_MinWidth;
+                if (splitPoint < MinWidth) {  // adjust split point so there's at least c_MinSize in both partitions
+                    splitPoint = MinWidth;
                 }
-                LeftBranch = new Dungeon(splitPoint, Height, X, Y);
-                RightBranch = new Dungeon(Width - splitPoint, Height, X + splitPoint, Y);
+                LeftBranch = new Dungeon(splitPoint, Height, X, Y, minWidth, minHeight);
+                RightBranch = new Dungeon(Width - splitPoint, Height, X + splitPoint, Y, minWidth, minHeight);
             } else {
                 splitPoint = Rand.Next(maxHeight);
-                if (splitPoint < c_MinHeight) {  // adjust split point so there's at least c_MinSize in both partitions
-                    splitPoint = c_MinHeight;
+                if (splitPoint < MinHeight) {  // adjust split point so there's at least c_MinSize in both partitions
+                    splitPoint = MinHeight;
                 }
-                LeftBranch = new Dungeon(Width, splitPoint, X, Y);
-                RightBranch = new Dungeon(Width, Height - splitPoint, X, Y + splitPoint);
+                LeftBranch = new Dungeon(Width, splitPoint, X, Y, minWidth, minHeight);
+                RightBranch = new Dungeon(Width, Height - splitPoint, X, Y + splitPoint, minWidth, minHeight);
             }
             return true;
         }
@@ -85,10 +88,10 @@ namespace RogueLike {
                     RightBranch.GenerateRooms(ref rooms);
                 }
             } else if (Room == null){
-                int roomXOffset = (Width - c_MinWidth <= 0) ? 0 : Rand.Next(Width - c_MinWidth);
-                int roomYOffset = (Height - c_MinHeight <= 0) ? 0 : Rand.Next(Height - c_MinHeight);
-                int roomWidth = Math.Max(Rand.Next(Width - roomXOffset), c_MinWidth);
-                int roomHeight = Math.Max(Rand.Next(Height - roomYOffset), c_MinHeight);
+                int roomXOffset = (Width - MinWidth <= 0) ? 0 : Rand.Next(Width - MinWidth);
+                int roomYOffset = (Height - MinHeight <= 0) ? 0 : Rand.Next(Height - MinHeight);
+                int roomWidth = Math.Max(Rand.Next(Width - roomXOffset), MinWidth);
+                int roomHeight = Math.Max(Rand.Next(Height - roomYOffset), MinHeight);
                 Room = new Rectangle(roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
                 rooms.Add(Room);
             }
