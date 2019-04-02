@@ -94,7 +94,7 @@ namespace RogueLike {
             bool didSplit = true;
             int splitIndex = 0;
 
-            while (didSplit) {
+            while (didSplit /*&& rooms.Count < 7*/) {
                 didSplit = false;
                 for (int i = 0; i <= dungeonParts.Count; i++) {
                     Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
@@ -112,6 +112,7 @@ namespace RogueLike {
                         i--;
                     }
                 }
+                dungeon.GenerateRooms(ref rooms);
             }
 
             /*
@@ -125,7 +126,6 @@ namespace RogueLike {
                 splitIndex++;
             }
             */
-            dungeon.GenerateRooms(ref rooms);
             DrawLevel(rooms);
         }
 

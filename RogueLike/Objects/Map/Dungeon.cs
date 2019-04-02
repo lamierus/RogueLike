@@ -29,7 +29,8 @@ namespace RogueLike {
     }
 
     public class Dungeon {
-        private const int c_MinSize = 15;
+        private const int c_MinWidth = 16;
+        private const int c_MinHeight = 8;
         private Random Rand = new Random();
         private int Width, Height, X, Y;
         public Dungeon LeftBranch { get; private set; }
@@ -49,17 +50,26 @@ namespace RogueLike {
             }
             double VorH = Rand.NextDouble();
             bool vertical = (VorH > .5) ? true : false;
-            int max = ((vertical) ? Width : Height) - c_MinSize; //find the maximum height/width
-            if (max <= c_MinSize) {
+            //int max = ((vertical) ? Width : Height) - c_MinSize; //find the maximum height/width
+            int maxWidth = Width - c_MinWidth;
+            int maxHeight = Height - c_MinHeight;
+            if (maxWidth <= c_MinWidth || maxHeight <= c_MinHeight) {
                 return false;
             }
-            int splitPoint = Rand.Next(max);
-            if (splitPoint < c_MinSize)  // adjust split point so there's at least c_MinSize in both partitions
-                splitPoint = c_MinSize;
+
+            int splitPoint;
             if (vertical) {
+                splitPoint = Rand.Next(maxWidth);
+                if (splitPoint < c_MinWidth) {  // adjust split point so there's at least c_MinSize in both partitions
+                    splitPoint = c_MinWidth;
+                }
                 LeftBranch = new Dungeon(splitPoint, Height, X, Y);
                 RightBranch = new Dungeon(Width - splitPoint, Height, X + splitPoint, Y);
             } else {
+                splitPoint = Rand.Next(maxHeight);
+                if (splitPoint < c_MinHeight) {  // adjust split point so there's at least c_MinSize in both partitions
+                    splitPoint = c_MinHeight;
+                }
                 LeftBranch = new Dungeon(Width, splitPoint, X, Y);
                 RightBranch = new Dungeon(Width, Height - splitPoint, X, Y + splitPoint);
             }
@@ -74,11 +84,11 @@ namespace RogueLike {
                 if (RightBranch != null) {
                     RightBranch.GenerateRooms(ref rooms);
                 }
-            } else {
-                int roomXOffset = (Width - c_MinSize <= 0) ? 0 : Rand.Next(Width - c_MinSize);
-                int roomYOffset = (Height - c_MinSize <= 0) ? 0 : Rand.Next(Height - c_MinSize);
-                int roomWidth = Math.Max(Rand.Next(Width - roomXOffset), c_MinSize);
-                int roomHeight = Math.Max(Rand.Next(Height - roomYOffset), c_MinSize);
+            } else if (Room == null){
+                int roomXOffset = (Width - c_MinWidth <= 0) ? 0 : Rand.Next(Width - c_MinWidth);
+                int roomYOffset = (Height - c_MinHeight <= 0) ? 0 : Rand.Next(Height - c_MinHeight);
+                int roomWidth = Math.Max(Rand.Next(Width - roomXOffset), c_MinWidth);
+                int roomHeight = Math.Max(Rand.Next(Height - roomYOffset), c_MinHeight);
                 Room = new Rectangle(roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
                 rooms.Add(Room);
             }
