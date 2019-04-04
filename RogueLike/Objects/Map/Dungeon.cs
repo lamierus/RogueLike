@@ -7,10 +7,10 @@ namespace RogueLike {
     public class Rectangle{
         public Point TopLeft { get; private set; }
         public Point BottomRight { get; private set; }
-        /*public int Top { get; private set; }
-        public int Left { get; private set; }
+        public int X { get; private set; }
+        public int Y { get; private set; }
         public int Width { get; private set; }
-        public int Height { get; private set; }*/
+        public int Height { get; private set; }
         public int WallColor{ 
             get {return 2;}
         }
@@ -21,10 +21,10 @@ namespace RogueLike {
         public Rectangle(int width, int height, int x, int y) {
             TopLeft = new Point(x, y);
             BottomRight = new Point(x + width, y + height);
-            /*Top = top;
-            Left = left;
+            X = x;
+            Y = y;
             Width = width;
-            Height = height;*/
+            Height = height;
         }
     }
 
@@ -58,7 +58,7 @@ namespace RogueLike {
             }
 
             int minWidth = MinWidth;//(int)Math.Ceiling(MinWidth * .50);
-            int minHeight = MinHeight;//(int)Math.Ceiling(MinHeight * .50);
+            int minHeight = MinHeight;//Math.Max((int)Math.Ceiling(MinHeight * .45), 4);
 
             int splitPoint;
             if (vertical) {

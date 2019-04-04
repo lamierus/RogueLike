@@ -6,10 +6,12 @@ using ConsoleGameEngine;
 namespace RogueLike {
     public class Wall:Structure {
 
-        public Wall() {
+        public Wall(int x, int y) {
             MapCharacter = ConsoleCharacter.Full;
             Immovable = true;
             FloorToCeiling = true;
+            XY.X = x;
+            XY.Y = y;
         }
     }
 }

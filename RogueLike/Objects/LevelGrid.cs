@@ -12,7 +12,11 @@ namespace RogueLike {
 
         public bool AddItem(Object objToAdd) {
             if (Grid[objToAdd.XY.X, objToAdd.XY.Y] == null) {
-                Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Item;
+                if (objToAdd is Item) {
+                    Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Item;
+                } else if (objToAdd is Wall) {
+                    Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Wall;
+                }
                 return true;
             }
             return false;

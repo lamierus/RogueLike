@@ -83,8 +83,8 @@ namespace RogueLike {
         }
 
         void BuildLevel() {
-            int LevelWidth = c_WinWidth - c_SideBar - 1;
-            int levelHeight = c_WinHeight - 1;
+            int LevelWidth = c_WinWidth - c_SideBar;
+            int levelHeight = c_WinHeight;
             CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
             List<Rectangle> rooms = new List<Rectangle>();
             List<Dungeon> dungeonParts = new List<Dungeon>();
@@ -98,7 +98,6 @@ namespace RogueLike {
                 didSplit = false;
                 for (int i = 0; i <= dungeonParts.Count; i++) {
                     Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
-                    //if (dungeonParts[i].LeftBranch == null && dungeonParts[i].RightBranch == null) //if this leaf is not already split
                     if (toSplit.LeftBranch == null && toSplit.RightBranch == null) //if this leaf is not already split
                     {
                         if (toSplit.Split()) {
@@ -114,24 +113,19 @@ namespace RogueLike {
                 }
             }
             dungeon.GenerateRooms(ref rooms);
-
-            /*
-            int splitIndex = 0;
-            while (dungeonParts.Count < 9) {
-                Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
-                if (toSplit.Split()) {
-                    dungeonParts.Add(toSplit.LeftBranch);
-                    dungeonParts.Add(toSplit.RightBranch);
-                }
-                splitIndex++;
-            }
-            */
             DrawLevel(rooms);
         }
 
         void DrawLevel(List<Rectangle> Rooms) {
             foreach (Rectangle R in Rooms) {
                 Engine.Rectangle(R.TopLeft, R.BottomRight, R.WallColor, R.Wall);
+                for (int x = 0; x <= R.Width; x++) {
+                    for (int y = 0; y <= R.Height; y++) {
+                        //if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
+                            CurrentLevel.AddItem(new Wall((R.X + x), (R.Y + y)));
+                        //}
+                    }
+                }
             }
         }
 
@@ -206,15 +200,19 @@ namespace RogueLike {
                         NextMove.X += moveX;
                     if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
                         NextMove.Y += moveY;
-                    if (CurrentLevel.Grid[NextMove.X - 2, NextMove.Y - 2] != null) {
+                    if (CurrentLevel.Grid[NextMove.X, NextMove.Y] != null) {
                         Object thing = CurrentLevel.Grid[NextMove.X, NextMove.Y];
                         bool attacked;
                         string message;
                         if (You.Interact(thing, out attacked, out message))
                             if (!attacked) {
-                                CurrentLevel.PickUpItem(thing as Item);
-                                //TODO: update the message somewhere on the screen
-                                MovePlayer(NextMove);
+                                if (thing is Item) {
+                                    CurrentLevel.PickUpItem(thing as Item);
+                                    //TODO: update the message somewhere on the screen
+                                    MovePlayer(NextMove);
+                                } else if (thing is Wall) {
+                                   
+                                }
                             }//TODO: add code for attacking a monster
                     } else {
                         MovePlayer(NextMove);
@@ -260,8 +258,8 @@ namespace RogueLike {
         void RandomizePixelPoint(ref Position position) {
             var newPosition = new Position();
             do {
-                newPosition.X = RandomNum.Next(1, c_WinWidth - c_SideBar - 1);
-                newPosition.Y = RandomNum.Next(1, c_WinHeight - c_SideBar - 1);
+                newPosition.X = RandomNum.Next(1, c_WinWidth - c_SideBar);
+                newPosition.Y = RandomNum.Next(1, c_WinHeight - c_SideBar);
             } while (newPosition == position);
             position = newPosition;
         }

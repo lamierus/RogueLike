@@ -44,6 +44,11 @@ namespace RogueLike {
                 attacked = false;
                 return PickUpItem(obj as Item, out message);
             }
+            if (obj is Wall) {
+                attacked = false;
+                message = "That's a Wall!";
+                return false;
+            }
             attacked = true;
             message = "Attacked a " + (obj as Mob).Name + "!";
             return false;
