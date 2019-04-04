@@ -43,6 +43,7 @@ namespace RogueLike {
         
         private bool GameState = true;
         private Random RandomNum = new Random();
+        private Queue<string> LogMessages = new Queue<string>();
 
         static void Main(string[] args) {
             new RogueLike().Construct(c_MaxWinWidth, c_MaxWinHeight, c_PixelWidth, c_PixelHeight, FramerateMode.MaxFps);
@@ -83,8 +84,8 @@ namespace RogueLike {
         }
 
         void BuildLevel() {
-            int LevelWidth = c_WinWidth - c_SideBar;
-            int levelHeight = c_WinHeight;
+            int LevelWidth = c_WinWidth - c_SideBar - 1;
+            int levelHeight = c_WinHeight - 1;
             CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
             List<Rectangle> rooms = new List<Rectangle>();
             List<Dungeon> dungeonParts = new List<Dungeon>();
@@ -171,8 +172,17 @@ namespace RogueLike {
             Engine.WriteText(TextXY.ToPoint(), You.Atk.ToString(), InventoryTextColor);
             TextXY.Y++;
             Engine.WriteText(TextXY.ToPoint(), You.GoldAmt.ToString(), InventoryTextColor);
+        }
 
+        void DrawLog() {
 
+        }
+
+        void UpdateLog(string message) {
+            LogMessages.Enqueue(message);
+            if (LogMessages.Count > 10) {
+                LogMessages.Dequeue();
+            }
         }
 
         public override void Update() {
