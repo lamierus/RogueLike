@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -82,7 +82,7 @@ namespace RogueLike {
                 }
             //}
             
-        }
+        };
 
         void BuildLevel() {
             int LevelWidth = c_WinWidth - c_SideBar - 2;
@@ -90,7 +90,7 @@ namespace RogueLike {
             CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
             List<Rectangle> rooms = new List<Rectangle>();
             List<Dungeon> dungeonParts = new List<Dungeon>();
-            Dungeon dungeon = new Dungeon(LevelWidth, levelHeight, 1, 1);
+            Dungeon dungeon = new Dungeon(LevelWidth, levelHeight, 0, 0);
             dungeonParts.Add(dungeon);
 
             bool didSplit = true;
