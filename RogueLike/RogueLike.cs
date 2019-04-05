@@ -64,6 +64,7 @@ namespace RogueLike {
             AddItems();
             AddMobs();
             DrawSideBar();
+            DrawLog();
             Restart();
         }
 
@@ -84,8 +85,8 @@ namespace RogueLike {
         }
 
         void BuildLevel() {
-            int LevelWidth = c_WinWidth - c_SideBar - 1;
-            int levelHeight = c_WinHeight - 1;
+            int LevelWidth = c_WinWidth - c_SideBar - 2;
+            int levelHeight = c_WinHeight - 2;
             CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
             List<Rectangle> rooms = new List<Rectangle>();
             List<Dungeon> dungeonParts = new List<Dungeon>();
@@ -128,6 +129,10 @@ namespace RogueLike {
                     }
                 }
             }
+        }
+
+        void OffsetRectangleToGrid(ref Rectangle R) {
+            
         }
 
         void AddItems() {
@@ -175,7 +180,9 @@ namespace RogueLike {
         }
 
         void DrawLog() {
-
+            Engine.Rectangle(new Point(c_WinWidth - c_SideBar + 2, 35), new Point(c_WinWidth, 12), 4, ConsoleCharacter.Light);
+            UpdateLog("Welcome to the Dungeon of IT!");
+            WriteLogs();
         }
 
         void UpdateLog(string message) {
@@ -183,6 +190,11 @@ namespace RogueLike {
             if (LogMessages.Count > 10) {
                 LogMessages.Dequeue();
             }
+            
+        }
+
+        void WriteLogs() {
+
         }
 
         public override void Update() {

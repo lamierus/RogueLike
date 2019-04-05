@@ -19,6 +19,8 @@ namespace RogueLike {
         }
 
         public Rectangle(int width, int height, int x, int y) {
+            x--;
+            y--;
             TopLeft = new Point(x, y);
             BottomRight = new Point(x + width, y + height);
             X = x;

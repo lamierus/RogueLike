@@ -23,6 +23,8 @@ namespace RogueLike {
         }
 
         private void RemoveObject(Object objToRemove) {
+            objToRemove.XY.X--;
+            objToRemove.XY.Y--;
             Grid[objToRemove.XY.X, objToRemove.XY.Y] = null;
         }
 
