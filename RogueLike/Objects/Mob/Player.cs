@@ -40,14 +40,13 @@ namespace RogueLike {
         }
         
         public bool Interact(Object obj, out bool attacked, out string message) {
+            attacked = false;
             if (obj is Item) {
-                attacked = false;
                 return PickUpItem(obj as Item, out message);
             }
             if (obj is Wall) {
-                attacked = false;
                 message = "That's a Wall!";
-                return false;
+                return true;
             }
             attacked = true;
             message = "Attacked a " + (obj as Mob).Name + "!";

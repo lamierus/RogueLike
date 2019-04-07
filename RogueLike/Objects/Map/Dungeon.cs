@@ -19,14 +19,19 @@ namespace RogueLike {
         }
 
         public Rectangle(int width, int height, int x, int y) {
-            x--;
-            y--;
             TopLeft = new Point(x, y);
             BottomRight = new Point(x + width, y + height);
             X = x;
             Y = y;
             Width = width;
             Height = height;
+        }
+
+        public void OffsetRectangle(int x, int y) {
+            X += x;
+            TopLeft = new Point(TopLeft.X + x, TopLeft.Y + y);
+            Y += y;
+            BottomRight = new Point(BottomRight.X + x, BottomRight.Y + y);
         }
     }
 

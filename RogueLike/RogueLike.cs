@@ -30,8 +30,6 @@ namespace RogueLike {
         const int c_PixelHeight = 12;
         const int c_MaxWinWidth = 170;
         const int c_MaxWinHeight = 50;
-        const int c_WinWidth = c_MaxWinWidth - 1; //170;
-        const int c_WinHeight = c_MaxWinHeight - 1; //50;
         const int BlankSpotColor = 0;
         const int LevelWallColor = 2;
         const int InventoryTextColor = 3;
@@ -40,7 +38,9 @@ namespace RogueLike {
         public Player You = new Player();
         public Position PlayerLastPosition;
         public LevelGrid CurrentLevel;
-        
+
+        private Position LogTopLeft = new Position(c_MaxWinWidth - c_SideBar + 1, 37);
+        private Position LogBottomRight = new Position(c_MaxWinWidth - 2, 48);
         private bool GameState = true;
         private Random RandomNum = new Random();
         private Queue<string> LogMessages = new Queue<string>();
@@ -69,34 +69,31 @@ namespace RogueLike {
         }
 
         /// <summary>
-        ///     currently only draws the rectangle around the edge, but can be modified to add "doorways" by blanking out sections,
-        ///     depending on coordinates from a "map"
+        ///     currently only draws the rectangle around the edge,  but just use it as a color pallete draw
         /// </summary>
         void DrawFrame() {
-            Engine.Rectangle(new Point(0, 0), new Point(c_WinWidth - c_SideBar, c_WinHeight), LevelWallColor, ConsoleCharacter.Light);
-            
             int i = 0;
             //for (int y = 1; y <= 8; y++) {
                 for (int x = 1; x <= 51/*96*/; x += 3) {
-                    Engine.WriteText(new Point(x, c_WinHeight), i.ToString(" ##"), i++);
+                    Engine.WriteText(new Point(x, c_MaxWinHeight), i.ToString(" ##"), i++);
                 }
             //}
             
-        };
+        }
 
         void BuildLevel() {
-            int LevelWidth = c_WinWidth - c_SideBar - 2;
-            int levelHeight = c_WinHeight - 2;
+            int LevelWidth = c_MaxWinWidth - c_SideBar;
+            int levelHeight = c_MaxWinHeight;
             CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
             List<Rectangle> rooms = new List<Rectangle>();
             List<Dungeon> dungeonParts = new List<Dungeon>();
-            Dungeon dungeon = new Dungeon(LevelWidth, levelHeight, 0, 0);
+            Dungeon dungeon = new Dungeon(LevelWidth - 1, levelHeight - 1, 0, 0);
             dungeonParts.Add(dungeon);
 
             bool didSplit = true;
             int splitIndex = 0;
 
-            while (didSplit /*&& rooms.Count < 7*/) {
+            while (didSplit) {
                 didSplit = false;
                 for (int i = 0; i <= dungeonParts.Count; i++) {
                     Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
@@ -120,21 +117,18 @@ namespace RogueLike {
 
         void DrawLevel(List<Rectangle> Rooms) {
             foreach (Rectangle R in Rooms) {
+                //R.OffsetRectangle(1, 1);
                 Engine.Rectangle(R.TopLeft, R.BottomRight, R.WallColor, R.Wall);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
-                        //if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
+                        if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
                             CurrentLevel.AddItem(new Wall((R.X + x), (R.Y + y)));
-                        //}
+                        }
                     }
                 }
             }
         }
-
-        void OffsetRectangleToGrid(ref Rectangle R) {
-            
-        }
-
+        
         void AddItems() {
             var itemPos = new Position(0,0);
             var itemAmount = RandomNum.Next(1, 99);
@@ -150,8 +144,8 @@ namespace RogueLike {
         }
 
         void DrawSideBar() {
-            Engine.Rectangle(new Point(c_WinWidth - c_SideBar + 1, 0), new Point(c_WinWidth, c_WinHeight), 3, ConsoleCharacter.Light);
-            Position TextXY = new Position(c_WinWidth - c_SideBar + 2, 2);
+            Engine.Rectangle(new Point(c_MaxWinWidth - c_SideBar, 0), new Point(c_MaxWinWidth - 1, c_MaxWinHeight - 1), 3, ConsoleCharacter.Light);
+            Position TextXY = new Position(c_MaxWinWidth - c_SideBar + 2, 2);
             Engine.WriteText(TextXY.ToPoint(), "Name: " + You.Name, InventoryTextColor);
             TextXY.Y++;
             Engine.WriteText(TextXY.ToPoint(), "HP:   ", InventoryTextColor);
@@ -169,7 +163,7 @@ namespace RogueLike {
         ///     
         /// </summary>
         void UpdateSideBar() {
-            Position TextXY = new Position(c_WinWidth - c_SideBar + 8, 3);
+            Position TextXY = new Position(c_MaxWinWidth - c_SideBar + 8, 3);
             Engine.WriteText(TextXY.ToPoint(), You.HP.ToString(), InventoryTextColor);
             TextXY.Y++;
             Engine.WriteText(TextXY.ToPoint(), You.MP.ToString(), InventoryTextColor);
@@ -179,26 +173,59 @@ namespace RogueLike {
             Engine.WriteText(TextXY.ToPoint(), You.GoldAmt.ToString(), InventoryTextColor);
         }
 
+        /// <summary>
+        ///     draw the frame for the output log
+        /// </summary>
         void DrawLog() {
-            Engine.Rectangle(new Point(c_WinWidth - c_SideBar + 2, 35), new Point(c_WinWidth, 12), 4, ConsoleCharacter.Light);
-            UpdateLog("Welcome to the Dungeon of IT!");
-            WriteLogs();
+            Engine.Rectangle(LogTopLeft.ToPoint(), LogBottomRight.ToPoint(), 4, ConsoleCharacter.Light);
+            //("this is just a test of the emergency broadcast system. only a test.");
+            AddLog("Welcome to the Dungeon of IT!");
+            UpdateLog();
         }
 
-        void UpdateLog(string message) {
+        /// <summary>
+        ///     add a message to the Log to be displayed on the screen
+        /// </summary>
+        /// <param name="message">
+        ///     the string message, maxiumum is 36 characters
+        /// </param>
+        void AddLog(string message) {
+            int maxLength = 36;
+            string lineTwo = null;
+            if (message.Length > maxLength) {
+                lineTwo = message.Substring(maxLength).Trim();
+                lineTwo = lineTwo.Insert(0, "  ");
+                message = message.Remove(maxLength, message.Length - maxLength);
+            }
+            message = message.PadRight(maxLength);
             LogMessages.Enqueue(message);
-            if (LogMessages.Count > 10) {
+            if (lineTwo != null) {
+                lineTwo = lineTwo.PadRight(maxLength);
+                LogMessages.Enqueue(lineTwo);
+            }
+            while (LogMessages.Count > 10) {
                 LogMessages.Dequeue();
             }
             
         }
 
-        void WriteLogs() {
-
+        /// <summary>
+        ///     update the log on the screen with the messages in the LogMessages Queue
+        /// </summary>
+        void UpdateLog() {
+            Position logTextStart = LogTopLeft + 1;
+            foreach (string s in LogMessages) {
+                Engine.WriteText(logTextStart.ToPoint(), s, 6);
+                logTextStart.Y++;
+            }
         }
 
+        /// <summary>
+        ///     this is the override of the game loop provided by the Console Game Engine
+        /// </summary>
         public override void Update() {
             if (GameState) {
+                //this is the logic to determine if and where the player is moving
                 int moveX = 0, moveY = 0;
                 bool moved = false;
                 if (Engine.GetKey(ConsoleKey.UpArrow) || Engine.GetKey(ConsoleKey.W)) {
@@ -216,25 +243,28 @@ namespace RogueLike {
                 } else if (Engine.GetKey(keyClose)){
                     GameState = false;
                 }
+                //once we know the player has moved, we can calculate where they are going, as well as perform 
+                //  logic related to the interaction of what they run into and moving the monsters aroudn the 
+                //  map, as it is a turn-based game.
                 if (moved) {
                     Position NextMove = You.XY;
-                    if ((You.XY.X + moveX < c_WinWidth - c_SideBar - 1) && (You.XY.X + moveX > 0))
+                    if ((You.XY.X + moveX < c_MaxWinWidth - c_SideBar) && (You.XY.X + moveX > -1))
                         NextMove.X += moveX;
-                    if ((You.XY.Y + moveY < c_WinHeight - 1) && (You.XY.Y + moveY > 0))
+                    if ((You.XY.Y + moveY < c_MaxWinHeight) && (You.XY.Y + moveY > -1))
                         NextMove.Y += moveY;
+                    //find out if they ran into anything
                     if (CurrentLevel.Grid[NextMove.X, NextMove.Y] != null) {
                         Object thing = CurrentLevel.Grid[NextMove.X, NextMove.Y];
                         bool attacked;
                         string message;
+                        //make the player interact with the object run into
                         if (You.Interact(thing, out attacked, out message))
                             if (!attacked) {
                                 if (thing is Item) {
                                     CurrentLevel.PickUpItem(thing as Item);
-                                    //TODO: update the message somewhere on the screen
                                     MovePlayer(NextMove);
-                                } else if (thing is Wall) {
-                                   
                                 }
+                                AddLog(message);
                             }//TODO: add code for attacking a monster
                     } else {
                         MovePlayer(NextMove);
@@ -264,12 +294,13 @@ namespace RogueLike {
             Engine.SetPixel(PlayerLastPosition.ToPoint(), BlankSpotColor, ConsoleCharacter.Full);
             }
             UpdateSideBar();
+            UpdateLog();
             Engine.DisplayBuffer();
         }
 
         void Restart() {
             GameState = true;
-            You.XY = new Position(10, 10);
+            You.XY = new Position(0, 0);
             PlayerLastPosition = You.XY;
         }
         
@@ -280,8 +311,8 @@ namespace RogueLike {
         void RandomizePixelPoint(ref Position position) {
             var newPosition = new Position();
             do {
-                newPosition.X = RandomNum.Next(1, c_WinWidth - c_SideBar);
-                newPosition.Y = RandomNum.Next(1, c_WinHeight - c_SideBar);
+                newPosition.X = RandomNum.Next(c_MaxWinWidth - c_SideBar - 1);
+                newPosition.Y = RandomNum.Next(c_MaxWinHeight - c_SideBar - 1);
             } while (newPosition == position);
             position = newPosition;
         }

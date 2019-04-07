@@ -22,18 +22,31 @@ namespace RogueLike {
         public override string ToString() => String.Format("({0}, {1})", X, Y);
         public Point ToPoint() => new Point(X, Y);
 
-        public static Position operator +(Position a, Position b) {
-            return new Position(a.X + b.X, a.Y + b.Y);
+        public static Position operator +(Position lhs, Position rhs) {
+            return new Position(lhs.X + rhs.X, lhs.Y + rhs.Y);
         }
-        public static Position operator -(Position a, Position b) {
-            return new Position(a.X - b.X, a.Y - b.Y);
+        public static Position operator -(Position lhs, Position rhs) {
+            return new Position(lhs.X - rhs.X, lhs.Y - rhs.Y);
         }
 
-        public static Position operator /(Position a, float b) {
-            return new Position((int)(a.X / b), (int)(a.Y / b));
+        public static Position operator /(Position lhs, float rhs) {
+            return new Position((int)(lhs.X / rhs), (int)(lhs.Y / rhs));
         }
-        public static Position operator *(Position a, float b) {
-            return new Position((int)(a.X * b), (int)(a.Y * b));
+        public static Position operator *(Position lhs, float rhs) {
+            return new Position((int)(lhs.X * rhs), (int)(lhs.Y * rhs));
+        }
+
+        public static Position operator +(Position lhs, int rhs) {
+            return new Position(lhs.X + rhs, lhs.Y + rhs);
+        }
+        public static Position operator ++(Position lhs) {
+            return new Position(lhs.X++, lhs.Y++);
+        }
+        public static Position operator -(Position lhs, int rhs) {
+            return new Position(lhs.X - rhs, lhs.Y - rhs);
+        }
+        public static Position operator --(Position lhs) {
+            return new Position(lhs.X--, lhs.Y--);
         }
 
         public static bool operator ==(Position lhs, Position rhs) {
