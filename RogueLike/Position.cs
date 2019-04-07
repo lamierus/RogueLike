@@ -3,7 +3,7 @@
 
 namespace RogueLike {
     /// <summary> A Vector containing two ints. </summary>
-    public struct Position {
+    public struct Position : IComparable<Position> {
         public int X { get; set; }
         public int Y { get; set; }
 
@@ -39,14 +39,8 @@ namespace RogueLike {
         public static Position operator +(Position lhs, int rhs) {
             return new Position(lhs.X + rhs, lhs.Y + rhs);
         }
-        public static Position operator ++(Position lhs) {
-            return new Position(lhs.X++, lhs.Y++);
-        }
         public static Position operator -(Position lhs, int rhs) {
             return new Position(lhs.X - rhs, lhs.Y - rhs);
-        }
-        public static Position operator --(Position lhs) {
-            return new Position(lhs.X--, lhs.Y--);
         }
 
         public static bool operator ==(Position lhs, Position rhs) {
@@ -55,6 +49,18 @@ namespace RogueLike {
 
         public static bool operator !=(Position lhs, Position rhs) {
             return ((lhs.X != rhs.X) || (lhs.Y != rhs.Y));
+        }
+
+        public int CompareTo(Position that) {
+            int result = (X.CompareTo(that.X));
+            if (result != 0){
+                return result;
+            }
+            result = (Y.CompareTo(that.Y));
+            if (result != 0) {
+                return result;
+            }
+            return 0;
         }
 
         public override bool Equals(object obj) {

@@ -81,44 +81,68 @@ namespace RogueLike {
             
         }
 
+        /// <summary>
+        ///     the algorithm to use the Dungeon and build the level in a fairly random manner
+        /// </summary>
         void BuildLevel() {
             int LevelWidth = c_MaxWinWidth - c_SideBar;
             int levelHeight = c_MaxWinHeight;
+            //creating the empty level grid
             CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
-            List<Rectangle> rooms = new List<Rectangle>();
+            //list to hold each of the dungeon parts (or nodes/leaves)
             List<Dungeon> dungeonParts = new List<Dungeon>();
+            //create the root dungeon, the size of the level grid
             Dungeon dungeon = new Dungeon(LevelWidth - 1, levelHeight - 1, 0, 0);
             dungeonParts.Add(dungeon);
 
             bool didSplit = true;
             int splitIndex = 0;
 
+            //this will cause the loop to continue until it has stopped making splits
             while (didSplit) {
                 didSplit = false;
                 for (int i = 0; i <= dungeonParts.Count; i++) {
+                    //grab the part to split, via a randomized index
                     Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
-                    if (toSplit.LeftBranch == null && toSplit.RightBranch == null) //if this leaf is not already split
+                    //if this leaf is not already split, split it
+                    if (toSplit.LeftBranch == null && toSplit.RightBranch == null)
                     {
                         if (toSplit.Split()) {
-                            //If we did split, add child branches
+                            //If we did split, add the child branches to the dungeon parts list
                             dungeonParts.Add(toSplit.LeftBranch);
                             dungeonParts.Add(toSplit.RightBranch);
                             didSplit = true;
+                            //reset the for loop, to create more randomization of the amount of rooms
                             i = 0;
                         }
-                    } else {
                     }
                     splitIndex = RandomNum.Next(dungeonParts.Count);
                 }
             }
+
+            //create a list to hold all of the rooms
+            List<Rectangle> rooms = new List<Rectangle>();
+            //run through, creating all of the rooms
             dungeon.GenerateRooms(ref rooms);
-            DrawLevel(rooms);
+
+
+            //create a list to hold all of the hallways
+            List<Rectangle> halls = new List<Rectangle>();
+
+            dungeon.GenerateHalls(ref halls, rooms);
+
+            //move on to draw the level, sending all of the created rooms.
+            DrawLevel(rooms, halls);
         }
 
-        void DrawLevel(List<Rectangle> Rooms) {
+        /// <summary>
+        ///     draw the rooms created by the dungeon algorithm, adding the walls to the level grid, so they can be solid
+        /// </summary>
+        /// <param name="Rooms"></param>
+        void DrawLevel(List<Rectangle> Rooms, List<Rectangle> Halls) {
             foreach (Rectangle R in Rooms) {
                 //R.OffsetRectangle(1, 1);
-                Engine.Rectangle(R.TopLeft, R.BottomRight, R.WallColor, R.Wall);
+                Engine.Rectangle(R.TopLeft.ToPoint(), R.BottomRight.ToPoint(), R.WallColor, R.Wall);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
                         if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
@@ -129,6 +153,9 @@ namespace RogueLike {
             }
         }
         
+        /// <summary>
+        ///     currently only adds 1 item randomly on the level, doesn't even check if it's in a room
+        /// </summary>
         void AddItems() {
             var itemPos = new Position(0,0);
             var itemAmount = RandomNum.Next(1, 99);
@@ -139,10 +166,16 @@ namespace RogueLike {
             
         }
 
+        /// <summary>
+        ///     adding mobs randomly, in rooms
+        /// </summary>
         void AddMobs() {
             //TODO: add code to randomize mobs, based on level #, and place them in the room
         }
 
+        /// <summary>
+        ///     draw the original side bar
+        /// </summary>
         void DrawSideBar() {
             Engine.Rectangle(new Point(c_MaxWinWidth - c_SideBar, 0), new Point(c_MaxWinWidth - 1, c_MaxWinHeight - 1), 3, ConsoleCharacter.Light);
             Position TextXY = new Position(c_MaxWinWidth - c_SideBar + 2, 2);
@@ -160,7 +193,7 @@ namespace RogueLike {
 
 
         /// <summary>
-        ///     
+        ///     update the amounts shown on the side bar
         /// </summary>
         void UpdateSideBar() {
             Position TextXY = new Position(c_MaxWinWidth - c_SideBar + 8, 3);
@@ -276,11 +309,18 @@ namespace RogueLike {
             }
         }
 
+        /// <summary>
+        ///     process the movement of the player
+        /// </summary>
+        /// <param name="XY"></param>
         public void MovePlayer(Position XY) {
             PlayerLastPosition = You.XY;
             You.XY = XY;
         }
 
+        /// <summary>
+        ///     move the monsthers, this is only called after each time the player moves
+        /// </summary>
         public void MoveMonsters() {
             //TODO: add code to move all monsters on the level, not just ones visible to the player.
         }
@@ -298,6 +338,9 @@ namespace RogueLike {
             Engine.DisplayBuffer();
         }
 
+        /// <summary>
+        ///     reset things back to the beginning
+        /// </summary>
         void Restart() {
             GameState = true;
             You.XY = new Position(0, 0);
