@@ -47,14 +47,10 @@ namespace RogueLike {
                 return (object)lhs == null;
             if ((object)rhs == null)
                 return false;
-            return (((lhs.X == rhs.X) && (lhs.Y == rhs.Y)) && ((lhs.Width == rhs.Width) && (lhs.Height == rhs.Height)));
+            return ((lhs.X == rhs.X) && (lhs.Y == rhs.Y) && (lhs.Width == rhs.Width) && (lhs.Height == rhs.Height));
         }
         public static bool operator !=(Rectangle lhs, Rectangle rhs) {
-            if ((object)lhs == null)
-                return (object)lhs == null;
-            if ((object)rhs == null)
-                return false;
-            return (((lhs.X != rhs.X) || (lhs.Y != rhs.Y)) || ((lhs.Width != rhs.Width) || (lhs.Height != rhs.Height)));
+            return !(lhs == rhs);
         }
 
         public int CompareTo(Rectangle that) {

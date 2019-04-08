@@ -80,7 +80,7 @@ namespace RogueLike {
             CurrentLevel = new LevelGrid(LevelWidth, levelHeight);
             //list to hold each of the dungeon parts (or nodes/leaves)
             List<Dungeon> dungeonParts = new List<Dungeon>();
-            //create the root dungeon, the size of the level grid
+            //create the root dungeon, the size of the level grid (-1 because the grid is an array that starts at 0)
             Dungeon dungeon = new Dungeon(LevelWidth - 1, levelHeight - 1, 0, 0);
             dungeonParts.Add(dungeon);
 
@@ -99,6 +99,7 @@ namespace RogueLike {
                             dungeonParts.Add(toSplit.LeftBranch);
                             dungeonParts.Add(toSplit.RightBranch);
                             didSplit = true;
+                            i = 0;
                         }
                     }
                 }
@@ -108,11 +109,11 @@ namespace RogueLike {
             List<Rectangle> rooms = new List<Rectangle>();
 
             //create a list to hold all of the hallways
-            //List<Rectangle> halls = new List<Rectangle>();
+            List<Rectangle> halls = new List<Rectangle>();
 
             //run through, creating all of the rooms
             //dungeon.GenerateRooms(ref rooms, ref halls);
-            dungeon.GenerateRooms(ref rooms);
+            dungeon.GenerateRooms(ref rooms, ref halls);
 
 
             //dungeon.GenerateHalls(ref halls, rooms);

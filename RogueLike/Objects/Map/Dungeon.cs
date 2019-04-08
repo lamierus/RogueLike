@@ -68,14 +68,11 @@ namespace RogueLike {
         /// </summary>
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
-        public void GenerateRooms(ref List<Rectangle> rooms) {
+        public void GenerateRooms(ref List<Rectangle> rooms, ref List<Rectangle> halls) {
             //if neither of the  branches are null, then we'll go into here and attempt to generate rooms
             if (LeftBranch != null || RightBranch != null) {
-                LeftBranch.GenerateRooms(ref rooms);
-                RightBranch.GenerateRooms(ref rooms);
-                if (LeftBranch.Room != null && RightBranch.Room != null) {
-                    ConnectRooms(LeftBranch.Room, RightBranch.Room);
-                }
+                LeftBranch.GenerateRooms(ref rooms, ref halls);
+                RightBranch.GenerateRooms(ref rooms, ref halls);
             } else if (Room == null) {
                 //create a randomly sized room, no bigger than the dungeon node and no smaller than the mimimum size
                 int roomXOffset = (Width - MinWidth <= 0) ? 0 : Rand.Next(Width - MinWidth);
@@ -84,38 +81,51 @@ namespace RogueLike {
                 int roomHeight = Math.Max(Rand.Next(Height - roomYOffset), MinHeight);
                 Room = new Rectangle(roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
                 rooms.Add(Room);
+                GenerateHalls(ref halls);
             }
-            //TODO: add connections between the branches
         }
 
-        private void ConnectRooms(Rectangle left, Rectangle right) {
-            bool AboveOrBelow = (left.Y < right.Y) ? true : false;
-            bool LeftOrRight = (left.X < right.X) ? true : false;
+        /// <summary>
+        ///     generate halls in 4 directions from random spots on the walls of the room.
+        ///     will have to figure out a way to connect them all at a later time...
+        /// </summary>
+        /// <param name="halls"></param>
+        private void GenerateHalls(ref List<Rectangle> halls) {
 
-            Position[] leftRoomX = new Position[left.Width];
-            Position[] leftRoomY = new Position[left.Height];
-
-            int Y = left.Y;
-            for (int LX = 0; LX <= left.Width; LX++) {
-                for (int RX = 0; RX <= right.Width; RX++) {
-                    if ((left.X + LX) == (right.X + RX)) {
-                        leftRoomX[LX] = new Position(left.X + LX, Y);
-                    }
-                }
-            }
-
-            int X = left.X;
-            for (int LY = 0; LY <= left.Height; LY++) {
-                for (int RY = 0; RY <= right.Height; RY++) {
-                    if ((left.Y + LY) == (right.Y + RY)) {
-                        leftRoomY[LY] = new Position(X, left.X + LY);
-                    }
-                }
-            }
-
-            double VorH = Rand.NextDouble();
-            bool vertical = (VorH > .5) ? true : false;
-            
         }
+        //private void ConnectRooms(Rectangle left, Rectangle right) {
+        //    List<Position> leftRoomX = new List<Position>();
+        //    List<Position> rightRoomX = new List<Position>();
+
+        //    List<Position> leftRoomY = new List<Position>();
+        //    List<Position> rightRoomY = new List<Position>();
+
+        //    int LX = left.X;
+        //    int RX = right.X;
+        //    int LY = left.Y;
+        //    int RY = right.Y;
+
+        //    //bool LeftOrRight = ((LX + left.Width < right.X) || (LX > right.X + RX)) ? true : false;
+
+        //    //if (!LeftOrRight) {
+        //    //    for (LX = 0; LX <= left.Width; LX++) {
+        //    //        for (RX = 0; RX <= right.Width; RX++) {
+        //    //            if ((left.X + LX) == (right.X + RX)) {
+        //    //                leftRoomX.Add(new Position(left.X + LX, LY));
+        //    //                rightRoomX.Add(new Position(right.X + RX, RY));
+        //    //            }
+        //    //        }
+        //    //    }
+        //    //} else {
+        //    //    for (LY = 0; LY <= left.Height; LY++) {
+        //    //        for (RY = 0; RY <= right.Height; RY++) {
+        //    //            if ((left.Y + LY) == (right.Y + RY)) {
+        //    //                leftRoomY.Add(new Position(LX, left.Y + LY));
+        //    //                rightRoomY.Add(new Position(RX, right.Y + RY));
+        //    //            }
+        //    //        }
+        //    //    }
+        //    //}
+        //}
     }
 }
