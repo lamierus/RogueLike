@@ -7,7 +7,6 @@ using ConsoleGameEngine;
 
 namespace RogueLike {
     class RogueLike : ConsoleGame {
-
         /// <summary>
         /// ConsoleCharacter
         ///     .Null - ?
@@ -86,14 +85,13 @@ namespace RogueLike {
             dungeonParts.Add(dungeon);
 
             bool didSplit = true;
-            int splitIndex = 0;
 
             //this will cause the loop to continue until it has stopped making splits
             while (didSplit) {
                 didSplit = false;
-                for (int i = 0; i <= dungeonParts.Count; i++) {
-                    //grab the part to split, via a randomized index
-                    Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
+                for (int i = 0; i < dungeonParts.Count; i++) {
+                    //grab the part to split
+                    Dungeon toSplit = dungeonParts.ElementAt(i);
                     //if this leaf is not already split, split it
                     if (toSplit.LeftBranch == null && toSplit.RightBranch == null) {
                         if (toSplit.Split()) {
@@ -101,13 +99,7 @@ namespace RogueLike {
                             dungeonParts.Add(toSplit.LeftBranch);
                             dungeonParts.Add(toSplit.RightBranch);
                             didSplit = true;
-                            //reset the for loop, to create more randomization of the amount of rooms
-                            i = 0;
                         }
-                        //choose the next index, randomly
-                        splitIndex = RandomNum.Next(dungeonParts.Count);
-                    } else { //iterate to the next index, if no split is needed
-                        splitIndex++;
                     }
                 }
             }
@@ -214,7 +206,7 @@ namespace RogueLike {
         ///     add a message to the Log to be displayed on the screen
         /// </summary>
         /// <param name="message">
-        ///     the string message, maxiumum is 36 characters
+        ///     the string message, maxiumum is 36 characters per line
         /// </param>
         void AddLog(string message) {
             int maxLength = 36;

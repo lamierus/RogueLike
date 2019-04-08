@@ -12,7 +12,7 @@ namespace RogueLike {
         public Rectangle Room { get; private set; }
 
         // constructor with minimums built into it, so they can be provided, if you want
-        public Dungeon(int fullWidth, int fullHeight, int x, int y, int minWidth = 12, int minHeight = 8) {
+        public Dungeon(int fullWidth, int fullHeight, int x, int y, int minWidth = 16, int minHeight = 8) {
             Width = fullWidth;
             Height = fullHeight;
             X = x;
@@ -29,7 +29,8 @@ namespace RogueLike {
             //
             double VorH = Rand.NextDouble();
             bool vertical = (VorH > .5) ? true : false;
-            //int max = ((vertical) ? Width : Height) - c_MinSize; //find the maximum height/width
+            //find the maximum height/width
+            //int max = ((vertical) ? Width : Height) - c_MinSize;
             int maxWidth = Width - MinWidth;
             int maxHeight = Height - MinHeight;
             //bail if the maximum is smaller than or equal to the minimum
@@ -68,52 +69,53 @@ namespace RogueLike {
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
         public void GenerateRooms(ref List<Rectangle> rooms) {
-            //if neither of the branches are null, then we'll go into here and make sure they're split
+            //if neither of the  branches are null, then we'll go into here and attempt to generate rooms
             if (LeftBranch != null || RightBranch != null) {
-                if (LeftBranch != null) {
-                    LeftBranch.GenerateRooms(ref rooms);
+                LeftBranch.GenerateRooms(ref rooms);
+                RightBranch.GenerateRooms(ref rooms);
+                if (LeftBranch.Room != null && RightBranch.Room != null) {
+                    ConnectRooms(LeftBranch.Room, RightBranch.Room);
                 }
-                if (RightBranch != null) {
-                    RightBranch.GenerateRooms(ref rooms);
-                }
-                //if (LeftBranch.Room != null && RightBranch.Room != null  ) {
-                //    ConnectRooms(LeftBranch.Room, RightBranch.Room);
-                //}
-            } else if (Room == null){
+            } else if (Room == null) {
                 //create a randomly sized room, no bigger than the dungeon node and no smaller than the mimimum size
                 int roomXOffset = (Width - MinWidth <= 0) ? 0 : Rand.Next(Width - MinWidth);
                 int roomYOffset = (Height - MinHeight <= 0) ? 0 : Rand.Next(Height - MinHeight);
                 int roomWidth = Math.Max(Rand.Next(Width - roomXOffset), MinWidth);
-                int roomHeight = Math.Max(Rand.Next(Height - roomYOffset), MinHeight);   
+                int roomHeight = Math.Max(Rand.Next(Height - roomYOffset), MinHeight);
                 Room = new Rectangle(roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
                 rooms.Add(Room);
             }
             //TODO: add connections between the branches
         }
 
-        //private void ConnectRooms(Rectangle left, Rectangle right) {
+        private void ConnectRooms(Rectangle left, Rectangle right) {
+            bool AboveOrBelow = (left.Y < right.Y) ? true : false;
+            bool LeftOrRight = (left.X < right.X) ? true : false;
+
+            Position[] leftRoomX = new Position[left.Width];
+            Position[] leftRoomY = new Position[left.Height];
+
+            int Y = left.Y;
+            for (int LX = 0; LX <= left.Width; LX++) {
+                for (int RX = 0; RX <= right.Width; RX++) {
+                    if ((left.X + LX) == (right.X + RX)) {
+                        leftRoomX[LX] = new Position(left.X + LX, Y);
+                    }
+                }
+            }
+
+            int X = left.X;
+            for (int LY = 0; LY <= left.Height; LY++) {
+                for (int RY = 0; RY <= right.Height; RY++) {
+                    if ((left.Y + LY) == (right.Y + RY)) {
+                        leftRoomY[LY] = new Position(X, left.X + LY);
+                    }
+                }
+            }
+
+            double VorH = Rand.NextDouble();
+            bool vertical = (VorH > .5) ? true : false;
             
-        //}
-
-        /// <summary>
-        ///     build the halls between all of the rooms
-        /// </summary>
-        /// <param name="halls"></param>
-        /// <param name="rooms"></param>
-        //public void GenerateHalls(ref List<Rectangle> halls, List<Rectangle> rooms) {
-        //    rooms.Sort();
-            
-        //    //for (int i = 0; i < rooms.Count; i++) {
-        //    //    Rectangle roomToConnect = rooms[i];
-        //    //    for (int j = 0; j < rooms.Count; j++) {
-        //    //        Rectangle roomToFind = rooms[j];
-        //    //        if (roomToConnect != roomToFind) {
-        //    //            for (int x = roomToConnect.X; x < roomToConnect.Width; x++)
-
-        //    //        }
-
-        //    //    }
-        //    //}
-        //}
+        }
     }
 }
