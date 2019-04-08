@@ -76,6 +76,9 @@ namespace RogueLike {
                 if (RightBranch != null) {
                     RightBranch.GenerateRooms(ref rooms);
                 }
+                //if (LeftBranch.Room != null && RightBranch.Room != null  ) {
+                //    ConnectRooms(LeftBranch.Room, RightBranch.Room);
+                //}
             } else if (Room == null){
                 //create a randomly sized room, no bigger than the dungeon node and no smaller than the mimimum size
                 int roomXOffset = (Width - MinWidth <= 0) ? 0 : Rand.Next(Width - MinWidth);
@@ -88,20 +91,29 @@ namespace RogueLike {
             //TODO: add connections between the branches
         }
 
+        //private void ConnectRooms(Rectangle left, Rectangle right) {
+            
+        //}
+
         /// <summary>
         ///     build the halls between all of the rooms
         /// </summary>
         /// <param name="halls"></param>
         /// <param name="rooms"></param>
-        public void GenerateHalls(ref List<Rectangle> halls, List<Rectangle> rooms) {
-            rooms.Sort();
+        //public void GenerateHalls(ref List<Rectangle> halls, List<Rectangle> rooms) {
+        //    rooms.Sort();
             
-            foreach (Rectangle room in rooms) {
-                int Xintersect = room.X;
-                for (int i = 0; i < room.X + Width; i++) {
+        //    //for (int i = 0; i < rooms.Count; i++) {
+        //    //    Rectangle roomToConnect = rooms[i];
+        //    //    for (int j = 0; j < rooms.Count; j++) {
+        //    //        Rectangle roomToFind = rooms[j];
+        //    //        if (roomToConnect != roomToFind) {
+        //    //            for (int x = roomToConnect.X; x < roomToConnect.Width; x++)
 
-                }
-            }
-        }
+        //    //        }
+
+        //    //    }
+        //    //}
+        //}
     }
 }

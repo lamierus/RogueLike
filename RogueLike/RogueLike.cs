@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleGameEngine;
@@ -18,13 +17,6 @@ namespace RogueLike {
         ///     .BoxDrawingL_XX
         ///         drawing boxes with pixels, each of the last 2 characters explain the positioning of the lines in the pixel
         /// </summary>
-        /*
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetConsoleWindow();
-
-        [DllImport("user32.dll", SetLastError = true)]
-        internal static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
-        */
         const int c_SideBar = 40;
         const int c_PixelWidth = 8;
         const int c_PixelHeight = 12;
@@ -54,8 +46,6 @@ namespace RogueLike {
             Engine.SetPalette(Palettes.Default);
             Engine.SetBackground(0);
             //Engine.Borderless();
-            //IntPtr ptr = GetConsoleWindow();
-            //MoveWindow(ptr, 0, 0, Console.WindowWidth, Console.WindowHeight, true);
             Console.Title = "Dungeon of IT";
             TargetFramerate = 10;
 
@@ -69,7 +59,7 @@ namespace RogueLike {
         }
 
         /// <summary>
-        ///     currently only draws the rectangle around the edge,  but just use it as a color pallete draw
+        ///     was drawing the rectangle around the edge,  but just use it as a color pallete draw
         /// </summary>
         void DrawFrame() {
             int i = 0;
@@ -105,8 +95,7 @@ namespace RogueLike {
                     //grab the part to split, via a randomized index
                     Dungeon toSplit = dungeonParts.ElementAt(splitIndex);
                     //if this leaf is not already split, split it
-                    if (toSplit.LeftBranch == null && toSplit.RightBranch == null)
-                    {
+                    if (toSplit.LeftBranch == null && toSplit.RightBranch == null) {
                         if (toSplit.Split()) {
                             //If we did split, add the child branches to the dungeon parts list
                             dungeonParts.Add(toSplit.LeftBranch);
@@ -115,33 +104,38 @@ namespace RogueLike {
                             //reset the for loop, to create more randomization of the amount of rooms
                             i = 0;
                         }
+                        //choose the next index, randomly
+                        splitIndex = RandomNum.Next(dungeonParts.Count);
+                    } else { //iterate to the next index, if no split is needed
+                        splitIndex++;
                     }
-                    splitIndex = RandomNum.Next(dungeonParts.Count);
                 }
             }
 
             //create a list to hold all of the rooms
             List<Rectangle> rooms = new List<Rectangle>();
+
+            //create a list to hold all of the hallways
+            //List<Rectangle> halls = new List<Rectangle>();
+
             //run through, creating all of the rooms
+            //dungeon.GenerateRooms(ref rooms, ref halls);
             dungeon.GenerateRooms(ref rooms);
 
 
-            //create a list to hold all of the hallways
-            List<Rectangle> halls = new List<Rectangle>();
-
-            dungeon.GenerateHalls(ref halls, rooms);
+            //dungeon.GenerateHalls(ref halls, rooms);
 
             //move on to draw the level, sending all of the created rooms.
-            DrawLevel(rooms, halls);
+            //DrawLevel(rooms, halls);
+            DrawLevel(rooms);
         }
 
         /// <summary>
         ///     draw the rooms created by the dungeon algorithm, adding the walls to the level grid, so they can be solid
         /// </summary>
         /// <param name="Rooms"></param>
-        void DrawLevel(List<Rectangle> Rooms, List<Rectangle> Halls) {
+        void DrawLevel(List<Rectangle> Rooms) {//, List<Rectangle> Halls) {
             foreach (Rectangle R in Rooms) {
-                //R.OffsetRectangle(1, 1);
                 Engine.Rectangle(R.TopLeft.ToPoint(), R.BottomRight.ToPoint(), R.WallColor, R.Wall);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
