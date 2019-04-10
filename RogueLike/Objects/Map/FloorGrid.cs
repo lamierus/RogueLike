@@ -4,7 +4,7 @@ using System.Text;
 
 namespace RogueLike {
     public class FloorGrid {
-        public Object[, ] Grid;
+        public Object[, ] Grid { get; private set; }
 
         public FloorGrid (int width, int height) {
             Grid = new Object[width, height];

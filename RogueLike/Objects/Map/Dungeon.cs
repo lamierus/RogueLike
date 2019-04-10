@@ -89,44 +89,14 @@ namespace RogueLike {
         ///     will have to figure out a way to connect them all at a later time...
         /// </summary>
         /// <param name="halls"></param>
-        public List<Rectangle> GenerateHalls (ref FloorGrid floorPlan) {
+        public List<Rectangle> GenerateHalls (ref List<Rectangle> rooms) {
             List<Rectangle> halls = new List<Rectangle> ();
-
+            Rectangle firstRoom = rooms[0];
+            for (int i = 1; i < rooms.Count; i++){
+                Rectangle nextRoom = rooms[i];
+                
+            }
             return halls;
         }
-        //private void ConnectRooms(Rectangle left, Rectangle right) {
-        //    List<Position> leftRoomX = new List<Position>();
-        //    List<Position> rightRoomX = new List<Position>();
-
-        //    List<Position> leftRoomY = new List<Position>();
-        //    List<Position> rightRoomY = new List<Position>();
-
-        //    int LX = left.X;
-        //    int RX = right.X;
-        //    int LY = left.Y;
-        //    int RY = right.Y;
-
-        //    //bool LeftOrRight = ((LX + left.Width < right.X) || (LX > right.X + RX)) ? true : false;
-
-        //    //if (!LeftOrRight) {
-        //    //    for (LX = 0; LX <= left.Width; LX++) {
-        //    //        for (RX = 0; RX <= right.Width; RX++) {
-        //    //            if ((left.X + LX) == (right.X + RX)) {
-        //    //                leftRoomX.Add(new Position(left.X + LX, LY));
-        //    //                rightRoomX.Add(new Position(right.X + RX, RY));
-        //    //            }
-        //    //        }
-        //    //    }
-        //    //} else {
-        //    //    for (LY = 0; LY <= left.Height; LY++) {
-        //    //        for (RY = 0; RY <= right.Height; RY++) {
-        //    //            if ((left.Y + LY) == (right.Y + RY)) {
-        //    //                leftRoomY.Add(new Position(LX, left.Y + LY));
-        //    //                rightRoomY.Add(new Position(RX, right.Y + RY));
-        //    //            }
-        //    //        }
-        //    //    }
-        //    //}
-        //}
     }
 }

@@ -22,7 +22,6 @@ namespace RogueLike {
         const int c_MaxWinWidth = 170;
         const int c_MaxWinHeight = 50;
         const int BlankSpotColor = 0;
-        const int LevelWallColor = 2;
         const int InventoryTextColor = 3;
         const ConsoleKey keyClose = ConsoleKey.Escape;
 
@@ -49,7 +48,7 @@ namespace RogueLike {
             TargetFramerate = 10;
 
             DrawFrame ();
-            BuildLevel ();
+            BuildRooms ();
             AddItems ();
             AddMobs ();
             DrawSideBar ();
@@ -73,7 +72,7 @@ namespace RogueLike {
         /// <summary>
         ///     the algorithm to use the Dungeon and build the level in a fairly random manner
         /// </summary>
-        void BuildLevel () {
+        void BuildRooms () {
             int LevelWidth = c_MaxWinWidth - c_SideBar;
             int levelHeight = c_MaxWinHeight;
             //creating the empty level grid
@@ -110,10 +109,11 @@ namespace RogueLike {
 
             //run through, creating all of the rooms
             dungeon.GenerateRooms (ref rooms);
+            rooms.Sort();
 
             //move on to draw the level, sending all of the created rooms.
             AddRooms (rooms);
-            List<Rectangle> halls = dungeon.GenerateHalls (ref FloorPlan);
+            List<Rectangle> halls = dungeon.GenerateHalls (ref rooms);
             //AddHalls (halls);
         }
 
