@@ -88,15 +88,32 @@ namespace RogueLike {
         ///     generate halls in 4 directions from random spots on the walls of the room.
         ///     will have to figure out a way to connect them all at a later time...
         /// </summary>
-        /// <param name="halls"></param>
+        /// <param name="rooms"></param>
+        /// <returns></returns>
         public List<Rectangle> GenerateHalls (ref List<Rectangle> rooms) {
             List<Rectangle> halls = new List<Rectangle> ();
-            Rectangle firstRoom = rooms[0];
-            for (int i = 1; i < rooms.Count; i++){
-                Rectangle nextRoom = rooms[i];
-                
+            foreach (Rectangle room in rooms) {
+                for (int i = 1; i < rooms.Count; i++) {
+                    Rectangle nextRoom = rooms[i];
+                    bool connected = false;
+                    while (!connected) {
+                        bool onXAxis;
+                        if (room.CheckParallel (nextRoom, out onXAxis)) {
+                            if (onXAxis) {
+                                BuildHallway (room.GetXParallels (nextRoom));
+                            } else {
+                                BuildHallway (room.GetYParallels (nextRoom));
+                            }
+                            connected = true;
+                        }
+                    }
+                }
             }
             return halls;
+        }
+
+        private void BuildHallway (Position[, ] Connections) {
+
         }
     }
 }

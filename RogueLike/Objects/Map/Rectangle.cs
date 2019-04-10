@@ -27,76 +27,109 @@ namespace RogueLike {
             Height = height;
         }
 
-        public bool isParallelTo (Rectangle toCheck, out Position topLeft, out Position bottomRight) {
-            bool isParallel = false;
+        public bool CheckParallel (Rectangle other, out bool onXAxis) {
+            Position[, ] Parallels = GetXParallels (other);
+            onXAxis = true;
+            if (Parallels == null) {
+                Parallels = GetYParallels (other);
+                onXAxis = false;
+            }
+            return Parallels != null;
+        }
+
+        public Position[, ] GetXParallels (Rectangle toCheck) {
             List<Position> thisParallels = new List<Position> ();
             List<Position> thatParallels = new List<Position> ();
+            Position[, ] Parallels = null;
 
             for (int thisX = 0; 0 < Width; thisX++) {
                 for (int thatX = 0; 0 < toCheck.Width; thatX++) {
                     if (X + thisX == toCheck.X + thatX) {
-                        thisParallels.Add (new Position (X + thisX, Y));
+                        thisParallels.Add (new Position (X + thisX, Y + Height));
                         thatParallels.Add (new Position (X + thatX, Y));
-                        isParallel = true;
                     }
                 }
             }
-            if (thisParallels.Count == 0) {
-                for (int thisY = 0; 0 < Height; thisY++) {
-                    for (int thatY = 0; 0 < toCheck.Height; thatY++) {
-                        if (Y + thisY == toCheck.Y + thatY) {
-                            thisParallels.Add (new Position (X, Y + thisY));
-                            thatParallels.Add (new Position (X, Y + thatY));
-                            isParallel = true;
-                        }
+            if (thisParallels.Count > 0) {
+                Parallels = new Position[2, thisParallels.Count];
+                for (int i = 0; i < thisParallels.Count; i++) {
+                    Parallels[0, i] = thisParallels[i];
+                }
+                for (int i = 0; i < thatParallels.Count; i++) {
+                    Parallels[1, i] = thatParallels[i];
+                }
+            }
+            if (thisParallels.Count < 2) {
+                thisParallels.Clear ();
+                thatParallels.Clear ();
+            }
+            return Parallels;
+        }
+
+        public Position[, ] GetYParallels (Rectangle toCheck) {
+            List<Position> thisParallels = new List<Position> ();
+            List<Position> thatParallels = new List<Position> ();
+            Position[, ] Parallels = null;
+
+            for (int thisY = 0; 0 < Height; thisY++) {
+                for (int thatY = 0; 0 < toCheck.Height; thatY++) {
+                    if (Y + thisY == toCheck.Y + thatY) {
+                        thisParallels.Add (new Position (X + Width, Y + thisY));
+                        thatParallels.Add (new Position (X, Y + thatY));
                     }
                 }
-                
-            } else {
-
             }
-
-            return isParallel;
-
-            public static bool operator < (Rectangle lhs, Rectangle rhs) {
-                return (lhs.X < rhs.X || lhs.Y < rhs.Y);
-            }
-            public static bool operator > (Rectangle lhs, Rectangle rhs) {
-                return (lhs.X > rhs.X || lhs.Y > rhs.Y);
-            }
-            public static bool operator <= (Rectangle lhs, Rectangle rhs) {
-                return (lhs.X <= rhs.X && lhs.Y <= lhs.Y);
-            }
-            public static bool operator >= (Rectangle lhs, Rectangle rhs) {
-                return (lhs.X >= rhs.X && lhs.Y >= lhs.Y);
-            }
-            public static bool operator == (Rectangle lhs, Rectangle rhs) {
-                if ((object) lhs == null)
-                    return (object) lhs == null;
-                if ((object) rhs == null)
-                    return false;
-                return ((lhs.X == rhs.X) && (lhs.Y == rhs.Y) && (lhs.Width == rhs.Width) && (lhs.Height == rhs.Height));
-            }
-            public static bool operator != (Rectangle lhs, Rectangle rhs) {
-                return !(lhs == rhs);
-            }
-
-            public int CompareTo (Rectangle that) {
-                int result = (TopLeft.CompareTo (that.TopLeft));
-                if (result != 0) {
-                    return result;
+            if (thisParallels.Count > 0) {
+                Parallels = new Position[2, thisParallels.Count];
+                for (int i = 0; i < thisParallels.Count; i++) {
+                    Parallels[0, i] = thisParallels[i];
                 }
-                result = (BottomRight.CompareTo (that.BottomRight));
-                if (result != 0) {
-                    return result;
+                for (int i = 0; i < thatParallels.Count; i++) {
+                    Parallels[1, i] = thatParallels[i];
                 }
-                return 0;
             }
-            public override bool Equals (object obj) {
-                return Equals (obj);
+            return Parallels;
+        }
+
+        public static bool operator < (Rectangle lhs, Rectangle rhs) {
+            return (lhs.TopLeft < rhs.TopLeft);
+        }
+        public static bool operator > (Rectangle lhs, Rectangle rhs) {
+            return (lhs.TopLeft > rhs.TopLeft);
+        }
+        public static bool operator <= (Rectangle lhs, Rectangle rhs) {
+            return (lhs.TopLeft <= rhs.TopLeft);
+        }
+        public static bool operator >= (Rectangle lhs, Rectangle rhs) {
+            return (lhs.TopLeft >= rhs.TopLeft);
+        }
+        public static bool operator == (Rectangle lhs, Rectangle rhs) {
+            if ((object) lhs == null)
+                return (object) lhs == null;
+            if ((object) rhs == null)
+                return false;
+            return ((lhs.TopLeft == rhs.TopLeft) && (lhs.BottomRight == rhs.BottomRight));
+        }
+        public static bool operator != (Rectangle lhs, Rectangle rhs) {
+            return !(lhs == rhs);
+        }
+
+        public int CompareTo (Rectangle that) {
+            int result = (TopLeft.CompareTo (that.TopLeft));
+            if (result != 0) {
+                return result;
             }
-            public override int GetHashCode () {
-                return GetHashCode ();
+            result = (BottomRight.CompareTo (that.BottomRight));
+            if (result != 0) {
+                return result;
             }
+            return 0;
+        }
+        public override bool Equals (object obj) {
+            return Equals (obj);
+        }
+        public override int GetHashCode () {
+            return GetHashCode ();
         }
     }
+}

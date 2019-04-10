@@ -109,7 +109,7 @@ namespace RogueLike {
 
             //run through, creating all of the rooms
             dungeon.GenerateRooms (ref rooms);
-            rooms.Sort();
+            rooms.Sort ();
 
             //move on to draw the level, sending all of the created rooms.
             AddRooms (rooms);
