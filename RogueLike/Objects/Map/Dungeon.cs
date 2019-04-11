@@ -95,25 +95,32 @@ namespace RogueLike {
             foreach (Rectangle room in rooms) {
                 for (int i = 1; i < rooms.Count; i++) {
                     Rectangle nextRoom = rooms[i];
-                    bool connected = false;
-                    while (!connected) {
-                        bool onXAxis;
-                        if (room.CheckParallel (nextRoom, out onXAxis)) {
-                            if (onXAxis) {
-                                BuildHallway (room.GetXParallels (nextRoom));
-                            } else {
-                                BuildHallway (room.GetYParallels (nextRoom));
-                            }
-                            connected = true;
+                    // bool connected = false;
+                    // while (!connected) {
+                    bool onXAxis;
+                    if (room.CheckParallel (nextRoom, out onXAxis)) {
+                        if (onXAxis) {
+                            halls.Add (BuildHallway (room.GetXParallels (nextRoom)));
+                        } else {
+                            halls.Add (BuildHallway (room.GetYParallels (nextRoom)));
                         }
+                        // connected = true;
                     }
+                    // }
                 }
             }
             return halls;
         }
 
-        private void BuildHallway (Position[, ] Connections) {
-
+        private Rectangle BuildHallway (Position[, ] parallels) {
+            Rectangle hallway;
+            int countOfParallels = parallels.Length / 2;
+            if (countOfParallels > 3) {
+                hallway = new Rectangle (parallels[0, 0], parallels[1, 0]);
+            } else {
+                hallway = new Rectangle (parallels[0, 0], parallels[1, 0]);
+            }
+            return hallway;
         }
     }
 }

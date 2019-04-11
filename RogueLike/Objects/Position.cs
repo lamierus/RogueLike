@@ -1,5 +1,5 @@
 ﻿using System;
-using ConsoleGameEngine;﻿
+using ConsoleGameEngine;
 
 namespace RogueLike {
     /// <summary> A Vector containing two ints. </summary>

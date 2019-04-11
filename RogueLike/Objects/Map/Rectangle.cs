@@ -27,6 +27,15 @@ namespace RogueLike {
             Height = height;
         }
 
+        public Rectangle (Position topLeft, Position bottomRight) {
+            TopLeft = topLeft;
+            BottomRight = bottomRight;
+            X = topLeft.X;
+            Y = topLeft.Y;
+            Width = Math.Abs (topLeft.X - bottomRight.X);
+            Height = Math.Abs (topLeft.Y - bottomRight.Y);
+        }
+
         public bool CheckParallel (Rectangle other, out bool onXAxis) {
             Position[, ] Parallels = GetXParallels (other);
             onXAxis = true;
@@ -42,11 +51,11 @@ namespace RogueLike {
             List<Position> thatParallels = new List<Position> ();
             Position[, ] Parallels = null;
 
-            for (int thisX = 0; 0 < Width; thisX++) {
-                for (int thatX = 0; 0 < toCheck.Width; thatX++) {
+            for (int thisX = 0; thisX < Width; thisX++) {
+                for (int thatX = 0; thatX < toCheck.Width; thatX++) {
                     if (X + thisX == toCheck.X + thatX) {
                         thisParallels.Add (new Position (X + thisX, Y + Height));
-                        thatParallels.Add (new Position (X + thatX, Y));
+                        thatParallels.Add (new Position (toCheck.X + thatX, Y));
                     }
                 }
             }
@@ -59,10 +68,10 @@ namespace RogueLike {
                     Parallels[1, i] = thatParallels[i];
                 }
             }
-            if (thisParallels.Count < 2) {
-                thisParallels.Clear ();
-                thatParallels.Clear ();
-            }
+            // if (thisParallels.Count < 2) {
+            //     thisParallels.Clear ();
+            //     thatParallels.Clear ();
+            // }
             return Parallels;
         }
 
@@ -71,11 +80,11 @@ namespace RogueLike {
             List<Position> thatParallels = new List<Position> ();
             Position[, ] Parallels = null;
 
-            for (int thisY = 0; 0 < Height; thisY++) {
-                for (int thatY = 0; 0 < toCheck.Height; thatY++) {
+            for (int thisY = 0; thisY < Height; thisY++) {
+                for (int thatY = 0; thatY < toCheck.Height; thatY++) {
                     if (Y + thisY == toCheck.Y + thatY) {
                         thisParallels.Add (new Position (X + Width, Y + thisY));
-                        thatParallels.Add (new Position (X, Y + thatY));
+                        thatParallels.Add (new Position (X, toCheck.Y + thatY));
                     }
                 }
             }
@@ -126,10 +135,10 @@ namespace RogueLike {
             return 0;
         }
         public override bool Equals (object obj) {
-            return Equals (obj);
+            return this == (Rectangle) obj;
         }
         public override int GetHashCode () {
-            return GetHashCode ();
+            return (int) (Position.Distance (TopLeft, BottomRight));
         }
     }
 }
