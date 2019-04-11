@@ -126,7 +126,7 @@ namespace RogueLike {
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
                         if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
-                            FloorPlan.AddItem (new Wall ((R.X + x), (R.Y + y)));
+                            //FloorPlan.AddItem (new Wall ((R.X + x), (R.Y + y)));
                         }
                     }
                 }

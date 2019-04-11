@@ -37,7 +37,7 @@ namespace RogueLike {
         }
 
         public bool CheckParallel (Rectangle other, out bool onXAxis) {
-            Position[, ] Parallels = GetXParallels (other);
+            List<Position>[] Parallels = GetXParallels (other);
             onXAxis = true;
             if (Parallels == null) {
                 Parallels = GetYParallels (other);
@@ -46,10 +46,10 @@ namespace RogueLike {
             return Parallels != null;
         }
 
-        public Position[, ] GetXParallels (Rectangle toCheck) {
+        public List<Position>[] GetXParallels (Rectangle toCheck) {
             List<Position> thisParallels = new List<Position> ();
             List<Position> thatParallels = new List<Position> ();
-            Position[, ] Parallels = null;
+            List<Position>[] Parallels = null;
 
             for (int thisX = 0; thisX < Width; thisX++) {
                 for (int thatX = 0; thatX < toCheck.Width; thatX++) {
@@ -60,25 +60,17 @@ namespace RogueLike {
                 }
             }
             if (thisParallels.Count > 0) {
-                Parallels = new Position[2, thisParallels.Count];
-                for (int i = 0; i < thisParallels.Count; i++) {
-                    Parallels[0, i] = thisParallels[i];
-                }
-                for (int i = 0; i < thatParallels.Count; i++) {
-                    Parallels[1, i] = thatParallels[i];
-                }
+                Parallels = new List<Position>[2];
+                Parallels[0] = thisParallels;
+                Parallels[1] = thatParallels;
             }
-            // if (thisParallels.Count < 2) {
-            //     thisParallels.Clear ();
-            //     thatParallels.Clear ();
-            // }
             return Parallels;
         }
 
-        public Position[, ] GetYParallels (Rectangle toCheck) {
+        public List<Position>[] GetYParallels (Rectangle toCheck) {
             List<Position> thisParallels = new List<Position> ();
             List<Position> thatParallels = new List<Position> ();
-            Position[, ] Parallels = null;
+            List<Position>[] Parallels = null;
 
             for (int thisY = 0; thisY < Height; thisY++) {
                 for (int thatY = 0; thatY < toCheck.Height; thatY++) {
@@ -89,13 +81,9 @@ namespace RogueLike {
                 }
             }
             if (thisParallels.Count > 0) {
-                Parallels = new Position[2, thisParallels.Count];
-                for (int i = 0; i < thisParallels.Count; i++) {
-                    Parallels[0, i] = thisParallels[i];
-                }
-                for (int i = 0; i < thatParallels.Count; i++) {
-                    Parallels[1, i] = thatParallels[i];
-                }
+                Parallels = new List<Position>[2];
+                Parallels[0] = thisParallels;
+                Parallels[1] = thatParallels;
             }
             return Parallels;
         }

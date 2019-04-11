@@ -112,14 +112,14 @@ namespace RogueLike {
             return halls;
         }
 
-        private Rectangle BuildHallway (Position[, ] parallels) {
+        private Rectangle BuildHallway (List<Position>[] parallels) {
             Rectangle hallway;
-            int countOfParallels = parallels.Length / 2;
-            if (countOfParallels > 3) {
-                hallway = new Rectangle (parallels[0, 0], parallels[1, 0]);
-            } else {
-                hallway = new Rectangle (parallels[0, 0], parallels[1, 0]);
-            }
+            int countOfParallels = parallels[0].Count;
+            // if (countOfParallels > 3) {
+            //     hallway = new Rectangle (parallels[0, 0], parallels[1, 0]);
+            // } else {
+            hallway = new Rectangle (parallels[0][0], parallels[1][0]);
+            // }
             return hallway;
         }
     }
