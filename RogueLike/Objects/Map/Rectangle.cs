@@ -5,6 +5,8 @@ using ConsoleGameEngine;
 
 namespace RogueLike {
     public class Rectangle : IComparable<Rectangle> {
+        public Rectangle XParallelRectangle,
+        YParallelRectangle;
         public Position TopLeft { get; private set; }
         public Position BottomRight { get; private set; }
         public int X { get; private set; }
@@ -36,38 +38,15 @@ namespace RogueLike {
             Height = Math.Abs (topLeft.Y - bottomRight.Y);
         }
 
-        public bool CheckParallel (Rectangle other, out bool onXAxis) {
-            List<Position>[] Parallels = GetXParallels (other);
-            onXAxis = true;
-            if (Parallels == null) {
-                Parallels = GetYParallels (other);
-                onXAxis = false;
+        public bool CheckXParallel (Rectangle other) {
+            if (other.XParallelRectangle == this || XParallelRectangle == other) {
+                return false;
             }
+            List<Position>[] Parallels = GetXAxisParallels (other);
             return Parallels != null;
         }
 
-        public List<Position>[] GetXParallels (Rectangle toCheck) {
-            List<Position> thisParallels = new List<Position> ();
-            List<Position> thatParallels = new List<Position> ();
-            List<Position>[] Parallels = null;
-
-            for (int thisX = 0; thisX < Width; thisX++) {
-                for (int thatX = 0; thatX < toCheck.Width; thatX++) {
-                    if (X + thisX == toCheck.X + thatX) {
-                        thisParallels.Add (new Position (X + thisX, Y + Height));
-                        thatParallels.Add (new Position (toCheck.X + thatX, Y));
-                    }
-                }
-            }
-            if (thisParallels.Count > 0) {
-                Parallels = new List<Position>[2];
-                Parallels[0] = thisParallels;
-                Parallels[1] = thatParallels;
-            }
-            return Parallels;
-        }
-
-        public List<Position>[] GetYParallels (Rectangle toCheck) {
+        public List<Position>[] GetXAxisParallels (Rectangle toCheck) {
             List<Position> thisParallels = new List<Position> ();
             List<Position> thatParallels = new List<Position> ();
             List<Position>[] Parallels = null;
@@ -75,12 +54,55 @@ namespace RogueLike {
             for (int thisY = 0; thisY < Height; thisY++) {
                 for (int thatY = 0; thatY < toCheck.Height; thatY++) {
                     if (Y + thisY == toCheck.Y + thatY) {
-                        thisParallels.Add (new Position (X + Width, Y + thisY));
-                        thatParallels.Add (new Position (X, toCheck.Y + thatY));
+                        if (X < toCheck.X) {
+                            thisParallels.Add (new Position (X + Width, Y + thisY));
+                            thatParallels.Add (new Position (toCheck.X, toCheck.Y + thatY));
+                        } else {
+                            thisParallels.Add (new Position (X, Y + thisY));
+                            thatParallels.Add (new Position (toCheck.X + toCheck.Width, toCheck.Y + thatY));
+                        }
                     }
                 }
             }
             if (thisParallels.Count > 0) {
+                XParallelRectangle = toCheck;
+                toCheck.XParallelRectangle = this;
+                Parallels = new List<Position>[2];
+                Parallels[0] = thisParallels;
+                Parallels[1] = thatParallels;
+            }
+            return Parallels;
+        }
+
+        public bool CheckYParallel (Rectangle other) {
+            if (other.YParallelRectangle == this || YParallelRectangle == other) {
+                return false;
+            }
+            List<Position>[] Parallels = GetYAxisParallels (other);
+            return Parallels != null;
+        }
+
+        public List<Position>[] GetYAxisParallels (Rectangle toCheck) {
+            List<Position> thisParallels = new List<Position> ();
+            List<Position> thatParallels = new List<Position> ();
+            List<Position>[] Parallels = null;
+
+            for (int thisX = 0; thisX < Width; thisX++) {
+                for (int thatX = 0; thatX < toCheck.Width; thatX++) {
+                    if (X + thisX == toCheck.X + thatX) {
+                        if (Y < toCheck.Y) {
+                            thisParallels.Add (new Position (X + thisX, Y + Height));
+                            thatParallels.Add (new Position (toCheck.X + thatX, toCheck.Y));
+                        } else {
+                            thisParallels.Add (new Position (X + thisX, Y));
+                            thatParallels.Add (new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height));
+                        }
+                    }
+                }
+            }
+            if (thisParallels.Count > 0) {
+                YParallelRectangle = toCheck;
+                toCheck.YParallelRectangle = this;
                 Parallels = new List<Position>[2];
                 Parallels[0] = thisParallels;
                 Parallels[1] = thatParallels;
@@ -100,15 +122,48 @@ namespace RogueLike {
         public static bool operator >= (Rectangle lhs, Rectangle rhs) {
             return (lhs.TopLeft >= rhs.TopLeft);
         }
+
         public static bool operator == (Rectangle lhs, Rectangle rhs) {
-            if ((object) lhs == null)
-                return (object) lhs == null;
-            if ((object) rhs == null)
+            // if (lhs != null && rhs != null) {
+            //     return ((lhs.TopLeft == rhs.TopLeft) && (lhs.BottomRight == rhs.BottomRight));
+            // } else {
+            //     return false;
+            // }
+            // Check for null
+            if (Object.ReferenceEquals (lhs, null)) {
+                if (Object.ReferenceEquals (rhs, null)) {
+                    return true;
+                }
                 return false;
-            return ((lhs.TopLeft == rhs.TopLeft) && (lhs.BottomRight == rhs.BottomRight));
+            }
+            return lhs.Equals (rhs);
         }
+
         public static bool operator != (Rectangle lhs, Rectangle rhs) {
-            return !(lhs == rhs);
+            return !(lhs.Equals (rhs));
+        }
+
+        public override bool Equals (object obj) {
+            return this.Equals (obj as Rectangle);
+        }
+
+        public bool Equals (Rectangle rhs) {
+            // If parameter is null, return false.
+            if (Object.ReferenceEquals (rhs, null)) {
+                return false;
+            }
+            // Optimization for a common success case.
+            if (Object.ReferenceEquals (this, rhs)) {
+                return true;
+            }
+            // If run-time types are not exactly the same, return false.
+            if (this.GetType () != rhs.GetType ()) {
+                return false;
+            }
+            // Return true if the fields match.
+            // Note that the base class is not invoked because it is
+            // System.Object, which defines Equals as reference equality.
+            return (TopLeft == rhs.TopLeft) && (BottomRight == rhs.BottomRight);
         }
 
         public int CompareTo (Rectangle that) {
@@ -122,9 +177,7 @@ namespace RogueLike {
             }
             return 0;
         }
-        public override bool Equals (object obj) {
-            return this == (Rectangle) obj;
-        }
+
         public override int GetHashCode () {
             return (int) (Position.Distance (TopLeft, BottomRight));
         }

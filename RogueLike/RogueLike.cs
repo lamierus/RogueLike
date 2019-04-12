@@ -121,15 +121,18 @@ namespace RogueLike {
         /// </summary>
         /// <param name="rooms"></param>
         void AddRooms (List<Rectangle> rooms, List<Rectangle> halls) {
-            foreach (Rectangle R in rooms.Union (halls)) {
+            foreach (Rectangle R in rooms) { //.Union (halls)) {
                 Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.WallColor, R.Wall);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
                         if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
-                            //FloorPlan.AddItem (new Wall ((R.X + x), (R.Y + y)));
+                            FloorPlan.AddItem (new Wall ((R.X + x), (R.Y + y)));
                         }
                     }
                 }
+            }
+            foreach (Rectangle R in halls) {
+                Engine.Line (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.WallColor, R.Wall);
             }
         }
 
