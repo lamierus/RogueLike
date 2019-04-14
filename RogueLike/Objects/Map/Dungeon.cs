@@ -90,10 +90,25 @@ namespace RogueLike {
         /// </summary>
         /// <param name="rooms"></param>
         /// <returns></returns>
-        public List<Rectangle> GenerateHalls (ref List<Rectangle> rooms) {
+        public List<Rectangle> GenerateHalls (ref FloorGrid floorPlan, ref List<Rectangle> rooms) {
             List<Rectangle> halls = new List<Rectangle> ();
             foreach (Rectangle room in rooms) {
-                for (int i = 1; i < rooms.Count; i++) {
+                if (room.Y - MinHeight > 2) {
+                    for (int x = room.X; i < room.width; i++) {
+                        for (int y = room.Y - 1; j >= 0; i--) {
+                            if (floorPlan.Grid[x,y] is Wall){
+                                
+                            }
+                        }
+                    }
+                } else {
+                    for (int i = room.X; i < room.width; i++) {
+                        for (int j = room.Y; j >= 0; i--) {
+
+                        }
+                    }
+                }
+                /*for (int i = 1; i < rooms.Count; i++) {
                     Rectangle nextRoom = rooms[i];
                     if (room.XParallelRectangle == null && room.CheckXParallel (nextRoom)) {
                         halls.Add (BuildHallway (room.GetXAxisParallels (nextRoom)));
@@ -101,7 +116,7 @@ namespace RogueLike {
                     if (room.YParallelRectangle == null && room.CheckYParallel (nextRoom)) {
                         halls.Add (BuildHallway (room.GetYAxisParallels (nextRoom)));
                     }
-                }
+                }*/
             }
             return halls;
         }
