@@ -26,9 +26,8 @@ namespace RogueLike {
             if (LeftBranch != null || RightBranch != null) {
                 return false;
             }
-            //
-            double VorH = Rand.NextDouble ();
-            bool vertical = (VorH >.5) ? true : false;
+
+            bool vertical = VorH ();
             //find the maximum height/width
             //int max = ((vertical) ? Width : Height) - c_MinSize;
             int maxWidth = Width - MinWidth;
@@ -64,15 +63,24 @@ namespace RogueLike {
         }
 
         /// <summary>
+        ///     provide a quick true or false to randomly pick vertical or horizontal
+        /// </summary>
+        /// <returns></returns>
+        private bool VorH () {
+            double VorH = Rand.NextDouble ();
+            return (VorH >.5) ? true : false;
+        }
+
+        /// <summary>
         ///     iterate through each of the nodes and generate rooms at the bottom of the branch
         /// </summary>
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
-        public void GenerateRooms (ref List<Rectangle> rooms) {
+        public void GenerateRooms (ref List<Rectangle> rooms, ref List<Rectangle> halls) {
             //if neither of the  branches are null, then we'll go into here and attempt to generate rooms
             if (LeftBranch != null || RightBranch != null) {
-                LeftBranch.GenerateRooms (ref rooms);
-                RightBranch.GenerateRooms (ref rooms);
+                LeftBranch.GenerateRooms (ref rooms, ref halls);
+                RightBranch.GenerateRooms (ref rooms, ref halls);
             } else if (Room == null) {
                 //create a randomly sized room, no bigger than the dungeon node and no smaller than the mimimum size
                 int roomXOffset = (Width - MinWidth <= 0) ? 0 : Rand.Next (Width - MinWidth);
@@ -81,7 +89,30 @@ namespace RogueLike {
                 int roomHeight = Math.Max (Rand.Next (Height - roomYOffset), MinHeight);
                 Room = new Rectangle (roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
                 rooms.Add (Room);
+
+                if (rooms.Count > 1) {
+                    GenerateHalls (ref rooms, ref halls);
+                }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parallels"></param>
+        /// <returns></returns>
+        private Rectangle BuildHallway (List<Position>[] parallels) {
+            Rectangle hallway;
+            int countOfParallels = parallels[0].Count;
+            if (countOfParallels > 3) {
+                int randomChoice = Rand.Next (2, countOfParallels - 1);
+                hallway = new Rectangle (parallels[0][randomChoice - 2], parallels[1][randomChoice]);
+            } else if (countOfParallels < 3) {
+                hallway = null;
+            } else {
+                hallway = new Rectangle (parallels[0][0], parallels[1][2]);
+            }
+            return hallway;
         }
 
         /// <summary>
@@ -89,47 +120,55 @@ namespace RogueLike {
         ///     will have to figure out a way to connect them all at a later time...
         /// </summary>
         /// <param name="rooms"></param>
-        /// <returns></returns>
-        public List<Rectangle> GenerateHalls (ref FloorGrid floorPlan, ref List<Rectangle> rooms) {
-            List<Rectangle> halls = new List<Rectangle> ();
-            foreach (Rectangle room in rooms) {
-                if (room.Y - MinHeight > 2) {
-                    for (int x = room.X; i < room.width; i++) {
-                        for (int y = room.Y - 1; j >= 0; i--) {
-                            if (floorPlan.Grid[x,y] is Wall){
-                                
-                            }
-                        }
+        /// <param name="halls"></param>
+        public void GenerateHalls (ref List<Rectangle> rooms, ref List<Rectangle> halls) {
+            Rectangle thisRect = rooms[rooms.Count - 1];
+            Rectangle lastRect = rooms[rooms.Count - 2];
+            Rectangle hallToAdd = null;
+            bool areXParallels = thisRect.CheckXParallel (lastRect);
+            bool areYParallels = thisRect.CheckYParallel (lastRect);
+            if (areXParallels) {
+                hallToAdd = BuildHallway (thisRect.GetXAxisParallels (lastRect));
+            }
+            if (areYParallels) {
+                hallToAdd = BuildHallway (thisRect.GetYAxisParallels (lastRect));
+            }
+            if (hallToAdd == null) {
+                List<Rectangle> hallsToAdd = new List<Rectangle> ();
+                Position thisHallTopLeft, thisHallBottomRight, lastHallTopLeft, lastHallBottomRight;
+                if (thisRect.Y > lastRect.Y) {
+                    if (thisRect.X > lastRect.X) {
+                        thisHallBottomRight = new Position (Rand.Next (thisRect.X + 2, thisRect.X + thisRect.Width), thisRect.Y);
+                        lastHallTopLeft = new Position (lastRect.X + Width, Rand.Next (lastRect.Y + lastRect.Width, lastRect.Y + lastRect.Width + lastRect.Height - 2));
+                        thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallTopLeft.Y);
+                        lastHallBottomRight = thisHallTopLeft + 2;
+                    } else {
+                        thisHallBottomRight = new Position (Rand.Next (thisRect.X + 2, thisRect.X + thisRect.Width), thisRect.Y);
+                        lastHallBottomRight = new Position (lastRect.X, Rand.Next (lastRect.Y + 2, lastRect.Y + lastRect.Height));
+                        thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallBottomRight.Y - 2);
+                        lastHallTopLeft = thisHallTopLeft;
                     }
                 } else {
-                    for (int i = room.X; i < room.width; i++) {
-                        for (int j = room.Y; j >= 0; i--) {
-
-                        }
+                    if (thisRect.X > lastRect.X) {
+                        thisHallTopLeft = new Position (Rand.Next (thisRect.X, thisRect.X + Width - 2), thisRect.Y + thisRect.Height);
+                        lastHallTopLeft = new Position (lastRect.X + Width, Rand.Next (lastRect.Y, lastRect.Y + Height - 2));
+                        thisHallBottomRight = new Position (thisHallTopLeft.X + 2, lastHallTopLeft.Y + 2);
+                        lastHallBottomRight = thisHallBottomRight;
+                    } else {
+                        thisHallTopLeft = new Position (Rand.Next (thisRect.X, thisRect.X + Width - 2), thisRect.Y + Height);
+                        lastHallBottomRight = new Position (lastRect.X, Rand.Next (lastRect.Y, lastRect.Y + Height - 2));
+                        lastHallTopLeft = new Position (thisHallTopLeft.X, lastHallBottomRight.Y - 2);
+                        thisHallBottomRight = lastHallTopLeft - 2;
                     }
                 }
-                /*for (int i = 1; i < rooms.Count; i++) {
-                    Rectangle nextRoom = rooms[i];
-                    if (room.XParallelRectangle == null && room.CheckXParallel (nextRoom)) {
-                        halls.Add (BuildHallway (room.GetXAxisParallels (nextRoom)));
-                    }
-                    if (room.YParallelRectangle == null && room.CheckYParallel (nextRoom)) {
-                        halls.Add (BuildHallway (room.GetYAxisParallels (nextRoom)));
-                    }
-                }*/
+                hallsToAdd.Add (new Rectangle (thisHallTopLeft, thisHallBottomRight));
+                hallsToAdd.Add (new Rectangle (lastHallTopLeft, lastHallBottomRight));
+                foreach (Rectangle H in hallsToAdd) {
+                    halls.Add (H);
+                }
+            } else {
+                halls.Add (hallToAdd);
             }
-            return halls;
-        }
-
-        private Rectangle BuildHallway (List<Position>[] parallels) {
-            Rectangle hallway;
-            int countOfParallels = parallels[0].Count;
-            // if (countOfParallels > 3) {
-            //     hallway = new Rectangle (parallels[0, 0], parallels[1, 0]);
-            // } else {
-            hallway = new Rectangle (parallels[0][0], parallels[1][0]);
-            // }
-            return hallway;
         }
     }
 }

@@ -5,8 +5,6 @@ using ConsoleGameEngine;
 
 namespace RogueLike {
     public class Rectangle : IComparable<Rectangle> {
-        public Rectangle XParallelRectangle,
-        YParallelRectangle;
         public Position TopLeft { get; private set; }
         public Position BottomRight { get; private set; }
         public int X { get; private set; }
@@ -39,9 +37,6 @@ namespace RogueLike {
         }
 
         public bool CheckXParallel (Rectangle other) {
-            if (other.XParallelRectangle == this || XParallelRectangle == other) {
-                return false;
-            }
             List<Position>[] Parallels = GetXAxisParallels (other);
             return Parallels != null;
         }
@@ -65,8 +60,6 @@ namespace RogueLike {
                 }
             }
             if (thisParallels.Count > 0) {
-                XParallelRectangle = toCheck;
-                toCheck.XParallelRectangle = this;
                 Parallels = new List<Position>[2];
                 Parallels[0] = thisParallels;
                 Parallels[1] = thatParallels;
@@ -75,9 +68,6 @@ namespace RogueLike {
         }
 
         public bool CheckYParallel (Rectangle other) {
-            if (other.YParallelRectangle == this || YParallelRectangle == other) {
-                return false;
-            }
             List<Position>[] Parallels = GetYAxisParallels (other);
             return Parallels != null;
         }
@@ -101,8 +91,6 @@ namespace RogueLike {
                 }
             }
             if (thisParallels.Count > 0) {
-                YParallelRectangle = toCheck;
-                toCheck.YParallelRectangle = this;
                 Parallels = new List<Position>[2];
                 Parallels[0] = thisParallels;
                 Parallels[1] = thatParallels;

@@ -106,28 +106,26 @@ namespace RogueLike {
 
             //create a list to hold all of the rooms
             List<Rectangle> rooms = new List<Rectangle> ();
-
+            List<Rectangle> halls = new List<Rectangle> ();
             //run through, creating all of the rooms
-            dungeon.GenerateRooms (ref rooms);
+            dungeon.GenerateRooms (ref rooms, ref halls);
 
             //move on to draw the level, sending all of the created rooms.
-            AddRooms (rooms);
-
-            List<Rectangle> halls = dungeon.GenerateHalls (ref FloorPlan, ref rooms);
-            AddHalls (halls);
+            AddRooms (rooms, halls);
         }
 
         /// <summary>
         ///     draw the rooms created by the dungeon algorithm, adding the walls to the level grid, so they can be solid
         /// </summary>
         /// <param name="rooms"></param>
-        void AddRooms (List<Rectangle> rooms) {
-            foreach (Rectangle R in rooms) {
+        /// <param name="halls"></param>
+        void AddRooms (List<Rectangle> rooms, List<Rectangle> halls) {
+            foreach (Rectangle R in rooms.Union (halls)) {
                 Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.WallColor, R.Wall);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
                         if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
-                            FloorPlan.AddItem (new Wall ((R.X + x), (R.Y + y)));
+                            //FloorPlan.AddItem (new Wall ((R.X + x), (R.Y + y)));
                         }
                     }
                 }
