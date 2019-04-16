@@ -160,9 +160,9 @@ namespace RogueLike {
                         lastHallBottomRight = thisHallBottomRight;
                     } else {
                         thisHallTopLeft = new Position (Rand.Next (thisRoom.X, thisRoom.X + Width - 2), thisRoom.Y + Height);
-                        lastHallBottomRight = new Position (lastRoom.X, Rand.Next (lastRoom.Y, lastRoom.Y + Height - 2));
+                        lastHallBottomRight = new Position (lastRoom.X, Rand.Next (lastRoom.Y + 2, lastRoom.Y + Height));
                         lastHallTopLeft = new Position (thisHallTopLeft.X, lastHallBottomRight.Y - 2);
-                        thisHallBottomRight = lastHallTopLeft - 2;
+                        thisHallBottomRight = lastHallTopLeft + 2;
                     }
                 }
                 hallsToAdd.Add (new Rectangle (thisHallTopLeft, thisHallBottomRight));
