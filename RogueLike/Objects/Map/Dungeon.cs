@@ -7,9 +7,12 @@ namespace RogueLike {
     public class Dungeon {
         private Random Rand = new Random ();
         private readonly int Width, Height, X, Y, MinWidth, MinHeight;
+        private Dungeon Root { get; set; }
         public Dungeon LeftBranch { get; private set; }
         public Dungeon RightBranch { get; private set; }
         public Rectangle Room { get; private set; }
+        public List<Rectangle> Rooms = new List<Rectangle> ();
+        public List<Rectangle> Halls = new List<Rectangle> ();
 
         // constructor with minimums built into it, so they can be provided, if you want
         public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth = 16, int minHeight = 8) {
@@ -19,6 +22,10 @@ namespace RogueLike {
             Y = y;
             MinWidth = minWidth;
             MinHeight = minHeight;
+        }
+
+        public void SetRoot (Dungeon root) {
+            Root = root;
         }
 
         /// <summary>
@@ -63,6 +70,8 @@ namespace RogueLike {
                 LeftBranch = new Dungeon (Width, splitPoint, X, Y, minWidth, minHeight);
                 RightBranch = new Dungeon (Width, Height - splitPoint, X, Y + splitPoint, minWidth, minHeight);
             }
+            LeftBranch.Root = Root;
+            RightBranch.Root = Root;
             return true;
         }
 
@@ -80,23 +89,83 @@ namespace RogueLike {
         /// </summary>
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
-        public void GenerateRooms (ref List<Rectangle> rooms, ref List<Rectangle> halls) {
+        public void GenerateRooms () {
             //if neither of the  branches are null, then we'll go into here and attempt to generate rooms
             if (LeftBranch != null || RightBranch != null) {
-                LeftBranch.GenerateRooms (ref rooms, ref halls);
-                RightBranch.GenerateRooms (ref rooms, ref halls);
-            } else if (Room == null) {
+                if (LeftBranch != null) {
+                    LeftBranch.GenerateRooms ();
+                }
+                if (RightBranch != null) {
+                    RightBranch.GenerateRooms ();
+                }
+            } else {
                 //create a randomly sized room, no bigger than the dungeon node and no smaller than the mimimum size
                 int roomXOffset = (Width - MinWidth <= 0) ? 0 : Rand.Next (Width - MinWidth);
                 int roomYOffset = (Height - MinHeight <= 0) ? 0 : Rand.Next (Height - MinHeight);
                 int roomWidth = Math.Max (Rand.Next (Width - roomXOffset), MinWidth);
                 int roomHeight = Math.Max (Rand.Next (Height - roomYOffset), MinHeight);
                 Room = new Rectangle (roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
-                rooms.Add (Room);
+                Root.Rooms.Add (Room);
+            }
+        }
 
-                if (rooms.Count > 1) {
-                    GenerateHalls (ref rooms, ref halls);
+        public void GenerateHalls () {
+            if (LeftBranch.Room == null || RightBranch.Room == null) {
+                LeftBranch.GenerateHalls ();
+                RightBranch.GenerateHalls ();
+            } else {
+                CreateHall (LeftBranch.Room, RightBranch.Room);
+            }
+        }
+
+        /// <summary>
+        ///     generate halls in 4 directions from random spots on the walls of the room.
+        ///     will have to figure out a way to connect them all at a later time...
+        /// </summary>
+        /// <param name="rooms"></param>
+        /// <param name="halls"></param>
+        private void CreateHall (Rectangle leftRoom, Rectangle rightRoom) {
+            Rectangle hallToAdd = null;
+            bool areXParallels = leftRoom.CheckXParallel (rightRoom);
+            bool areYParallels = leftRoom.CheckYParallel (rightRoom);
+            if (areXParallels) {
+                hallToAdd = BuildHallway (leftRoom.GetXAxisParallels (rightRoom));
+            }
+            if (areYParallels) {
+                hallToAdd = BuildHallway (leftRoom.GetYAxisParallels (rightRoom));
+            }
+            if (hallToAdd == null) {
+                List<Rectangle> hallsToAdd = new List<Rectangle> ();
+                Position thisHallTopLeft, thisHallBottomRight, lastHallTopLeft, lastHallBottomRight;
+                if (leftRoom.Y >= rightRoom.Y) {
+                    if (leftRoom.X >= rightRoom.X) {
+                        thisHallBottomRight = new Position (Rand.Next (leftRoom.X + 2, leftRoom.X + leftRoom.Width), leftRoom.Y);
+                        lastHallTopLeft = new Position (rightRoom.X + rightRoom.Width, Rand.Next (rightRoom.Y + rightRoom.Width, rightRoom.Y + rightRoom.Width + rightRoom.Height - 2));
+                        thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallTopLeft.Y);
+                        lastHallBottomRight = thisHallTopLeft + 2;
+                    } else {
+                        thisHallBottomRight = new Position (Rand.Next (leftRoom.X + 2, leftRoom.X + leftRoom.Width), leftRoom.Y);
+                        lastHallBottomRight = new Position (rightRoom.X, Rand.Next (rightRoom.Y + 2, rightRoom.Y + rightRoom.Height));
+                        thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallBottomRight.Y - 2);
+                        lastHallTopLeft = thisHallTopLeft;
+                    }
+                } else {
+                    if (leftRoom.X >= rightRoom.X) {
+                        thisHallTopLeft = new Position (Rand.Next (leftRoom.X, leftRoom.X + leftRoom.Width - 2), leftRoom.Y + leftRoom.Height);
+                        lastHallTopLeft = new Position (rightRoom.X + rightRoom.Width, Rand.Next (rightRoom.Y, rightRoom.Y + rightRoom.Height - 2));
+                        thisHallBottomRight = new Position (thisHallTopLeft.X + 2, lastHallTopLeft.Y + 2);
+                        lastHallBottomRight = thisHallBottomRight;
+                    } else {
+                        thisHallTopLeft = new Position (Rand.Next (leftRoom.X, leftRoom.X + leftRoom.Width - 2), leftRoom.Y + leftRoom.Height);
+                        lastHallBottomRight = new Position (rightRoom.X, Rand.Next (rightRoom.Y + 2, rightRoom.Y + rightRoom.Height));
+                        lastHallTopLeft = new Position (thisHallTopLeft.X, lastHallBottomRight.Y - 2);
+                        thisHallBottomRight = lastHallTopLeft + 2;
+                    }
                 }
+                Root.Halls.Add (new Rectangle (thisHallTopLeft, thisHallBottomRight));
+                Root.Halls.Add (new Rectangle (lastHallTopLeft, lastHallBottomRight));
+            } else {
+                Root.Halls.Add (hallToAdd);
             }
         }
 
@@ -108,7 +177,7 @@ namespace RogueLike {
         private Rectangle BuildHallway (List<Position>[] parallels) {
             Rectangle hallway;
             int countOfParallels = parallels[0].Count;
-            if (countOfParallels > 3) {
+            if (countOfParallels >= 3) {
                 int randomChoice = Rand.Next (2, countOfParallels - 1);
                 hallway = new Rectangle (parallels[0][randomChoice - 2], parallels[1][randomChoice]);
             } else if (countOfParallels < 3) {
@@ -117,62 +186,6 @@ namespace RogueLike {
                 hallway = new Rectangle (parallels[0][0], parallels[1][2]);
             }
             return hallway;
-        }
-
-        /// <summary>
-        ///     generate halls in 4 directions from random spots on the walls of the room.
-        ///     will have to figure out a way to connect them all at a later time...
-        /// </summary>
-        /// <param name="rooms"></param>
-        /// <param name="halls"></param>
-        public void GenerateHalls (ref List<Rectangle> rooms, ref List<Rectangle> halls) {
-            Rectangle thisRoom = Room;
-            Rectangle lastRoom = rooms[rooms.Count - 2];
-            Rectangle hallToAdd = null;
-            bool areXParallels = thisRoom.CheckXParallel (lastRoom);
-            bool areYParallels = thisRoom.CheckYParallel (lastRoom);
-            if (areXParallels) {
-                hallToAdd = BuildHallway (thisRoom.GetXAxisParallels (lastRoom));
-            }
-            if (areYParallels) {
-                hallToAdd = BuildHallway (thisRoom.GetYAxisParallels (lastRoom));
-            }
-            if (hallToAdd == null) {
-                List<Rectangle> hallsToAdd = new List<Rectangle> ();
-                Position thisHallTopLeft, thisHallBottomRight, lastHallTopLeft, lastHallBottomRight;
-                if (thisRoom.Y > lastRoom.Y) {
-                    if (thisRoom.X > lastRoom.X) {
-                        thisHallBottomRight = new Position (Rand.Next (thisRoom.X + 2, thisRoom.X + thisRoom.Width), thisRoom.Y);
-                        lastHallTopLeft = new Position (lastRoom.X + lastRoom.Width, Rand.Next (lastRoom.Y + lastRoom.Width, lastRoom.Y + lastRoom.Width + lastRoom.Height - 2));
-                        thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallTopLeft.Y);
-                        lastHallBottomRight = thisHallTopLeft + 2;
-                    } else {
-                        thisHallBottomRight = new Position (Rand.Next (thisRoom.X + 2, thisRoom.X + thisRoom.Width), thisRoom.Y);
-                        lastHallBottomRight = new Position (lastRoom.X, Rand.Next (lastRoom.Y + 2, lastRoom.Y + lastRoom.Height));
-                        thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallBottomRight.Y - 2);
-                        lastHallTopLeft = thisHallTopLeft;
-                    }
-                } else {
-                    if (thisRoom.X > lastRoom.X) {
-                        thisHallTopLeft = new Position (Rand.Next (thisRoom.X, thisRoom.X + thisRoom.Width - 2), thisRoom.Y + thisRoom.Height);
-                        lastHallTopLeft = new Position (lastRoom.X + lastRoom.Width, Rand.Next (lastRoom.Y, lastRoom.Y + lastRoom.Height - 2));
-                        thisHallBottomRight = new Position (thisHallTopLeft.X + 2, lastHallTopLeft.Y + 2);
-                        lastHallBottomRight = thisHallBottomRight;
-                    } else {
-                        thisHallTopLeft = new Position (Rand.Next (thisRoom.X, thisRoom.X + thisRoom.Width - 2), thisRoom.Y + thisRoom.Height);
-                        lastHallBottomRight = new Position (lastRoom.X, Rand.Next (lastRoom.Y + 2, lastRoom.Y + lastRoom.Height));
-                        lastHallTopLeft = new Position (thisHallTopLeft.X, lastHallBottomRight.Y - 2);
-                        thisHallBottomRight = lastHallTopLeft + 2;
-                    }
-                }
-                hallsToAdd.Add (new Rectangle (thisHallTopLeft, thisHallBottomRight));
-                hallsToAdd.Add (new Rectangle (lastHallTopLeft, lastHallBottomRight));
-                foreach (Rectangle H in hallsToAdd) {
-                    halls.Add (H);
-                }
-            } else {
-                halls.Add (hallToAdd);
-            }
         }
     }
 }

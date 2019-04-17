@@ -81,6 +81,7 @@ namespace RogueLike {
             List<Dungeon> dungeonParts = new List<Dungeon> ();
             //create the root dungeon, the size of the level grid (-1 because the grid is an array that starts at 0)
             Dungeon dungeon = new Dungeon (LevelWidth - 1, levelHeight - 1, 0, 0);
+            dungeon.SetRoot (dungeon);
             dungeonParts.Add (dungeon);
 
             bool didSplit = true;
@@ -108,10 +109,11 @@ namespace RogueLike {
             List<Rectangle> rooms = new List<Rectangle> ();
             List<Rectangle> halls = new List<Rectangle> ();
             //run through, creating all of the rooms
-            dungeon.GenerateRooms (ref rooms, ref halls, out _);
+            dungeon.GenerateRooms ();
+            dungeon.GenerateHalls ();
 
             //move on to draw the level, sending all of the created rooms.
-            AddRooms (rooms, halls);
+            AddRooms (dungeon.Rooms, dungeon.Halls);
         }
 
         /// <summary>

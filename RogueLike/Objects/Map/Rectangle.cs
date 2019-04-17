@@ -37,6 +37,9 @@ namespace RogueLike {
         }
 
         public bool CheckXParallel (Rectangle other) {
+            if (other == null) {
+                return false;
+            }
             List<Position>[] Parallels = GetXAxisParallels (other);
             return Parallels != null;
         }
@@ -68,6 +71,9 @@ namespace RogueLike {
         }
 
         public bool CheckYParallel (Rectangle other) {
+            if (other == null) {
+                return false;
+            }
             List<Position>[] Parallels = GetYAxisParallels (other);
             return Parallels != null;
         }
