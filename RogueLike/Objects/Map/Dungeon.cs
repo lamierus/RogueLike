@@ -126,7 +126,7 @@ namespace RogueLike {
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
         public void GenerateHalls (ref List<Rectangle> rooms, ref List<Rectangle> halls) {
-            Rectangle thisRoom = rooms[rooms.Count - 1];
+            Rectangle thisRoom = Room;
             Rectangle lastRoom = rooms[rooms.Count - 2];
             Rectangle hallToAdd = null;
             bool areXParallels = thisRoom.CheckXParallel (lastRoom);
@@ -143,7 +143,7 @@ namespace RogueLike {
                 if (thisRoom.Y > lastRoom.Y) {
                     if (thisRoom.X > lastRoom.X) {
                         thisHallBottomRight = new Position (Rand.Next (thisRoom.X + 2, thisRoom.X + thisRoom.Width), thisRoom.Y);
-                        lastHallTopLeft = new Position (lastRoom.X + Width, Rand.Next (lastRoom.Y + lastRoom.Width, lastRoom.Y + lastRoom.Width + lastRoom.Height - 2));
+                        lastHallTopLeft = new Position (lastRoom.X + lastRoom.Width, Rand.Next (lastRoom.Y + lastRoom.Width, lastRoom.Y + lastRoom.Width + lastRoom.Height - 2));
                         thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallTopLeft.Y);
                         lastHallBottomRight = thisHallTopLeft + 2;
                     } else {
@@ -154,13 +154,13 @@ namespace RogueLike {
                     }
                 } else {
                     if (thisRoom.X > lastRoom.X) {
-                        thisHallTopLeft = new Position (Rand.Next (thisRoom.X, thisRoom.X + Width - 2), thisRoom.Y + thisRoom.Height);
-                        lastHallTopLeft = new Position (lastRoom.X + Width, Rand.Next (lastRoom.Y, lastRoom.Y + Height - 2));
+                        thisHallTopLeft = new Position (Rand.Next (thisRoom.X, thisRoom.X + thisRoom.Width - 2), thisRoom.Y + thisRoom.Height);
+                        lastHallTopLeft = new Position (lastRoom.X + lastRoom.Width, Rand.Next (lastRoom.Y, lastRoom.Y + lastRoom.Height - 2));
                         thisHallBottomRight = new Position (thisHallTopLeft.X + 2, lastHallTopLeft.Y + 2);
                         lastHallBottomRight = thisHallBottomRight;
                     } else {
-                        thisHallTopLeft = new Position (Rand.Next (thisRoom.X, thisRoom.X + Width - 2), thisRoom.Y + Height);
-                        lastHallBottomRight = new Position (lastRoom.X, Rand.Next (lastRoom.Y + 2, lastRoom.Y + Height));
+                        thisHallTopLeft = new Position (Rand.Next (thisRoom.X, thisRoom.X + thisRoom.Width - 2), thisRoom.Y + thisRoom.Height);
+                        lastHallBottomRight = new Position (lastRoom.X, Rand.Next (lastRoom.Y + 2, lastRoom.Y + lastRoom.Height));
                         lastHallTopLeft = new Position (thisHallTopLeft.X, lastHallBottomRight.Y - 2);
                         thisHallBottomRight = lastHallTopLeft + 2;
                     }

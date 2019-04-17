@@ -108,7 +108,7 @@ namespace RogueLike {
             List<Rectangle> rooms = new List<Rectangle> ();
             List<Rectangle> halls = new List<Rectangle> ();
             //run through, creating all of the rooms
-            dungeon.GenerateRooms (ref rooms, ref halls);
+            dungeon.GenerateRooms (ref rooms, ref halls, out _);
 
             //move on to draw the level, sending all of the created rooms.
             AddRooms (rooms, halls);
