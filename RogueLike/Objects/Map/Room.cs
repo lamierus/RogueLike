@@ -4,7 +4,7 @@ using System.Text;
 using ConsoleGameEngine;
 
 namespace RogueLike {
-    public class DungeonRoom : IComparable<DungeonRoom> {
+    public class Room : IComparable<Room> {
         public Position TopLeft { get; private set; }
         public Position BottomRight { get; private set; }
         public int X { get; private set; }
@@ -18,7 +18,7 @@ namespace RogueLike {
             get { return ConsoleCharacter.Medium; }
         }
 
-        public DungeonRoom (int width, int height, int x, int y) {
+        public Room (int width, int height, int x, int y) {
             TopLeft = new Position (x, y);
             BottomRight = new Position (x + width, y + height);
             X = x;
@@ -27,7 +27,7 @@ namespace RogueLike {
             Height = height;
         }
 
-        public DungeonRoom (Position topLeft, Position bottomRight) {
+        public Room (Position topLeft, Position bottomRight) {
             TopLeft = topLeft;
             BottomRight = bottomRight;
             X = topLeft.X;
@@ -36,7 +36,7 @@ namespace RogueLike {
             Height = Math.Abs (topLeft.Y - bottomRight.Y);
         }
 
-        public bool CheckXParallel (DungeonRoom other) {
+        public bool CheckXParallel (Room other) {
             if (other == null) {
                 return false;
             }
@@ -44,7 +44,7 @@ namespace RogueLike {
             return Parallels != null;
         }
 
-        public List<Position>[] GetXAxisParallels (DungeonRoom toCheck) {
+        public List<Position>[] GetXAxisParallels (Room toCheck) {
             List<Position> thisParallels = new List<Position> ();
             List<Position> thatParallels = new List<Position> ();
             List<Position>[] Parallels = null;
@@ -70,7 +70,7 @@ namespace RogueLike {
             return Parallels;
         }
 
-        public bool CheckYParallel (DungeonRoom other) {
+        public bool CheckYParallel (Room other) {
             if (other == null) {
                 return false;
             }
@@ -78,7 +78,7 @@ namespace RogueLike {
             return Parallels != null;
         }
 
-        public List<Position>[] GetYAxisParallels (DungeonRoom toCheck) {
+        public List<Position>[] GetYAxisParallels (Room toCheck) {
             List<Position> thisParallels = new List<Position> ();
             List<Position> thatParallels = new List<Position> ();
             List<Position>[] Parallels = null;
@@ -104,20 +104,20 @@ namespace RogueLike {
             return Parallels;
         }
 
-        public static bool operator < (DungeonRoom lhs, DungeonRoom rhs) {
+        public static bool operator < (Room lhs, Room rhs) {
             return (lhs.TopLeft < rhs.TopLeft);
         }
-        public static bool operator > (DungeonRoom lhs, DungeonRoom rhs) {
+        public static bool operator > (Room lhs, Room rhs) {
             return (lhs.TopLeft > rhs.TopLeft);
         }
-        public static bool operator <= (DungeonRoom lhs, DungeonRoom rhs) {
+        public static bool operator <= (Room lhs, Room rhs) {
             return (lhs.TopLeft <= rhs.TopLeft);
         }
-        public static bool operator >= (DungeonRoom lhs, DungeonRoom rhs) {
+        public static bool operator >= (Room lhs, Room rhs) {
             return (lhs.TopLeft >= rhs.TopLeft);
         }
 
-        public static bool operator == (DungeonRoom lhs, DungeonRoom rhs) {
+        public static bool operator == (Room lhs, Room rhs) {
             // if (lhs != null && rhs != null) {
             //     return ((lhs.TopLeft == rhs.TopLeft) && (lhs.BottomRight == rhs.BottomRight));
             // } else {
@@ -133,15 +133,15 @@ namespace RogueLike {
             return lhs.Equals (rhs);
         }
 
-        public static bool operator != (DungeonRoom lhs, DungeonRoom rhs) {
+        public static bool operator != (Room lhs, Room rhs) {
             return !(lhs.Equals (rhs));
         }
 
         public override bool Equals (object obj) {
-            return this.Equals (obj as DungeonRoom);
+            return this.Equals (obj as Room);
         }
 
-        public bool Equals (DungeonRoom rhs) {
+        public bool Equals (Room rhs) {
             // If parameter is null, return false.
             if (Object.ReferenceEquals (rhs, null)) {
                 return false;
@@ -160,7 +160,7 @@ namespace RogueLike {
             return (TopLeft == rhs.TopLeft) && (BottomRight == rhs.BottomRight);
         }
 
-        public int CompareTo (DungeonRoom that) {
+        public int CompareTo (Room that) {
             int result = (TopLeft.CompareTo (that.TopLeft));
             if (result != 0) {
                 return result;

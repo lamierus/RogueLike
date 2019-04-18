@@ -10,9 +10,9 @@ namespace RogueLike {
         private Dungeon Root { get; set; }
         public Dungeon LeftBranch { get; private set; }
         public Dungeon RightBranch { get; private set; }
-        public DungeonRoom Room { get; private set; }
-        public List<DungeonRoom> Rooms = new List<DungeonRoom> ();
-        public List<Hallway> Halls = new List<Hallway> ();
+        public Room Room { get; private set; }
+        public List<Room> Rooms = new List<Room> ();
+        public List<Room> Halls = new List<Room> ();
 
         // constructor with minimums built into it, so they can be provided, if you want
         public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth = 16, int minHeight = 8) {
@@ -104,7 +104,7 @@ namespace RogueLike {
                 int roomYOffset = (Height - MinHeight <= 0) ? 0 : Rand.Next (Height - MinHeight);
                 int roomWidth = Math.Max (Rand.Next (Width - roomXOffset), MinWidth);
                 int roomHeight = Math.Max (Rand.Next (Height - roomYOffset), MinHeight);
-                Room = new DungeonRoom (roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
+                Room = new Room (roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
                 Root.Rooms.Add (Room);
             }
         }
@@ -113,23 +113,24 @@ namespace RogueLike {
         ///     
         /// </summary>
         public void GenerateHalls () {
-            foreach (DungeonRoom R in Rooms) {
-                for (int i = 0; i < Rooms.Count; i++) {
-                    if (Rooms[i] != R) {
-                        CreateHall (R, Rooms[i]);
-                    }
-                }
-            }
-            // if (LeftBranch.Room == null || RightBranch.Room == null) {
-            //     if (LeftBranch.Room == null) {
-            //         LeftBranch.GenerateHalls ();
+            // foreach (Room R in Rooms) {
+            //     Room R = Rooms[0];
+            //     for (int i = 1; i < Rooms.Count; i++) {
+            //         if (Rooms[i] != R) {
+            //             CreateHall (R, Rooms[i]);
+            //         }
             //     }
-            //     if (RightBranch.Room == null) {
-            //         RightBranch.GenerateHalls ();
-            //     }
-            // } else {
-            //     CreateHall (LeftBranch.Room, RightBranch.Room);
             // }
+            if (LeftBranch.Room == null || RightBranch.Room == null) {
+                if (LeftBranch.Room == null) {
+                    LeftBranch.GenerateHalls ();
+                }
+                if (RightBranch.Room == null) {
+                    RightBranch.GenerateHalls ();
+                }
+            } else {
+                CreateHall (LeftBranch.Room, RightBranch.Room);
+            }
         }
 
         /// <summary>
@@ -138,8 +139,8 @@ namespace RogueLike {
         /// </summary>
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
-        private void CreateHall (DungeonRoom leftRoom, DungeonRoom rightRoom) {
-            DungeonRoom hallToAdd = null;
+        private void CreateHall (Room leftRoom, Room rightRoom) {
+            Room hallToAdd = null;
             if (leftRoom.CheckXParallel (rightRoom)) {
                 hallToAdd = BuildStraightHallway (leftRoom.GetXAxisParallels (rightRoom));
             }
@@ -173,8 +174,8 @@ namespace RogueLike {
                         leftHallBottomRight = rightHallTopLeft + 2;
                     }
                 }
-                Root.Halls.Add (new DungeonRoom (leftHallTopLeft, leftHallBottomRight));
-                Root.Halls.Add (new DungeonRoom (rightHallTopLeft, rightHallBottomRight));
+                Root.Halls.Add (new Room (leftHallTopLeft, leftHallBottomRight));
+                Root.Halls.Add (new Room (rightHallTopLeft, rightHallBottomRight));
             } else {
                 Root.Halls.Add (hallToAdd);
             }
@@ -185,16 +186,16 @@ namespace RogueLike {
         /// </summary>
         /// <param name="parallels"></param>
         /// <returns></returns>
-        private DungeonRoom BuildStraightHallway (List<Position>[] parallels) {
-            DungeonRoom hallway;
+        private Room BuildStraightHallway (List<Position>[] parallels) {
+            Room hallway;
             int countOfParallels = parallels[0].Count;
             if (countOfParallels >= 3) {
                 int randomChoice = Rand.Next (2, countOfParallels - 1);
-                hallway = new DungeonRoom (parallels[0][randomChoice - 2], parallels[1][randomChoice]);
+                hallway = new Room (parallels[0][randomChoice - 2], parallels[1][randomChoice]);
             } else if (countOfParallels < 3) {
                 hallway = null;
             } else {
-                hallway = new DungeonRoom (parallels[0][0], parallels[1][2]);
+                hallway = new Room (parallels[0][0], parallels[1][2]);
             }
             return hallway;
         }
