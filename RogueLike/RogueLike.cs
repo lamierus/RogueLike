@@ -106,14 +106,15 @@ namespace RogueLike {
             }
 
             //create a list to hold all of the rooms
-            List<Rectangle> rooms = new List<Rectangle> ();
-            List<Rectangle> halls = new List<Rectangle> ();
+            List<DungeonRoom> rooms = new List<DungeonRoom> ();
+            List<DungeonRoom> halls = new List<DungeonRoom> ();
             //run through, creating all of the rooms
             dungeon.GenerateRooms ();
             dungeon.GenerateHalls ();
 
             //move on to draw the level, sending all of the created rooms.
-            AddRooms (dungeon.Rooms, dungeon.Halls);
+            AddRooms (dungeon.Rooms);
+            AddHalls (dungeon.Halls);
         }
 
         /// <summary>
@@ -121,8 +122,8 @@ namespace RogueLike {
         /// </summary>
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
-        void AddRooms (List<Rectangle> rooms, List<Rectangle> halls) {
-            foreach (Rectangle R in rooms.Union (halls)) {
+        void AddRooms (List<DungeonRoom> rooms, List<DungeonRoom> halls) {
+            foreach (DungeonRoom R in rooms.Union (halls)) {
                 Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.WallColor, R.Wall);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
@@ -139,9 +140,10 @@ namespace RogueLike {
         /// 
         /// </summary>
         /// <param name="halls"></param>
-        void AddHalls (List<Rectangle> halls) {
-            foreach (Rectangle R in halls) {
-                Engine.Line (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.WallColor, R.Wall);
+        void AddHalls (List<Hallway> halls) {
+            foreach (Hallway H in halls) {
+                Engine.Line (H.WallStarts[0].ToPoint (), H.WallEnds[0].ToPoint (), H.WallColor, H.Wall);
+                Engine.Line (H.WallStarts[1].ToPoint (), H.WallEnds[1].ToPoint (), H.WallColor, H.Wall);
             }
         }
 
