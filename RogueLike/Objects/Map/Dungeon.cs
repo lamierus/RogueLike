@@ -109,10 +109,17 @@ namespace RogueLike {
             }
         }
 
+        /// <summary>
+        ///     
+        /// </summary>
         public void GenerateHalls () {
             if (LeftBranch.Room == null || RightBranch.Room == null) {
-                LeftBranch.GenerateHalls ();
-                RightBranch.GenerateHalls ();
+                if (LeftBranch.Room == null) {
+                    LeftBranch.GenerateHalls ();
+                }
+                if (RightBranch.Room == null) {
+                    RightBranch.GenerateHalls ();
+                }
             } else {
                 CreateHall (LeftBranch.Room, RightBranch.Room);
             }
@@ -126,44 +133,41 @@ namespace RogueLike {
         /// <param name="halls"></param>
         private void CreateHall (Rectangle leftRoom, Rectangle rightRoom) {
             Rectangle hallToAdd = null;
-            bool areXParallels = leftRoom.CheckXParallel (rightRoom);
-            bool areYParallels = leftRoom.CheckYParallel (rightRoom);
-            if (areXParallels) {
+            if (leftRoom.CheckXParallel (rightRoom)) {
                 hallToAdd = BuildHallway (leftRoom.GetXAxisParallels (rightRoom));
             }
-            if (areYParallels) {
+            if (leftRoom.CheckYParallel (rightRoom)) {
                 hallToAdd = BuildHallway (leftRoom.GetYAxisParallels (rightRoom));
             }
             if (hallToAdd == null) {
-                List<Rectangle> hallsToAdd = new List<Rectangle> ();
-                Position thisHallTopLeft, thisHallBottomRight, lastHallTopLeft, lastHallBottomRight;
+                Position leftHallTopLeft, leftHallBottomRight, rightHallTopLeft, rightHallBottomRight;
                 if (leftRoom.Y >= rightRoom.Y) {
                     if (leftRoom.X >= rightRoom.X) {
-                        thisHallBottomRight = new Position (Rand.Next (leftRoom.X + 2, leftRoom.X + leftRoom.Width), leftRoom.Y);
-                        lastHallTopLeft = new Position (rightRoom.X + rightRoom.Width, Rand.Next (rightRoom.Y + rightRoom.Width, rightRoom.Y + rightRoom.Width + rightRoom.Height - 2));
-                        thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallTopLeft.Y);
-                        lastHallBottomRight = thisHallTopLeft + 2;
+                        leftHallBottomRight = new Position (Rand.Next (leftRoom.X + 2, leftRoom.X + leftRoom.Width), leftRoom.Y);
+                        rightHallTopLeft = new Position (rightRoom.X + rightRoom.Width, Rand.Next (rightRoom.Y + rightRoom.Width, rightRoom.Y + rightRoom.Width + rightRoom.Height - 2));
+                        leftHallTopLeft = new Position (leftHallBottomRight.X - 2, rightHallTopLeft.Y);
+                        rightHallBottomRight = leftHallTopLeft + 2;
                     } else {
-                        thisHallBottomRight = new Position (Rand.Next (leftRoom.X + 2, leftRoom.X + leftRoom.Width), leftRoom.Y);
-                        lastHallBottomRight = new Position (rightRoom.X, Rand.Next (rightRoom.Y + 2, rightRoom.Y + rightRoom.Height));
-                        thisHallTopLeft = new Position (thisHallBottomRight.X - 2, lastHallBottomRight.Y - 2);
-                        lastHallTopLeft = thisHallTopLeft;
+                        leftHallBottomRight = new Position (Rand.Next (leftRoom.X + 2, leftRoom.X + leftRoom.Width), leftRoom.Y);
+                        rightHallBottomRight = new Position (rightRoom.X, Rand.Next (rightRoom.Y + 2, rightRoom.Y + rightRoom.Height));
+                        leftHallTopLeft = new Position (leftHallBottomRight.X - 2, rightHallBottomRight.Y - 2);
+                        rightHallTopLeft = leftHallTopLeft;
                     }
                 } else {
                     if (leftRoom.X >= rightRoom.X) {
-                        thisHallTopLeft = new Position (Rand.Next (leftRoom.X, leftRoom.X + leftRoom.Width - 2), leftRoom.Y + leftRoom.Height);
-                        lastHallTopLeft = new Position (rightRoom.X + rightRoom.Width, Rand.Next (rightRoom.Y, rightRoom.Y + rightRoom.Height - 2));
-                        thisHallBottomRight = new Position (thisHallTopLeft.X + 2, lastHallTopLeft.Y + 2);
-                        lastHallBottomRight = thisHallBottomRight;
+                        leftHallTopLeft = new Position (Rand.Next (leftRoom.X, leftRoom.X + leftRoom.Width - 2), leftRoom.Y + leftRoom.Height);
+                        rightHallTopLeft = new Position (rightRoom.X + rightRoom.Width, Rand.Next (rightRoom.Y, rightRoom.Y + rightRoom.Height - 2));
+                        leftHallBottomRight = new Position (leftHallTopLeft.X + 2, rightHallTopLeft.Y + 2);
+                        rightHallBottomRight = leftHallBottomRight;
                     } else {
-                        thisHallTopLeft = new Position (Rand.Next (leftRoom.X, leftRoom.X + leftRoom.Width - 2), leftRoom.Y + leftRoom.Height);
-                        lastHallBottomRight = new Position (rightRoom.X, Rand.Next (rightRoom.Y + 2, rightRoom.Y + rightRoom.Height));
-                        lastHallTopLeft = new Position (thisHallTopLeft.X, lastHallBottomRight.Y - 2);
-                        thisHallBottomRight = lastHallTopLeft + 2;
+                        leftHallTopLeft = new Position (Rand.Next (leftRoom.X, leftRoom.X + leftRoom.Width - 2), leftRoom.Y + leftRoom.Height);
+                        rightHallBottomRight = new Position (rightRoom.X, Rand.Next (rightRoom.Y + 2, rightRoom.Y + rightRoom.Height));
+                        rightHallTopLeft = new Position (leftHallTopLeft.X, rightHallBottomRight.Y - 2);
+                        leftHallBottomRight = rightHallTopLeft + 2;
                     }
                 }
-                Root.Halls.Add (new Rectangle (thisHallTopLeft, thisHallBottomRight));
-                Root.Halls.Add (new Rectangle (lastHallTopLeft, lastHallBottomRight));
+                Root.Halls.Add (new Rectangle (leftHallTopLeft, leftHallBottomRight));
+                Root.Halls.Add (new Rectangle (rightHallTopLeft, rightHallBottomRight));
             } else {
                 Root.Halls.Add (hallToAdd);
             }
