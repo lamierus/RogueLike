@@ -7,6 +7,13 @@ namespace RogueLike {
     public class Dungeon {
         private Random Rand = new Random ();
         private readonly int Width, Height, X, Y, MinWidth, MinHeight;
+        public Dungeon (Dungeon root, Dungeon leftBranch, Dungeon rightBranch, Room room) {
+            this.Root = root;
+            this.LeftBranch = leftBranch;
+            this.RightBranch = rightBranch;
+            this.Room = room;
+
+        }
         private Dungeon Root { get; set; }
         public Dungeon LeftBranch { get; private set; }
         public Dungeon RightBranch { get; private set; }
@@ -114,32 +121,33 @@ namespace RogueLike {
         ///     will have to figure out a way to connect them all at a later time...
         /// </summary>
         public void GenerateHalls () {
+            Halls.Sort ();
             for (int This = 0; This < Rooms.Count; This++) {
                 for (int Next = 1; Next < Rooms.Count; Next++) {
                     if (Rooms[This] != Rooms[Next] && !Rooms[This].AllSidesConnected) {
                         Room hallToAdd = null;
-                        if (Rooms[This].CheckXParallel (Rooms[Next])) {
-                            if (Rooms[This].NegXParallels.Count > 0 && Rooms[This].NegXConnectedRoom == null) {
-                                hallToAdd = BuildStraightHallway (Rooms[This].NegXParallels);
-                                Rooms[This].NegXConnectedRoom = Rooms[Next];
-                                Rooms[Next].PosXConnectedRoom = Rooms[This];
-                            } else if (Rooms[This].PosXParallels.Count > 0 && Rooms[This].PosXConnectedRoom == null) {
-                                hallToAdd = BuildStraightHallway (Rooms[This].PosXParallels);
-                                Rooms[This].PosXConnectedRoom = Rooms[Next];
-                                Rooms[Next].NegXConnectedRoom = Rooms[This];
-                            }
-                        }
-                        if (Rooms[This].CheckYParallel (Rooms[Next])) {
-                            if (Rooms[This].NegYParallels.Count > 0 && Rooms[This].NegYConnectedRoom == null) {
-                                hallToAdd = BuildStraightHallway (Rooms[This].NegYParallels);
-                                Rooms[This].NegYConnectedRoom = Rooms[Next];
-                                Rooms[Next].PosYConnectedRoom = Rooms[This];
-                            } else if (Rooms[This].PosYParallels.Count > 0 && Rooms[This].PosYConnectedRoom == null) {
-                                hallToAdd = BuildStraightHallway (Rooms[This].PosYParallels);
-                                Rooms[This].PosYConnectedRoom = Rooms[Next];
-                                Rooms[Next].NegYConnectedRoom = Rooms[This];
-                            }
-                        }
+                        // if (Rooms[This].CheckXParallel (Rooms[Next])) {
+                        //     if (Rooms[This].NegXParallels.Count > 0 && Rooms[This].NegXConnectedRoom == null) {
+                        //         hallToAdd = BuildStraightHallway (Rooms[This].NegXParallels, true);
+                        //         Rooms[This].NegXConnectedRoom = Rooms[Next];
+                        //         Rooms[Next].PosXConnectedRoom = Rooms[This];
+                        //     } else if (Rooms[This].PosXParallels.Count > 0 && Rooms[This].PosXConnectedRoom == null) {
+                        //         hallToAdd = BuildStraightHallway (Rooms[This].PosXParallels, false);
+                        //         Rooms[This].PosXConnectedRoom = Rooms[Next];
+                        //         Rooms[Next].NegXConnectedRoom = Rooms[This];
+                        //     }
+                        // }
+                        // if (Rooms[This].CheckYParallel (Rooms[Next])) {
+                        //     if (Rooms[This].NegYParallels.Count > 0 && Rooms[This].NegYConnectedRoom == null) {
+                        //         hallToAdd = BuildStraightHallway (Rooms[This].NegYParallels, true);
+                        //         Rooms[This].NegYConnectedRoom = Rooms[Next];
+                        //         Rooms[Next].PosYConnectedRoom = Rooms[This];
+                        //     } else if (Rooms[This].PosYParallels.Count > 0 && Rooms[This].PosYConnectedRoom == null) {
+                        //         hallToAdd = BuildStraightHallway (Rooms[This].PosYParallels, false);
+                        //         Rooms[This].PosYConnectedRoom = Rooms[Next];
+                        //         Rooms[Next].NegYConnectedRoom = Rooms[This];
+                        //     }
+                        // }
                         if (hallToAdd == null) {
                             Position leftHallTopLeft, leftHallBottomRight, rightHallTopLeft, rightHallBottomRight;
                             if (Rooms[This].Y >= Rooms[Next].Y && Rooms[This].NegYConnectedRoom == null) {
@@ -150,60 +158,78 @@ namespace RogueLike {
                                     rightHallBottomRight = leftHallTopLeft + 2;
                                     Rooms[This].NegYConnectedRoom = Rooms[Next];
                                     Rooms[Next].PosXConnectedRoom = Rooms[This];
-                                } else {
-                                    leftHallBottomRight = new Position (Rand.Next (Rooms[This].X + 2, Rooms[This].X + Rooms[This].Width), Rooms[This].Y);
-                                    rightHallBottomRight = new Position (Rooms[Next].X, Rand.Next (Rooms[Next].Y + 2, Rooms[Next].Y + Rooms[Next].Height));
-                                    leftHallTopLeft = new Position (leftHallBottomRight.X - 2, rightHallBottomRight.Y - 2);
-                                    rightHallTopLeft = leftHallTopLeft;
-                                    Rooms[This].NegYConnectedRoom = Rooms[Next];
-                                    Rooms[Next].NegXConnectedRoom = Rooms[This];
-                                }
-                                Root.Halls.Add (new Room (leftHallTopLeft, leftHallBottomRight));
-                                Root.Halls.Add (new Room (rightHallTopLeft, rightHallBottomRight));
+                                    Root.Halls.Add (new Room (leftHallTopLeft, leftHallBottomRight));
+                                    Root.Halls.Add (new Room (rightHallTopLeft, rightHallBottomRight));
+                                } // } else {
+                                //     leftHallBottomRight = new Position (Rand.Next (Rooms[This].X + 2, Rooms[This].X + Rooms[This].Width), Rooms[This].Y);
+                                //     rightHallBottomRight = new Position (Rooms[Next].X, Rand.Next (Rooms[Next].Y + 2, Rooms[Next].Y + Rooms[Next].Height));
+                                //     leftHallTopLeft = new Position (leftHallBottomRight.X - 2, rightHallBottomRight.Y - 2);
+                                //     rightHallTopLeft = leftHallTopLeft;
+                                //     Rooms[This].NegYConnectedRoom = Rooms[Next];
+                                //     Rooms[Next].NegXConnectedRoom = Rooms[This];
+                                // }
+                                // Root.Halls.Add (new Room (leftHallTopLeft, leftHallBottomRight));
+                                // Root.Halls.Add (new Room (rightHallTopLeft, rightHallBottomRight));
                             } else if (Rooms[This].PosYConnectedRoom == null) {
-                                if (Rooms[This].X >= Rooms[Next].X) {
-                                    leftHallTopLeft = new Position (Rand.Next (Rooms[This].X, Rooms[This].X + Rooms[This].Width - 2), Rooms[This].Y + Rooms[This].Height);
-                                    rightHallTopLeft = new Position (Rooms[Next].X + Rooms[Next].Width, Rand.Next (Rooms[Next].Y, Rooms[Next].Y + Rooms[Next].Height - 2));
-                                    leftHallBottomRight = new Position (leftHallTopLeft.X + 2, rightHallTopLeft.Y + 2);
-                                    rightHallBottomRight = leftHallBottomRight;
-                                    Rooms[This].PosYConnectedRoom = Rooms[Next];
-                                    Rooms[Next].PosXConnectedRoom = Rooms[This];
-                                } else {
-                                    leftHallTopLeft = new Position (Rand.Next (Rooms[This].X, Rooms[This].X + Rooms[This].Width - 2), Rooms[This].Y + Rooms[This].Height);
-                                    rightHallBottomRight = new Position (Rooms[Next].X, Rand.Next (Rooms[Next].Y + 2, Rooms[Next].Y + Rooms[Next].Height));
-                                    rightHallTopLeft = new Position (leftHallTopLeft.X, rightHallBottomRight.Y - 2);
-                                    leftHallBottomRight = rightHallTopLeft + 2;
-                                    Rooms[This].PosYConnectedRoom = Rooms[Next];
-                                    Rooms[Next].NegXConnectedRoom = Rooms[This];
-                                }
-                                Root.Halls.Add (new Room (leftHallTopLeft, leftHallBottomRight));
-                                Root.Halls.Add (new Room (rightHallTopLeft, rightHallBottomRight));
+                                // if (Rooms[This].X >= Rooms[Next].X) {
+                                //     leftHallTopLeft = new Position (Rand.Next (Rooms[This].X, Rooms[This].X + Rooms[This].Width - 2), Rooms[This].Y + Rooms[This].Height);
+                                //     rightHallTopLeft = new Position (Rooms[Next].X + Rooms[Next].Width, Rand.Next (Rooms[Next].Y, Rooms[Next].Y + Rooms[Next].Height - 2));
+                                //     leftHallBottomRight = new Position (leftHallTopLeft.X + 2, rightHallTopLeft.Y + 2);
+                                //     rightHallBottomRight = leftHallBottomRight;
+                                //     Rooms[This].PosYConnectedRoom = Rooms[Next];
+                                //     Rooms[Next].PosXConnectedRoom = Rooms[This];
+                                // } else {
+                                //     leftHallTopLeft = new Position (Rand.Next (Rooms[This].X, Rooms[This].X + Rooms[This].Width - 2), Rooms[This].Y + Rooms[This].Height);
+                                //     rightHallBottomRight = new Position (Rooms[Next].X, Rand.Next (Rooms[Next].Y + 2, Rooms[Next].Y + Rooms[Next].Height));
+                                //     rightHallTopLeft = new Position (leftHallTopLeft.X, rightHallBottomRight.Y - 2);
+                                //     leftHallBottomRight = rightHallTopLeft + 2;
+                                //     Rooms[This].PosYConnectedRoom = Rooms[Next];
+                                //     Rooms[Next].NegXConnectedRoom = Rooms[This];
+                                // }
+                                // Root.Halls.Add (new Room (leftHallTopLeft, leftHallBottomRight));
+                                // Root.Halls.Add (new Room (rightHallTopLeft, rightHallBottomRight));
                             }
-                        } else {
-                            Root.Halls.Add (hallToAdd);
+                            if (hallToAdd != null) {
+                                Root.Halls.Add (hallToAdd);
+                            }
                         }
                     }
                 }
+                //Halls.Sort();
+                for (int i = 0; i < Halls.Count; i++) {
+                    Room dupe = Halls[i];
+                    Halls.RemoveAll (hall => hall == Halls[i]);
+                    Halls.Add (dupe);
+                }
             }
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="parallels"></param>
-        /// <returns></returns>
-        private Room BuildStraightHallway (List<Parallel> parallels) {
-            Room hallway;
-            int countOfParallels = parallels.Count;
-            if (countOfParallels >= 3) {
-                int randomChoice = Rand.Next (2, countOfParallels - 1);
-                hallway = new Room (parallels[randomChoice - 2].First, parallels[randomChoice].Second);
-            } else if (countOfParallels < 3) {
-                hallway = null;
-            } else {
-                hallway = new Room (parallels[0].First, parallels[1].Second);
-            }
-            return hallway;
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="parallels"></param>
+            /// <returns></returns>
+            // private Room BuildStraightHallway (List<Parallel> parallels, bool negative) {
+            //     Room hallway =null;
+            //     int countOfParallels = parallels.Count;
+            //     if (countOfParallels >= 3) {
+            //         int randomChoice = Rand.Next (2, countOfParallels - 1);
+            //         if (negative) {
+            //             hallway = new Room (parallels[randomChoice - 2].Second, parallels[randomChoice].First);
+            //         } else {
+            //             hallway = new Room (parallels[randomChoice - 2].First, parallels[randomChoice].Second);
+            //         }
+            //     } else if (countOfParallels < 3) {
+            //         hallway = null;
+            //     } else {
+            //         if (negative) {
+            //             hallway = new Room (parallels[0].Second, parallels[1].First);
+            //         } else {
+            //             hallway = new Room (parallels[0].First, parallels[1].Second);
+            //         }
+            //     }
+            //     return hallway;
+            //     }   
+            // }
         }
     }
 }
