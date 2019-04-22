@@ -150,34 +150,25 @@ namespace RogueLike {
                     Halls.Add (dupe);
                 }
             }
+        }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="parallels"></param>
-            /// <returns></returns>
-            private Room BuildStraightHallway (List<Parallel> parallels, bool negative) {
-                Room hallway = null;
-                int countOfParallels = parallels.Count;
-                if (countOfParallels >= 3) {
-                    int randomChoice = Rand.Next (2, countOfParallels - 1);
-                    if (negative) {
-                        hallway = new Room (parallels[randomChoice - 2].Second, parallels[randomChoice].First);
-                    } else {
-                        hallway = new Room (parallels[randomChoice - 2].First, parallels[randomChoice].Second);
-                    }
-                } else if (countOfParallels < 3) {
-                    hallway = null;
-                } else {
-                    if (negative) {
-                        hallway = new Room (parallels[0].Second, parallels[1].First);
-                    } else {
-                        hallway = new Room (parallels[0].First, parallels[1].Second);
-                    }
-                }
-                return hallway;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parallels"></param>
+        /// <returns></returns>
+        private Room BuildStraightHallway (List<Parallel> parallels) {
+            Room hallway = null;
+            int countOfParallels = parallels.Count;
+            if (countOfParallels >= 3) {
+                int randomChoice = Rand.Next (2, countOfParallels - 1);
+                hallway = new Room (parallels[randomChoice - 2].First, parallels[randomChoice].Second);
+            } else if (countOfParallels < 3) {
+                hallway = null;
+            } else {
+                hallway = new Room (parallels[0].First, parallels[1].Second);
             }
+            return hallway;
         }
     }
-}
 }
