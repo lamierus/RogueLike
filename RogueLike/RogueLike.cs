@@ -73,8 +73,8 @@ namespace RogueLike {
         ///     the algorithm to use the Dungeon and build the level in a fairly random manner
         /// </summary>
         void BuildRooms () {
-            int LevelWidth = c_MaxWinWidth - c_SideBar;
-            int levelHeight = c_MaxWinHeight;
+            int LevelWidth = 60; //c_MaxWinWidth - c_SideBar;
+            int levelHeight = 30; //c_MaxWinHeight;
             //creating the empty level grid
             FloorPlan = new FloorGrid (LevelWidth, levelHeight);
             //list to hold each of the dungeon parts (or nodes/leaves)
@@ -355,8 +355,8 @@ namespace RogueLike {
         void RandomizePixelPoint (ref Position position) {
             var newPosition = new Position ();
             do {
-                newPosition.X = RandomNum.Next (c_MaxWinWidth - c_SideBar - 1);
-                newPosition.Y = RandomNum.Next (c_MaxWinHeight - c_SideBar - 1);
+                newPosition.X = RandomNum.Next (FloorPlan.Width);
+                newPosition.Y = RandomNum.Next (FloorPlan.Height);
             } while (newPosition == position);
             position = newPosition;
         }

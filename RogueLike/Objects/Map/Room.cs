@@ -16,14 +16,7 @@ namespace RogueLike {
     public class Room : IComparable<Room> {
         public Position TopLeft { get; private set; }
         public Position BottomRight { get; private set; }
-        public List<Parallel> NegXParallels = new List<Parallel> ();
-        public List<Parallel> NegYParallels = new List<Parallel> ();
-        public List<Parallel> PosXParallels = new List<Parallel> ();
-        public List<Parallel> PosYParallels = new List<Parallel> ();
-        public Room NegXConnectedRoom,
-        NegYConnectedRoom,
-        PosXConnectedRoom,
-        PosYConnectedRoom;
+        public List<Parallel> Parallels { get; private set; }
         public int X { get; private set; }
         public int Y { get; private set; }
         public int Width { get; private set; }
@@ -33,12 +26,6 @@ namespace RogueLike {
         }
         public ConsoleCharacter Wall {
             get { return ConsoleCharacter.Medium; }
-        }
-        public bool AllSidesConnected {
-            get {
-                return (NegXConnectedRoom != null && NegYConnectedRoom != null &&
-                    PosXConnectedRoom != null && PosYConnectedRoom != null);
-            }
         }
 
         public Room (int width, int height, int x, int y) {
@@ -64,7 +51,7 @@ namespace RogueLike {
                 return false;
             }
             GetXAxisParallels (other);
-            return (PosXParallels.Count != 0 && NegXParallels.Count != 0);
+            return Parallels != null;
         }
 
         private void GetXAxisParallels (Room toCheck) {
@@ -72,10 +59,15 @@ namespace RogueLike {
                 for (int thatY = 0; thatY < toCheck.Height; thatY++) {
                     if (Y + thisY == toCheck.Y + thatY) {
                         if (X < toCheck.X) {
-                            PosXParallels.Add (new Parallel (new Position (X + Width, Y + thisY), new Position (toCheck.X, toCheck.Y + thatY)));
-
+                            if (Parallels == null) {
+                                Parallels = new List<Parallel> ();
+                            }
+                            Parallels.Add (new Parallel (new Position (X + Width, Y + thisY), new Position (toCheck.X, toCheck.Y + thatY)));
                         } else {
-                            NegXParallels.Add (new Parallel (new Position (X, Y + thisY), new Position (toCheck.X + toCheck.Width, toCheck.Y + thatY)));
+                            if (Parallels == null) {
+                                Parallels = new List<Parallel> ();
+                            }
+                            Parallels.Add (new Parallel (new Position (X, Y + thisY), new Position (toCheck.X + toCheck.Width, toCheck.Y + thatY)));
                         }
                     }
                 }
@@ -87,7 +79,7 @@ namespace RogueLike {
                 return false;
             }
             GetYAxisParallels (other);
-            return (PosYParallels.Count != 0 && NegYParallels.Count != 0);
+            return Parallels != null;
         }
 
         private void GetYAxisParallels (Room toCheck) {
@@ -95,13 +87,23 @@ namespace RogueLike {
                 for (int thatX = 0; thatX < toCheck.Width; thatX++) {
                     if (X + thisX == toCheck.X + thatX) {
                         if (Y < toCheck.Y) {
-                            NegYParallels.Add (new Parallel (new Position (X + thisX, Y + Height), new Position (toCheck.X + thatX, toCheck.Y)));
+                            if (Parallels == null) {
+                                Parallels = new List<Parallel> ();
+                            }
+                            Parallels.Add (new Parallel (new Position (X + thisX, Y + Height), new Position (toCheck.X + thatX, toCheck.Y)));
                         } else {
-                            PosYParallels.Add (new Parallel (new Position (X + thisX, Y), new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height)));
+                            if (Parallels == null) {
+                                Parallels = new List<Parallel> ();
+                            }
+                            Parallels.Add (new Parallel (new Position (X + thisX, Y), new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height)));
                         }
                     }
                 }
             }
+        }
+
+        public void ClearParallels () {
+            Parallels = null;
         }
 
         public static bool operator < (Room lhs, Room rhs) {

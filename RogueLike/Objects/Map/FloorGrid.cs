@@ -5,9 +5,13 @@ using System.Text;
 namespace RogueLike {
     public class FloorGrid {
         public Object[, ] Grid { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         public FloorGrid (int width, int height) {
             Grid = new Object[width, height];
+            Width = width - 1;
+            Height = height - 1;
         }
 
         public bool AddItem (Object objToAdd) {
