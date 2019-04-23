@@ -138,16 +138,12 @@ namespace RogueLike {
                             }
                             Rooms[This].ClearParallels ();
                         }
-                        if (hallToAdd == null) { } else {
+                        if (hallToAdd == null) { 
+                            //TODO: create a probe to iterate and find rooms
+                        } else {
                             Root.Halls.Add (hallToAdd);
                         }
                     }
-                }
-                //Halls.Sort();
-                for (int i = 0; i < Halls.Count; i++) {
-                    Room dupe = Halls[i];
-                    Halls.RemoveAll (hall => hall == Halls[i]);
-                    Halls.Add (dupe);
                 }
             }
         }

@@ -7,6 +7,7 @@ namespace RogueLike {
     public class Wall:Structure {
 
         public Wall(int x, int y) {
+            Color = 2;
             MapCharacter = ConsoleCharacter.Full;
             Immovable = true;
             FloorToCeiling = true;

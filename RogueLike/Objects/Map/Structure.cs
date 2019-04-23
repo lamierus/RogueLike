@@ -7,7 +7,7 @@ namespace RogueLike {
     public class Structure : Object {
         public bool Immovable { get; set; }
         public bool FloorToCeiling { get; set; }
-
-        public ConsoleCharacter MapCharacter;
+        public bool AboveOrBelow { get; set; }
+        public ConsoleCharacter MapCharacter { get; set; }
     }
 }

@@ -47,8 +47,7 @@ namespace RogueLike {
             Console.Title = "Dungeon of IT";
             TargetFramerate = 10;
 
-            DrawFrame ();
-            BuildRooms ();
+            DrawFloor ();
             AddItems ();
             AddMobs ();
             DrawSideBar ();
@@ -59,28 +58,30 @@ namespace RogueLike {
         /// <summary>
         ///     was drawing the rectangle around the edge,  but just use it as a color pallete draw
         /// </summary>
-        void DrawFrame () {
+        void DrawFloor () {
+            int LevelWidth = 60; //c_MaxWinWidth - c_SideBar;
+            int levelHeight = 30; //c_MaxWinHeight;
+            //creating the level grid
+            FloorPlan = new FloorGrid (LevelWidth, levelHeight);
+            Engine.Fill(new Point(0,0), new Point (LevelWidth - 1, levelHeight -1), 2, ConsoleCharacter.Dark);
             int i = 0;
             //for (int y = 1; y <= 8; y++) {
             for (int x = 1; x <= 51 /*96*/ ; x += 3) {
-                Engine.WriteText (new Point (x, c_MaxWinHeight), i.ToString (" ##"), i++);
+                Engine.WriteText (new Point (x, c_MaxWinHeight - 1), i.ToString (" ##"), i++);
             }
             //}
-
+            BuildRooms(LevelWidth, levelHeight);
         }
 
         /// <summary>
         ///     the algorithm to use the Dungeon and build the level in a fairly random manner
         /// </summary>
-        void BuildRooms () {
-            int LevelWidth = 60; //c_MaxWinWidth - c_SideBar;
-            int levelHeight = 30; //c_MaxWinHeight;
-            //creating the empty level grid
-            FloorPlan = new FloorGrid (LevelWidth, levelHeight);
+        void BuildRooms (int levelWidth, int levelHeight) {
+
             //list to hold each of the dungeon parts (or nodes/leaves)
             List<Dungeon> dungeonParts = new List<Dungeon> ();
             //create the root dungeon, the size of the level grid (-1 because the grid is an array that starts at 0)
-            Dungeon dungeon = new Dungeon (LevelWidth - 1, levelHeight - 1, 0, 0);
+            Dungeon dungeon = new Dungeon (levelWidth - 1, levelHeight - 1, 0, 0);
             dungeon.SetRoot (dungeon);
             dungeonParts.Add (dungeon);
 
@@ -124,17 +125,18 @@ namespace RogueLike {
         /// <param name="halls"></param>
         void AddRooms (List<Room> rooms, List<Room> halls) {
             foreach (Room R in rooms) { //.Union (halls)) {
-                Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.WallColor, R.Wall);
+                for (int i = 0; i <= R.Height / 2; i++) {
+                    Engine.Rectangle ((R.TopLeft + i).ToPoint (), (R.BottomRight - i).ToPoint (), R.FloorColor, R.Floor);
+                }
+                Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.FloorColor, R.Floor);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
-                        if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
-                            //FloorPlan.AddItem (new Wall ((R.X + x), (R.Y + y)));
-                        }
+                        FloorPlan.AddItem (new Floor ((R.X + x), (R.Y + y)));
                     }
                 }
             }
             foreach (Room R in halls) {
-                Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.WallColor + 1, R.Wall);
+                Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.FloorColor + 1, R.Floor);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
                         if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
@@ -151,7 +153,7 @@ namespace RogueLike {
         /// <param name="halls"></param>
         void AddHalls (List<Room> halls) {
             foreach (Room H in halls) {
-                Engine.Line (H.TopLeft.ToPoint (), H.BottomRight.ToPoint (), H.WallColor, H.Wall);
+                Engine.Line (H.TopLeft.ToPoint (), H.BottomRight.ToPoint (), H.FloorColor, H.Floor);
             }
         }
 
@@ -287,8 +289,8 @@ namespace RogueLike {
                     if ((You.XY.Y + moveY < c_MaxWinHeight) && (You.XY.Y + moveY > -1))
                         NextMove.Y += moveY;
                     //find out if they ran into anything
-                    if (FloorPlan.Grid[NextMove.X, NextMove.Y] != null) {
-                        Object thing = FloorPlan.Grid[NextMove.X, NextMove.Y];
+                    if (FloorPlan.Grid[NextMove.X][NextMove.Y] != null) {
+                        Object thing = FloorPlan.Grid[NextMove.X][NextMove.Y];
                         bool attacked;
                         string message;
                         //make the player interact with the object run into

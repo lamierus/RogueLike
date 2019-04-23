@@ -21,11 +21,11 @@ namespace RogueLike {
         public int Y { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public int WallColor {
-            get { return 2; }
+        public int FloorColor {
+            get { return 5; }
         }
-        public ConsoleCharacter Wall {
-            get { return ConsoleCharacter.Medium; }
+        public ConsoleCharacter Floor {
+            get { return ConsoleCharacter.Light; }
         }
 
         public Room (int width, int height, int x, int y) {
