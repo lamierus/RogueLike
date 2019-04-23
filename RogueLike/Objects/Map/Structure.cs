@@ -8,6 +8,5 @@ namespace RogueLike {
         public bool Immovable { get; set; }
         public bool FloorToCeiling { get; set; }
         public bool AboveOrBelow { get; set; }
-        public ConsoleCharacter MapCharacter { get; set; }
     }
 }

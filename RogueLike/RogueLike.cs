@@ -59,18 +59,13 @@ namespace RogueLike {
         ///     was drawing the rectangle around the edge,  but just use it as a color pallete draw
         /// </summary>
         void DrawFloor () {
-            int LevelWidth = 60; //c_MaxWinWidth - c_SideBar;
-            int levelHeight = 30; //c_MaxWinHeight;
+            int LevelWidth = c_MaxWinWidth - c_SideBar;
+            int levelHeight = c_MaxWinHeight;
             //creating the level grid
-            FloorPlan = new FloorGrid (LevelWidth, levelHeight);
-            Engine.Fill(new Point(0,0), new Point (LevelWidth - 1, levelHeight -1), 2, ConsoleCharacter.Dark);
-            int i = 0;
-            //for (int y = 1; y <= 8; y++) {
-            for (int x = 1; x <= 51 /*96*/ ; x += 3) {
-                Engine.WriteText (new Point (x, c_MaxWinHeight - 1), i.ToString (" ##"), i++);
-            }
-            //}
-            BuildRooms(LevelWidth, levelHeight);
+            FloorPlan = new FloorGrid (LevelWidth, levelHeight + 1);
+            Engine.Fill (new Point (0, 0), new Point (LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
+
+            BuildRooms (LevelWidth, levelHeight);
         }
 
         /// <summary>
@@ -80,8 +75,8 @@ namespace RogueLike {
 
             //list to hold each of the dungeon parts (or nodes/leaves)
             List<Dungeon> dungeonParts = new List<Dungeon> ();
-            //create the root dungeon, the size of the level grid (-1 because the grid is an array that starts at 0)
-            Dungeon dungeon = new Dungeon (levelWidth - 1, levelHeight - 1, 0, 0);
+            //create the root dungeon, the size of the level grid
+            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0);
             dungeon.SetRoot (dungeon);
             dungeonParts.Add (dungeon);
 
@@ -108,14 +103,14 @@ namespace RogueLike {
 
             //create a list to hold all of the rooms
             List<Room> rooms = new List<Room> ();
-            List<Room> halls = new List<Room> ();
             //run through, creating all of the rooms
             dungeon.GenerateRooms ();
-            dungeon.GenerateHalls ();
-
             //move on to draw the level, sending all of the created rooms.
-            AddRooms (dungeon.Rooms, dungeon.Halls);
-            //AddHalls (dungeon.Halls);
+            AddRooms (dungeon.Rooms);
+
+            List<Hallway> halls = new List<Hallway> ();
+            dungeon.GenerateHalls (ref FloorPlan);
+            AddHalls (dungeon.Halls);
         }
 
         /// <summary>
@@ -123,37 +118,40 @@ namespace RogueLike {
         /// </summary>
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
-        void AddRooms (List<Room> rooms, List<Room> halls) {
-            foreach (Room R in rooms) { //.Union (halls)) {
+        void AddRooms (List<Room> rooms) {
+            foreach (Room R in rooms) {
                 for (int i = 0; i <= R.Height / 2; i++) {
-                    Engine.Rectangle ((R.TopLeft + i).ToPoint (), (R.BottomRight - i).ToPoint (), R.FloorColor, R.Floor);
+                    Engine.Rectangle ((R.TopLeft + i).ToPoint (), (R.BottomRight - i).ToPoint (), R.Color, R.Character);
                 }
-                Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.FloorColor, R.Floor);
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
                         FloorPlan.AddItem (new Floor ((R.X + x), (R.Y + y)));
                     }
                 }
             }
-            foreach (Room R in halls) {
-                Engine.Rectangle (R.TopLeft.ToPoint (), R.BottomRight.ToPoint (), R.FloorColor + 1, R.Floor);
-                for (int x = 0; x <= R.Width; x++) {
-                    for (int y = 0; y <= R.Height; y++) {
-                        if (!((R.X + x > R.X && R.Y + y > R.Y) && (R.X + x < R.X + R.Width && R.Y + y < R.Y + R.Height))) {
-                            //FloorPlan.AddItem (new Wall ((R.X + x), (R.Y + y)));
+        }
+        /// <summary>
+        ///     
+        /// </summary>
+        /// <param name="halls"></param>
+        void AddHalls (List<Hallway> halls) {
+            foreach (Hallway H in halls) {
+                Engine.Line (H.Start.ToPoint (), H.End.ToPoint (), H.Color, H.Character);
+                for (int i = 0; i <= (int) (Position.Distance (H.Start, H.End)); i++) {
+                    if (H.Start.X == H.End.X) {
+                        if (H.Start.Y < H.End.Y) {
+                            FloorPlan.AddItem (H.GetMapObject (H.Start.X, H.Start.Y + i));
+                        } else {
+                            FloorPlan.AddItem (H.GetMapObject (H.Start.X, H.Start.Y - i));
+                        }
+                    } else {
+                        if (H.Start.X < H.End.X) {
+                            FloorPlan.AddItem (H.GetMapObject (H.Start.X + i, H.Start.Y));
+                        } else {
+                            FloorPlan.AddItem (H.GetMapObject (H.Start.X - i, H.Start.Y));
                         }
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="halls"></param>
-        void AddHalls (List<Room> halls) {
-            foreach (Room H in halls) {
-                Engine.Line (H.TopLeft.ToPoint (), H.BottomRight.ToPoint (), H.FloorColor, H.Floor);
             }
         }
 
@@ -332,9 +330,18 @@ namespace RogueLike {
         ///     Implement the abstract Render() module to update the game screen
         /// </summary>
         public override void Render () {
-            Engine.WriteText (You.XY.ToPoint (), You.Character.ToString (), 2);
+            /*Engine.WriteText (You.XY.ToPoint (), You.Character.ToString (), 2);
             if (PlayerLastPosition != You.XY) {
                 Engine.SetPixel (PlayerLastPosition.ToPoint (), BlankSpotColor, ConsoleCharacter.Full);
+            }*/
+            for (int x = 0; x < FloorPlan.Width; x++) {
+                for (int y = 0; y < FloorPlan.Height; y++) {
+                    Engine.SetPixel (new Point (x, y), FloorPlan.Grid[x][y].Color, FloorPlan.Grid[x][y].Character);
+                }
+            }
+            int i = 0;
+            for (int x = 1; x <= 51 /*96*/ ; x += 3) {
+                Engine.WriteText (new Point (x, c_MaxWinHeight - 1), i.ToString (" ##"), i++);
             }
             UpdateSideBar ();
             UpdateLog ();

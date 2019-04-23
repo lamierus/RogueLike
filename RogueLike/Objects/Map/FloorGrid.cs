@@ -10,24 +10,26 @@ namespace RogueLike {
 
         public FloorGrid (int width, int height) {
             Grid = new Object[width][];
-            for (int i = 0; i < width; i++){
-                Grid[i] = new Object [height];
-                for (int j = 0; j < height; j++){
-                    Grid[i][j] = new Wall(i,j);
+            for (int x = 0; x < width; x++) {
+                Grid[x] = new Object[height];
+                for (int y = 0; y < height; y++) {
+                    Grid[x][y] = new Wall (x, y);
                 }
             }
-            Width = width - 1;
-            Height = height - 1;
+            Width = width;
+            Height = height;
         }
 
         public bool AddItem (Object objToAdd) {
-            if (Grid[objToAdd.XY.X][objToAdd.XY.Y] == null) {
+            if (objToAdd is Floor) {
+                Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Floor;
+                return true;
+            }
+            if (Grid[objToAdd.XY.X][objToAdd.XY.Y] is Floor) {
                 if (objToAdd is Item) {
                     Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Item;
-                } else if (objToAdd is Wall) {
-                    Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Wall;
+                    return true;
                 }
-                return true;
             }
             return false;
         }

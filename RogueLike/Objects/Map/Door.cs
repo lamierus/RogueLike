@@ -7,8 +7,8 @@ namespace RogueLike {
     public class Door : Structure {
         public bool Open { get; set; }
 
-        public Door() {
-            MapCharacter = ConsoleCharacter.BoxDrawingL_H;
+        public Door () {
+            Character = ConsoleCharacter.BoxDrawingL_H;
             Immovable = false;
             FloorToCeiling = true;
             Open = false;

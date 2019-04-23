@@ -4,28 +4,44 @@ using System.Text;
 using ConsoleGameEngine;
 
 namespace RogueLike {
-    public class Parallel {
-        public Position First { get; set; }
-        public Position Second { get; set; }
+    public class Hallway {
+        public Position Start { get; set; }
+        public Position End { get; set; }
 
-        public Parallel (Position first, Position second) {
-            First = first;
-            Second = second;
+        public Hallway (Position start, Position end) {
+            Start = start;
+            End = end;
+        }
+        public int Color {
+            get { return GetMapObject ().Color; }
+        }
+        public ConsoleCharacter Character {
+            get { return GetMapObject ().Character; }
+        }
+        public Floor GetMapObject (int x, int y) {
+            return new Floor (x, y);
+        }
+        private Floor GetMapObject () {
+            return new Floor (0, 0);
         }
     }
     public class Room : IComparable<Room> {
         public Position TopLeft { get; private set; }
         public Position BottomRight { get; private set; }
-        public List<Parallel> Parallels { get; private set; }
+        public List<Hallway> Parallels { get; private set; }
+        public List<Room> ConnectedRooms = new List<Room> ();
         public int X { get; private set; }
         public int Y { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public int FloorColor {
-            get { return 5; }
+        public int Color {
+            get { return 1; }
         }
-        public ConsoleCharacter Floor {
+        public ConsoleCharacter Character {
             get { return ConsoleCharacter.Light; }
+        }
+        public Floor GetMapObject (int x, int y) {
+            return new Floor (x, y);
         }
 
         public Room (int width, int height, int x, int y) {
@@ -60,14 +76,14 @@ namespace RogueLike {
                     if (Y + thisY == toCheck.Y + thatY) {
                         if (X < toCheck.X) {
                             if (Parallels == null) {
-                                Parallels = new List<Parallel> ();
+                                Parallels = new List<Hallway> ();
                             }
-                            Parallels.Add (new Parallel (new Position (X + Width, Y + thisY), new Position (toCheck.X, toCheck.Y + thatY)));
+                            Parallels.Add (new Hallway (new Position (X + Width, Y + thisY), new Position (toCheck.X, toCheck.Y + thatY)));
                         } else {
                             if (Parallels == null) {
-                                Parallels = new List<Parallel> ();
+                                Parallels = new List<Hallway> ();
                             }
-                            Parallels.Add (new Parallel (new Position (X, Y + thisY), new Position (toCheck.X + toCheck.Width, toCheck.Y + thatY)));
+                            Parallels.Add (new Hallway (new Position (X, Y + thisY), new Position (toCheck.X + toCheck.Width, toCheck.Y + thatY)));
                         }
                     }
                 }
@@ -88,14 +104,14 @@ namespace RogueLike {
                     if (X + thisX == toCheck.X + thatX) {
                         if (Y < toCheck.Y) {
                             if (Parallels == null) {
-                                Parallels = new List<Parallel> ();
+                                Parallels = new List<Hallway> ();
                             }
-                            Parallels.Add (new Parallel (new Position (X + thisX, Y + Height), new Position (toCheck.X + thatX, toCheck.Y)));
+                            Parallels.Add (new Hallway (new Position (X + thisX, Y + Height), new Position (toCheck.X + thatX, toCheck.Y)));
                         } else {
                             if (Parallels == null) {
-                                Parallels = new List<Parallel> ();
+                                Parallels = new List<Hallway> ();
                             }
-                            Parallels.Add (new Parallel (new Position (X + thisX, Y), new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height)));
+                            Parallels.Add (new Hallway (new Position (X + thisX, Y), new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height)));
                         }
                     }
                 }
@@ -120,12 +136,6 @@ namespace RogueLike {
         }
 
         public static bool operator == (Room lhs, Room rhs) {
-            // if (lhs != null && rhs != null) {
-            //     return ((lhs.TopLeft == rhs.TopLeft) && (lhs.BottomRight == rhs.BottomRight));
-            // } else {
-            //     return false;
-            // }
-            // Check for null
             if (Object.ReferenceEquals (lhs, null)) {
                 if (Object.ReferenceEquals (rhs, null)) {
                     return true;

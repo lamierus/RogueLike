@@ -19,7 +19,7 @@ namespace RogueLike {
         public Dungeon RightBranch { get; private set; }
         public Room Room { get; private set; }
         public List<Room> Rooms = new List<Room> ();
-        public List<Room> Halls = new List<Room> ();
+        public List<Hallway> Halls = new List<Hallway> ();
 
         // constructor with minimums built into it, so they can be provided, if you want
         public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth = 16, int minHeight = 8) {
@@ -120,28 +120,28 @@ namespace RogueLike {
         ///     generate halls in 4 directions from random spots on the walls of the room.
         ///     will have to figure out a way to connect them all at a later time...
         /// </summary>
-        public void GenerateHalls () {
+        public void GenerateHalls (ref FloorGrid floor) {
             Rooms.Sort ();
-            for (int This = 0; This < Rooms.Count; This++) {
+            for (int Current = 0; Current < Rooms.Count; Current++) {
                 for (int Next = 1; Next < Rooms.Count; Next++) {
-                    if (Rooms[This] != Rooms[Next]) {
-                        Room hallToAdd = null;
-                        if (Rooms[This].CheckXParallel (Rooms[Next])) {
-                            if (Rooms[This].Parallels != null) {
-                                hallToAdd = BuildStraightHallway (Rooms[This].Parallels);
+                    if (Rooms[Current] != Rooms[Next] && !(Rooms[Current].ConnectedRooms.Contains (Rooms[Next]))) {
+                        Hallway hallToAdd = null;
+                        if (Rooms[Current].CheckXParallel (Rooms[Next])) {
+                            if (Rooms[Current].Parallels != null) {
+                                hallToAdd = BuildStraightHallway (Rooms[Current]);
                             }
-                            Rooms[This].ClearParallels ();
                         }
-                        if (Rooms[This].CheckYParallel (Rooms[Next])) {
-                            if (Rooms[This].Parallels != null) {
-                                hallToAdd = BuildStraightHallway (Rooms[This].Parallels);
+                        if (Rooms[Current].CheckYParallel (Rooms[Next])) {
+                            if (Rooms[Current].Parallels != null) {
+                                hallToAdd = BuildStraightHallway (Rooms[Current]);
                             }
-                            Rooms[This].ClearParallels ();
                         }
-                        if (hallToAdd == null) { 
+                        if (hallToAdd == null) {
                             //TODO: create a probe to iterate and find rooms
                         } else {
                             Root.Halls.Add (hallToAdd);
+                            Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
+                            Rooms[Next].ConnectedRooms.Add (Rooms[Current]);
                         }
                     }
                 }
@@ -153,18 +153,16 @@ namespace RogueLike {
         /// </summary>
         /// <param name="parallels"></param>
         /// <returns></returns>
-        private Room BuildStraightHallway (List<Parallel> parallels) {
-            Room hallway = null;
-            int countOfParallels = parallels.Count;
-            if (countOfParallels >= 3) {
-                int randomChoice = Rand.Next (2, countOfParallels - 1);
-                hallway = new Room (parallels[randomChoice - 2].First, parallels[randomChoice].Second);
-            } else if (countOfParallels < 3) {
-                hallway = null;
-            } else {
-                hallway = new Room (parallels[0].First, parallels[1].Second);
-            }
+        private Hallway BuildStraightHallway (Room room) {
+            Hallway hallway = null;
+            int randomChoice = Rand.Next (room.Parallels.Count);
+            hallway = new Hallway (room.Parallels[randomChoice].Start, room.Parallels[randomChoice].End);
+            room.ClearParallels ();
             return hallway;
+        }
+
+        private ProbeForRoom () {
+
         }
     }
 }

@@ -7,12 +7,12 @@ namespace RogueLike {
     public class Player : Mob {
         private Backpack Inventory;
         public int GoldAmt = 0;
-        
-        public Player() {
-            Inventory = new Backpack(8);
+
+        public Player () {
+            Inventory = new Backpack (8);
             ID = 0;
             Name = "Player";
-            Character = '@';
+            MapCharacter = '@';
             Color = 2;
             Atk = 1;
             HP = 10;
@@ -21,28 +21,28 @@ namespace RogueLike {
             isAlive = true;
         }
 
-        public Backpack GetInventory() {
+        public Backpack GetInventory () {
             return Inventory;
         }
 
         private bool PickUpItem (Item pickedUp, out string message) {
             if (pickedUp is Gold) {
                 GoldAmt += (pickedUp as Gold).Amount;
-                message = "Picked up " + (pickedUp as Gold).Amount.ToString() + " pieces of gold!";
+                message = "Picked up " + (pickedUp as Gold).Amount.ToString () + " pieces of gold!";
                 return true;
             }
-            
-            return Inventory.AddItem(pickedUp, out message);
+
+            return Inventory.AddItem (pickedUp, out message);
         }
 
-        public Item DropItem(int slot) {
-            return Inventory.RemoveItem(slot);
+        public Item DropItem (int slot) {
+            return Inventory.RemoveItem (slot);
         }
-        
-        public bool Interact(Object obj, out bool attacked, out string message) {
+
+        public bool Interact (Object obj, out bool attacked, out string message) {
             attacked = false;
             if (obj is Item) {
-                return PickUpItem(obj as Item, out message);
+                return PickUpItem (obj as Item, out message);
             }
             if (obj is Wall) {
                 message = "That's a Wall!";
