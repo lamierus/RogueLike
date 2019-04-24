@@ -45,7 +45,7 @@ namespace RogueLike {
                 return false;
             }
 
-            bool vertical = VorH ();
+            bool vertical = isVertical ();
             //find the maximum height/width
             //int max = ((vertical) ? Width : Height) - c_MinSize;
             int maxWidth = Width - MinWidth;
@@ -86,7 +86,7 @@ namespace RogueLike {
         ///     provide a quick true or false to randomly pick vertical or horizontal
         /// </summary>
         /// <returns></returns>
-        private bool VorH () {
+        private bool isVertical () {
             double VorH = Rand.NextDouble ();
             return (VorH >.5) ? true : false;
         }
@@ -127,18 +127,18 @@ namespace RogueLike {
                 for (int Next = 1; Next < Rooms.Count; Next++) {
                     if (Rooms[Current] != Rooms[Next] && !(Rooms[Current].ConnectedRooms.Contains (Rooms[Next]))) {
                         Hallway hallToAdd = null;
-                        if (Rooms[Current].CheckXParallel (Rooms[Next])) {
-                            if (Rooms[Current].Parallels != null) {
-                                hallToAdd = BuildStraightHallway (Rooms[Current]);
-                            }
-                        }
-                        if (Rooms[Current].CheckYParallel (Rooms[Next])) {
-                            if (Rooms[Current].Parallels != null) {
-                                hallToAdd = BuildStraightHallway (Rooms[Current]);
-                            }
-                        }
+                        // if (Rooms[Current].CheckXParallel (Rooms[Next])) {
+                        //     if (Rooms[Current].Parallels != null) {
+                        //         hallToAdd = BuildStraightHallway (Rooms[Current]);
+                        //     }
+                        // }
+                        // if (Rooms[Current].CheckYParallel (Rooms[Next])) {
+                        //     if (Rooms[Current].Parallels != null) {
+                        //         hallToAdd = BuildStraightHallway (Rooms[Current]);
+                        //     }
+                        // }
                         if (hallToAdd == null) {
-                            //TODO: create a probe to iterate and find rooms
+                            ProbeForRoom (Rooms[Next], ref floor);
                         } else {
                             Root.Halls.Add (hallToAdd);
                             Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
@@ -167,7 +167,59 @@ namespace RogueLike {
             if ((room.X > MinWidth) || (room.X + room.Width < Width - MinWidth) ||
                 (room.Y > MinHeight) || (room.Y + room.Height < Height - MinHeight)) {
                 hallsFound = new List<Hallway> ();
+                bool connected = false;
 
+                while (!connected) {
+                    if (isVertical ()) {
+                        bool vertical = isVertical ();
+                        int stretch = Rand.Next (1, 10);
+                        Position start = new Position (Rand.Next (Room.X, Room.X + Width), Room.Y);
+                        Position end = start;
+                        int index = 0;
+                        Object thing = null;
+                        do {
+                            index++;
+                            if (vertical) {
+                                end.Y--;
+                            } else {
+                                end.Y++;
+                            }
+                            if (end.Y > floor.Height || end.Y < 0) {
+                                break;
+                            }
+                            thing = floor.Grid[end.X][end.Y];
+                        } while (!(thing is Floor) || index <= stretch);
+                        vertical = !vertical;
+                        hallsFound.Add (new Hallway (start, end));
+                        if (thing is Floor) {
+                            connected = true;
+                        }
+                    } else {
+                        bool vertical = isVertical ();
+                        int stretch = Rand.Next (1, 10);
+                        Position start = new Position (Room.X, Rand.Next (Room.Y, Room.Y + Height));
+                        Position end = start;
+                        int index = 0;
+                        Object thing = null;
+                        do {
+                            index++;
+                            if (vertical) {
+                                end.X--;
+                            } else {
+                                end.X++;
+                            }
+                            if (end.X > floor.Width || end.X < 0) {
+                                break;
+                            }
+                            thing = floor.Grid[end.X][end.Y];
+                        } while (!(thing is Floor) || index <= stretch);
+                        vertical = !vertical;
+                        hallsFound.Add (new Hallway (start, end));
+                        if (thing is Floor) {
+                            connected = true;
+                        }
+                    }
+                }
             }
             return hallsFound;
         }
