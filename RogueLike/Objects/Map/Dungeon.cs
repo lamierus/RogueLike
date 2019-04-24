@@ -117,10 +117,11 @@ namespace RogueLike {
         }
 
         /// <summary>
-        ///     generate halls in 4 directions from random spots on the walls of the room.
-        ///     will have to figure out a way to connect them all at a later time...
+        ///     
         /// </summary>
+        /// <param name="floor"></param>
         public void GenerateHalls (ref FloorGrid floor) {
+
             Rooms.Sort ();
             for (int Current = 0; Current < Rooms.Count; Current++) {
                 for (int Next = 1; Next < Rooms.Count; Next++) {
@@ -151,7 +152,7 @@ namespace RogueLike {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="parallels"></param>
+        /// <param name="room"></param>
         /// <returns></returns>
         private Hallway BuildStraightHallway (Room room) {
             Hallway hallway = null;
@@ -161,8 +162,14 @@ namespace RogueLike {
             return hallway;
         }
 
-        private ProbeForRoom () {
+        private List<Hallway> ProbeForRoom (Room room, ref FloorGrid floor) {
+            List<Hallway> hallsFound = null;
+            if ((room.X > MinWidth) || (room.X + room.Width < Width - MinWidth) ||
+                (room.Y > MinHeight) || (room.Y + room.Height < Height - MinHeight)) {
+                hallsFound = new List<Hallway> ();
 
+            }
+            return hallsFound;
         }
     }
 }

@@ -62,7 +62,7 @@ namespace RogueLike {
             int LevelWidth = c_MaxWinWidth - c_SideBar;
             int levelHeight = c_MaxWinHeight;
             //creating the level grid
-            FloorPlan = new FloorGrid (LevelWidth, levelHeight + 1);
+            FloorPlan = new FloorGrid (LevelWidth, levelHeight);
             Engine.Fill (new Point (0, 0), new Point (LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
 
             BuildRooms (LevelWidth, levelHeight);
@@ -172,7 +172,7 @@ namespace RogueLike {
         ///     adding mobs randomly, in rooms
         /// </summary>
         void AddMobs () {
-            //TODO: add code to randomize mobs, based on level #, and place them in the room
+            //TODO: add code to randomize mobs, based on level #, and place them in the rooms
         }
 
         /// <summary>
