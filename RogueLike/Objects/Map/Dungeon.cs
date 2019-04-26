@@ -121,32 +121,30 @@ namespace RogueLike {
         /// </summary>
         /// <param name="floor"></param>
         public void GenerateHalls (ref FloorGrid floor) {
-
-            Rooms.Sort ();
-            for (int Current = 0; Current < Rooms.Count; Current++) {
-                for (int Next = 1; Next < Rooms.Count; Next++) {
-                    if (Rooms[Current] != Rooms[Next] && !(Rooms[Current].ConnectedRooms.Contains (Rooms[Next]))) {
-                        Hallway hallToAdd = null;
-                        // if (Rooms[Current].CheckXParallel (Rooms[Next])) {
-                        //     if (Rooms[Current].Parallels != null) {
-                        //         hallToAdd = BuildStraightHallway (Rooms[Current]);
-                        //     }
-                        // }
-                        // if (Rooms[Current].CheckYParallel (Rooms[Next])) {
-                        //     if (Rooms[Current].Parallels != null) {
-                        //         hallToAdd = BuildStraightHallway (Rooms[Current]);
-                        //     }
-                        // }
-                        if (hallToAdd == null) {
-                            ProbeForRoom (Rooms[Next], ref floor);
-                        } else {
-                            Root.Halls.Add (hallToAdd);
-                            Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
-                            Rooms[Next].ConnectedRooms.Add (Rooms[Current]);
-                        }
-                    }
-                }
-            }
+            // for (int Current = 0; Current < Rooms.Count; Current++) {
+            //     for (int Next = 1; Next < Rooms.Count; Next++) {
+            //         if (Rooms[Current] != Rooms[Next] && !(Rooms[Current].ConnectedRooms.Contains (Rooms[Next]))) {
+            //             Hallway hallToAdd = null;
+            //             // if (Rooms[Current].CheckXParallel (Rooms[Next])) {
+            //             //     if (Rooms[Current].Parallels != null) {
+            //             //         hallToAdd = BuildStraightHallway (Rooms[Current]);
+            //             //     }
+            //             // }
+            //             // if (Rooms[Current].CheckYParallel (Rooms[Next])) {
+            //             //     if (Rooms[Current].Parallels != null) {
+            //             //         hallToAdd = BuildStraightHallway (Rooms[Current]);
+            //             //     }
+            //             // }
+            //             if (hallToAdd == null) {
+            //                 ProbeForRoom (Rooms[Next], ref floor);
+            //             } else {
+            //                 Root.Halls.Add (hallToAdd);
+            //                 Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
+            //                 Rooms[Next].ConnectedRooms.Add (Rooms[Current]);
+            //             }
+            //         }
+            //     }
+            // }
         }
 
         /// <summary>
