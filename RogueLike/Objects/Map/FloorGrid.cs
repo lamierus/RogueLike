@@ -16,8 +16,8 @@ namespace RogueLike {
                     Grid[x][y] = new Wall (x, y);
                 }
             }
-            Width = width;
-            Height = height;
+            Width = width - 1;
+            Height = height - 1;
         }
 
         public bool AddItem (Object objToAdd) {

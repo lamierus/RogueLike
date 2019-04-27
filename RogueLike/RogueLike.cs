@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ConsoleGameEngine;
 
 namespace RogueLike {
-    class RogueLike : ConsoleGame {
+    public class RogueLike : ConsoleGame {
         /// <summary>
         /// ConsoleCharacter
         ///     .Null - ?
@@ -35,7 +35,7 @@ namespace RogueLike {
         private Random RandomNum = new Random ();
         private Queue<string> LogMessages = new Queue<string> ();
 
-        static void Main (string[] args) {
+        public static void Main (string[] args) {
             new RogueLike ().Construct (c_MaxWinWidth, c_MaxWinHeight, c_PixelWidth, c_PixelHeight, FramerateMode.MaxFps);
 
         }
@@ -109,7 +109,11 @@ namespace RogueLike {
             AddRooms (dungeon.Rooms);
 
             List<Hallway> halls = new List<Hallway> ();
-            dungeon.GenerateHalls (ref FloorPlan);
+            string message = null;
+            dungeon.GenerateHalls (ref FloorPlan, out message);
+            if (message != null){
+                AddLog(message);
+            }
             AddHalls (dungeon.Halls);
         }
 
@@ -120,9 +124,9 @@ namespace RogueLike {
         /// <param name="halls"></param>
         void AddRooms (List<Room> rooms) {
             foreach (Room R in rooms) {
-                for (int i = 0; i <= R.Height / 2; i++) {
-                    Engine.Rectangle ((R.TopLeft + i).ToPoint (), (R.BottomRight - i).ToPoint (), R.Color, R.Character);
-                }
+                // for (int i = 0; i <= R.Height / 2; i++) {
+                //     Engine.Rectangle ((R.TopLeft + i).ToPoint (), (R.BottomRight - i).ToPoint (), R.Color, R.Character);
+                // }
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
                         FloorPlan.AddItem (new Floor ((R.X + x), (R.Y + y)));
@@ -136,8 +140,8 @@ namespace RogueLike {
         /// <param name="halls"></param>
         void AddHalls (List<Hallway> halls) {
             foreach (Hallway H in halls) {
-                Engine.Line (H.Start.ToPoint (), H.End.ToPoint (), H.Color, H.Character);
-                for (int i = 0; i <= (int) (Position.Distance (H.Start, H.End)); i++) {
+                // Engine.Line (H.Start.ToPoint (), H.End.ToPoint (), H.Color, H.Character);
+                for (int i = 0; i < (int) (Position.Distance (H.Start, H.End)); i++) {
                     if (H.Start.X == H.End.X) {
                         if (H.Start.Y < H.End.Y) {
                             FloorPlan.AddItem (H.GetMapObject (H.Start.X, H.Start.Y + i));
@@ -223,7 +227,7 @@ namespace RogueLike {
         /// <param name="message">
         ///     the string message, maxiumum is 36 characters per line
         /// </param>
-        void AddLog (string message) {
+        public void AddLog (string message) {
             int maxLength = 36;
             string lineTwo = null;
             if (message.Length > maxLength) {
@@ -240,7 +244,6 @@ namespace RogueLike {
             while (LogMessages.Count > 10) {
                 LogMessages.Dequeue ();
             }
-
         }
 
         /// <summary>
