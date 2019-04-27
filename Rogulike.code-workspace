@@ -4,5 +4,15 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"csharpfixformat.style.spaces.afterBracket": false,
+		"csharpfixformat.style.spaces.beforeIndexerBracket": false,
+		"csharpfixformat.style.spaces.insideEmptyBraces": false,
+		"csharpfixformat.style.spaces.beforeParenthesis": false,
+		"csharpfixformat.style.spaces.afterParenthesis": false,
+		"git.autofetch": true,
+		"git.autoStash": true,
+		"git.enableSmartCommit": true,
+		"git.fetchOnPull": true
+	}
 }
