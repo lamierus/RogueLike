@@ -373,7 +373,7 @@ namespace RogueLike {
         /// </summary>
         /// <param name="position">starting point, to be changed to another random point</param>
         void RandomizePixelPoint(ref Position position) {
-            var newPosition = new Position();
+            Position newPosition = new Position();
             do {
                 newPosition.X = RandomNum.Next(FloorPlan.Width);
                 newPosition.Y = RandomNum.Next(FloorPlan.Height);
@@ -386,7 +386,7 @@ namespace RogueLike {
         /// </summary>
         /// <param name="color">color of the point, which will be changed</param>
         void RandomizePixelColor(ref int color) {
-            var newColor = 0;
+            int newColor;
             do {
                 newColor = RandomNum.Next(0, 256);
             } while (newColor == color);

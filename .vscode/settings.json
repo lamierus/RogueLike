@@ -1,3 +1,4 @@
 {
-    "editor.acceptSuggestionOnEnter": "smart"
+    "editor.acceptSuggestionOnEnter": "smart",
+    "cmake.autoRestartBuild": true
 }

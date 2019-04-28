@@ -67,6 +67,10 @@ namespace RogueLike {
                 return false;
             }
             GetXAxisParallels (other);
+            if (Parallels != null) {
+                ConnectedRooms.Add (other);
+                other.ConnectedRooms.Add (this);
+            }
             return Parallels != null;
         }
 
@@ -95,6 +99,10 @@ namespace RogueLike {
                 return false;
             }
             GetYAxisParallels (other);
+            if (Parallels != null) {
+                ConnectedRooms.Add (other);
+                other.ConnectedRooms.Add (this);
+            }
             return Parallels != null;
         }
 
