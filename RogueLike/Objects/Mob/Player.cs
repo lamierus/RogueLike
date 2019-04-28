@@ -12,7 +12,7 @@ namespace RogueLike {
             Inventory = new Backpack (8);
             ID = 0;
             Name = "Player";
-            MapCharacter = '@';
+            TextCharacter = "@";
             Color = 2;
             Atk = 1;
             HP = 10;
@@ -40,12 +40,12 @@ namespace RogueLike {
         }
 
         public bool Interact (Object obj, out bool attacked, out string message) {
+            message = null;
             attacked = false;
             if (obj is Item) {
                 return PickUpItem (obj as Item, out message);
             }
             if (obj is Wall) {
-                message = "That's a Wall!";
                 return true;
             }
             attacked = true;

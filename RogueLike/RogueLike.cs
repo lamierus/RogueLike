@@ -25,60 +25,60 @@ namespace RogueLike {
         const int InventoryTextColor = 3;
         const ConsoleKey keyClose = ConsoleKey.Escape;
 
-        public Player You = new Player ();
+        public Player You = new Player();
         public Position PlayerLastPosition;
         public FloorGrid FloorPlan;
 
-        private Position LogTopLeft = new Position (c_MaxWinWidth - c_SideBar + 1, 37);
-        private Position LogBottomRight = new Position (c_MaxWinWidth - 2, 48);
+        private Position LogTopLeft = new Position(c_MaxWinWidth - c_SideBar + 1, 37);
+        private Position LogBottomRight = new Position(c_MaxWinWidth - 2, 48);
         private bool GameState = true;
-        private Random RandomNum = new Random ();
-        private Queue<string> LogMessages = new Queue<string> ();
+        private Random RandomNum = new Random();
+        private Queue<string> LogMessages = new Queue<string>();
 
-        public static void Main (string[] args) {
-            new RogueLike ().Construct (c_MaxWinWidth, c_MaxWinHeight, c_PixelWidth, c_PixelHeight, FramerateMode.MaxFps);
+        public static void Main(string[] args) {
+            new RogueLike().Construct(c_MaxWinWidth, c_MaxWinHeight, c_PixelWidth, c_PixelHeight, FramerateMode.MaxFps);
 
         }
 
-        public override void Create () {
-            Engine.SetPalette (Palettes.Default);
-            Engine.SetBackground (0);
+        public override void Create() {
+            Engine.SetPalette(Palettes.Default);
+            Engine.SetBackground(0);
             //Engine.Borderless();
             Console.Title = "Dungeon of IT";
             TargetFramerate = 10;
 
-            DrawFloor ();
-            AddItems ();
-            AddMobs ();
-            DrawSideBar ();
-            DrawLog ();
-            Restart ();
+            DrawFloor();
+            AddItems();
+            AddMobs();
+            DrawSideBar();
+            DrawLog();
+            Restart();
         }
 
         /// <summary>
         ///     was drawing the rectangle around the edge,  but just use it as a color pallete draw
         /// </summary>
-        void DrawFloor () {
+        void DrawFloor() {
             int LevelWidth = c_MaxWinWidth - c_SideBar;
             int levelHeight = c_MaxWinHeight;
             //creating the level grid
-            FloorPlan = new FloorGrid (LevelWidth, levelHeight);
-            Engine.Fill (new Point (0, 0), new Point (LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
+            FloorPlan = new FloorGrid(LevelWidth, levelHeight);
+            Engine.Fill(new Point(0, 0), new Point(LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
 
-            BuildRooms (LevelWidth, levelHeight);
+            BuildRooms(LevelWidth, levelHeight);
         }
 
         /// <summary>
         ///     the algorithm to use the Dungeon and build the level in a fairly random manner
         /// </summary>
-        void BuildRooms (int levelWidth, int levelHeight) {
+        void BuildRooms(int levelWidth, int levelHeight) {
 
             //list to hold each of the dungeon parts (or nodes/leaves)
-            List<Dungeon> dungeonParts = new List<Dungeon> ();
+            List<Dungeon> dungeonParts = new List<Dungeon>();
             //create the root dungeon, the size of the level grid
-            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0);
-            dungeon.SetRoot (dungeon);
-            dungeonParts.Add (dungeon);
+            Dungeon dungeon = new Dungeon(levelWidth, levelHeight, 0, 0);
+            dungeon.SetRoot(dungeon);
+            dungeonParts.Add(dungeon);
 
             bool didSplit = true;
 
@@ -87,13 +87,13 @@ namespace RogueLike {
                 didSplit = false;
                 for (int i = 0; i < dungeonParts.Count; i++) {
                     //grab the part to split
-                    Dungeon toSplit = dungeonParts.ElementAt (i);
+                    Dungeon toSplit = dungeonParts.ElementAt(i);
                     //if this leaf is not already split, split it
                     if (toSplit.LeftBranch == null && toSplit.RightBranch == null) {
-                        if (toSplit.Split ()) {
+                        if (toSplit.Split()) {
                             //If we did split, add the child branches to the dungeon parts list
-                            dungeonParts.Add (toSplit.LeftBranch);
-                            dungeonParts.Add (toSplit.RightBranch);
+                            dungeonParts.Add(toSplit.LeftBranch);
+                            dungeonParts.Add(toSplit.RightBranch);
                             didSplit = true;
                             i = 0;
                         }
@@ -102,19 +102,19 @@ namespace RogueLike {
             }
 
             //create a list to hold all of the rooms
-            List<Room> rooms = new List<Room> ();
+            List<Room> rooms = new List<Room>();
             //run through, creating all of the rooms
-            dungeon.GenerateRooms ();
+            dungeon.GenerateRooms();
             //move on to draw the level, sending all of the created rooms.
-            AddRooms (dungeon.Rooms);
+            AddRooms(dungeon.Rooms);
 
-            List<Hallway> halls = new List<Hallway> ();
+            List<Hallway> halls = new List<Hallway>();
             string message = null;
-            dungeon.GenerateHalls (ref FloorPlan, out message);
-            if (message != null){
+            dungeon.GenerateHalls(ref FloorPlan, out message);
+            if (message != null) {
                 AddLog(message);
             }
-            AddHalls (dungeon.Halls);
+            AddHalls(dungeon.Halls);
         }
 
         /// <summary>
@@ -122,14 +122,14 @@ namespace RogueLike {
         /// </summary>
         /// <param name="rooms"></param>
         /// <param name="halls"></param>
-        void AddRooms (List<Room> rooms) {
+        void AddRooms(List<Room> rooms) {
             foreach (Room R in rooms) {
                 // for (int i = 0; i <= R.Height / 2; i++) {
                 //     Engine.Rectangle ((R.TopLeft + i).ToPoint (), (R.BottomRight - i).ToPoint (), R.Color, R.Character);
                 // }
                 for (int x = 0; x <= R.Width; x++) {
                     for (int y = 0; y <= R.Height; y++) {
-                        FloorPlan.AddItem (new Floor ((R.X + x), (R.Y + y)));
+                        FloorPlan.AddItem(new Floor((R.X + x), (R.Y + y)));
                     }
                 }
             }
@@ -138,21 +138,21 @@ namespace RogueLike {
         ///     
         /// </summary>
         /// <param name="halls"></param>
-        void AddHalls (List<Hallway> halls) {
+        void AddHalls(List<Hallway> halls) {
             foreach (Hallway H in halls) {
                 // Engine.Line (H.Start.ToPoint (), H.End.ToPoint (), H.Color, H.Character);
-                for (int i = 0; i < (int) (Position.Distance (H.Start, H.End)); i++) {
+                for (int i = 0; i < (int)(Position.Distance(H.Start, H.End)); i++) {
                     if (H.Start.X == H.End.X) {
                         if (H.Start.Y < H.End.Y) {
-                            FloorPlan.AddItem (H.GetMapObject (H.Start.X, H.Start.Y + i));
+                            FloorPlan.AddItem(H.GetMapObject(H.Start.X, H.Start.Y + i));
                         } else {
-                            FloorPlan.AddItem (H.GetMapObject (H.Start.X, H.Start.Y - i));
+                            FloorPlan.AddItem(H.GetMapObject(H.Start.X, H.Start.Y - i));
                         }
                     } else {
                         if (H.Start.X < H.End.X) {
-                            FloorPlan.AddItem (H.GetMapObject (H.Start.X + i, H.Start.Y));
+                            FloorPlan.AddItem(H.GetMapObject(H.Start.X + i, H.Start.Y));
                         } else {
-                            FloorPlan.AddItem (H.GetMapObject (H.Start.X - i, H.Start.Y));
+                            FloorPlan.AddItem(H.GetMapObject(H.Start.X - i, H.Start.Y));
                         }
                     }
                 }
@@ -162,63 +162,63 @@ namespace RogueLike {
         /// <summary>
         ///     currently only adds 1 item randomly on the level, doesn't even check if it's in a room
         /// </summary>
-        void AddItems () {
-            var itemPos = new Position (0, 0);
-            var itemAmount = RandomNum.Next (1, 99);
-            RandomizePixelPoint (ref itemPos);
-            Gold item = new Gold (itemAmount, itemPos);
-            FloorPlan.AddItem (item);
-            Engine.WriteText (item.XY.ToPoint (), item.Character.ToString (), item.Color);
+        void AddItems() {
+            var itemPos = new Position(0, 0);
+            var itemAmount = RandomNum.Next(1, 99);
+            RandomizePixelPoint(ref itemPos);
+            Gold item = new Gold(itemAmount, itemPos);
+            FloorPlan.AddItem(item);
+            Engine.WriteText(item.XY.ToPoint(), item.Character.ToString(), item.Color);
 
         }
 
         /// <summary>
         ///     adding mobs randomly, in rooms
         /// </summary>
-        void AddMobs () {
+        void AddMobs() {
             //TODO: add code to randomize mobs, based on level #, and place them in the rooms
         }
 
         /// <summary>
         ///     draw the original side bar
         /// </summary>
-        void DrawSideBar () {
-            Engine.Rectangle (new Point (c_MaxWinWidth - c_SideBar, 0), new Point (c_MaxWinWidth - 1, c_MaxWinHeight - 1), 3, ConsoleCharacter.Light);
-            Position TextXY = new Position (c_MaxWinWidth - c_SideBar + 2, 2);
-            Engine.WriteText (TextXY.ToPoint (), "Name: " + You.Name, InventoryTextColor);
+        void DrawSideBar() {
+            Engine.Rectangle(new Point(c_MaxWinWidth - c_SideBar, 0), new Point(c_MaxWinWidth - 1, c_MaxWinHeight - 1), 3, ConsoleCharacter.Light);
+            Position TextXY = new Position(c_MaxWinWidth - c_SideBar + 2, 2);
+            Engine.WriteText(TextXY.ToPoint(), "Name: " + You.Name, InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText (TextXY.ToPoint (), "HP:   ", InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), "HP:   ", InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText (TextXY.ToPoint (), "MP:   ", InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), "MP:   ", InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText (TextXY.ToPoint (), "Atk:  ", InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), "Atk:  ", InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText (TextXY.ToPoint (), "Gold: ", InventoryTextColor);
-            UpdateSideBar ();
+            Engine.WriteText(TextXY.ToPoint(), "Gold: ", InventoryTextColor);
+            UpdateSideBar();
         }
 
         /// <summary>
         ///     update the amounts shown on the side bar
         /// </summary>
-        void UpdateSideBar () {
-            Position TextXY = new Position (c_MaxWinWidth - c_SideBar + 8, 3);
-            Engine.WriteText (TextXY.ToPoint (), You.HP.ToString (), InventoryTextColor);
+        void UpdateSideBar() {
+            Position TextXY = new Position(c_MaxWinWidth - c_SideBar + 8, 3);
+            Engine.WriteText(TextXY.ToPoint(), You.HP.ToString(), InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText (TextXY.ToPoint (), You.MP.ToString (), InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), You.MP.ToString(), InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText (TextXY.ToPoint (), You.Atk.ToString (), InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), You.Atk.ToString(), InventoryTextColor);
             TextXY.Y++;
-            Engine.WriteText (TextXY.ToPoint (), You.GoldAmt.ToString (), InventoryTextColor);
+            Engine.WriteText(TextXY.ToPoint(), You.GoldAmt.ToString(), InventoryTextColor);
         }
 
         /// <summary>
         ///     draw the frame for the output log
         /// </summary>
-        void DrawLog () {
-            Engine.Rectangle (LogTopLeft.ToPoint (), LogBottomRight.ToPoint (), 4, ConsoleCharacter.Light);
+        void DrawLog() {
+            Engine.Rectangle(LogTopLeft.ToPoint(), LogBottomRight.ToPoint(), 4, ConsoleCharacter.Light);
             //("this is just a test of the emergency broadcast system. only a test.");
-            AddLog ("Welcome to the Dungeon of IT!");
-            UpdateLog ();
+            AddLog("Welcome to the Dungeon of IT!");
+            UpdateLog();
         }
 
         /// <summary>
@@ -227,32 +227,32 @@ namespace RogueLike {
         /// <param name="message">
         ///     the string message, maxiumum is 36 characters per line
         /// </param>
-        public void AddLog (string message) {
+        public void AddLog(string message) {
             int maxLength = 36;
             string lineTwo = null;
             if (message.Length > maxLength) {
-                lineTwo = message.Substring (maxLength).Trim ();
-                lineTwo = lineTwo.Insert (0, "  ");
-                message = message.Remove (maxLength, message.Length - maxLength);
+                lineTwo = message.Substring(maxLength).Trim();
+                lineTwo = lineTwo.Insert(0, "  ");
+                message = message.Remove(maxLength, message.Length - maxLength);
             }
-            message = message.PadRight (maxLength);
-            LogMessages.Enqueue (message);
+            message = message.PadRight(maxLength);
+            LogMessages.Enqueue(message);
             if (lineTwo != null) {
-                lineTwo = lineTwo.PadRight (maxLength);
-                LogMessages.Enqueue (lineTwo);
+                lineTwo = lineTwo.PadRight(maxLength);
+                LogMessages.Enqueue(lineTwo);
             }
             while (LogMessages.Count > 10) {
-                LogMessages.Dequeue ();
+                LogMessages.Dequeue();
             }
         }
 
         /// <summary>
         ///     update the log on the screen with the messages in the LogMessages Queue
         /// </summary>
-        void UpdateLog () {
+        void UpdateLog() {
             Position logTextStart = LogTopLeft + 1;
             foreach (string s in LogMessages) {
-                Engine.WriteText (logTextStart.ToPoint (), s, 6);
+                Engine.WriteText(logTextStart.ToPoint(), s, 6);
                 logTextStart.Y++;
             }
         }
@@ -260,24 +260,24 @@ namespace RogueLike {
         /// <summary>
         ///     this is the override of the game loop provided by the Console Game Engine
         /// </summary>
-        public override void Update () {
+        public override void Update() {
             if (GameState) {
                 //this is the logic to determine if and where the player is moving
                 int moveX = 0, moveY = 0;
                 bool moved = false;
-                if (Engine.GetKey (ConsoleKey.UpArrow) || Engine.GetKey (ConsoleKey.W)) {
+                if (Engine.GetKey(ConsoleKey.UpArrow) || Engine.GetKey(ConsoleKey.W)) {
                     moveY = -1;
                     moved = true;
-                } else if (Engine.GetKey (ConsoleKey.LeftArrow) || Engine.GetKey (ConsoleKey.A)) {
+                } else if (Engine.GetKey(ConsoleKey.LeftArrow) || Engine.GetKey(ConsoleKey.A)) {
                     moveX = -1;
                     moved = true;
-                } else if (Engine.GetKey (ConsoleKey.DownArrow) || Engine.GetKey (ConsoleKey.S)) {
+                } else if (Engine.GetKey(ConsoleKey.DownArrow) || Engine.GetKey(ConsoleKey.S)) {
                     moveY = 1;
                     moved = true;
-                } else if (Engine.GetKey (ConsoleKey.RightArrow) || Engine.GetKey (ConsoleKey.D)) {
+                } else if (Engine.GetKey(ConsoleKey.RightArrow) || Engine.GetKey(ConsoleKey.D)) {
                     moveX = 1;
                     moved = true;
-                } else if (Engine.GetKey (keyClose)) {
+                } else if (Engine.GetKey(keyClose)) {
                     GameState = false;
                 }
                 //once we know the player has moved, we can calculate where they are going, as well as perform 
@@ -290,26 +290,28 @@ namespace RogueLike {
                     if ((You.XY.Y + moveY < c_MaxWinHeight) && (You.XY.Y + moveY > -1))
                         NextMove.Y += moveY;
                     //find out if they ran into anything
-                    if (FloorPlan.Grid[NextMove.X][NextMove.Y] != null) {
+                    if (!(FloorPlan.Grid[NextMove.X][NextMove.Y] is Floor)) {
                         Object thing = FloorPlan.Grid[NextMove.X][NextMove.Y];
                         bool attacked;
                         string message;
                         //make the player interact with the object run into
-                        if (You.Interact (thing, out attacked, out message))
+                        if (You.Interact(thing, out attacked, out message))
                             if (!attacked) {
                                 if (thing is Item) {
-                                    FloorPlan.PickUpItem (thing as Item);
-                                    MovePlayer (NextMove);
+                                    FloorPlan.PickUpItem(thing as Item);
+                                    MovePlayer(NextMove);
                                 }
-                                AddLog (message);
+                                if (message != null){
+                                    AddLog(message);
+                                }
                             } //TODO: add code for attacking a monster
                     } else {
-                        MovePlayer (NextMove);
+                        MovePlayer(NextMove);
                     }
                     //MoveMonsters();
                 }
             } else {
-                Environment.Exit (0);
+                Environment.Exit(0);
             }
         }
 
@@ -317,7 +319,8 @@ namespace RogueLike {
         ///     process the movement of the player
         /// </summary>
         /// <param name="XY"></param>
-        public void MovePlayer (Position XY) {
+        public void MovePlayer(Position XY) {
+            FloorPlan.MoveObject(You, XY);
             PlayerLastPosition = You.XY;
             You.XY = XY;
         }
@@ -325,38 +328,43 @@ namespace RogueLike {
         /// <summary>
         ///     move the monsthers, this is only called after each time the player moves
         /// </summary>
-        public void MoveMonsters () {
+        public void MoveMonsters() {
             //TODO: add code to move all monsters on the level, not just ones visible to the player.
         }
 
         /// <summary>
         ///     Implement the abstract Render() module to update the game screen
         /// </summary>
-        public override void Render () {
+        public override void Render() {
             /*Engine.WriteText (You.XY.ToPoint (), You.Character.ToString (), 2);
             if (PlayerLastPosition != You.XY) {
                 Engine.SetPixel (PlayerLastPosition.ToPoint (), BlankSpotColor, ConsoleCharacter.Full);
             }*/
-            for (int x = 0; x < FloorPlan.Width; x++) {
-                for (int y = 0; y < FloorPlan.Height; y++) {
-                    Engine.SetPixel (new Point (x, y), FloorPlan.Grid[x][y].Color, FloorPlan.Grid[x][y].Character);
+            for (int x = 0; x <= FloorPlan.Width; x++) {
+                for (int y = 0; y <= FloorPlan.Height; y++) {
+                    Engine.SetPixel(new Point(x, y), FloorPlan.Grid[x][y].Color, FloorPlan.Grid[x][y].Character);
+                    if (FloorPlan.Grid[x][y] is Mob || FloorPlan.Grid[x][y] is Item) {
+                        Engine.WriteText(new Point(x, y), FloorPlan.Grid[x][y].TextCharacter, FloorPlan.Grid[x][y].Color);
+                    }
                 }
             }
             int i = 0;
             for (int x = 1; x <= 51 /*96*/ ; x += 3) {
-                Engine.WriteText (new Point (x, c_MaxWinHeight - 1), i.ToString (" ##"), i++);
+                Engine.WriteText(new Point(x, c_MaxWinHeight - 1), i.ToString(" ##"), i++);
             }
-            UpdateSideBar ();
-            UpdateLog ();
-            Engine.DisplayBuffer ();
+            UpdateSideBar();
+            UpdateLog();
+            Engine.DisplayBuffer();
         }
 
         /// <summary>
         ///     reset things back to the beginning
         /// </summary>
-        void Restart () {
+        void Restart() {
             GameState = true;
-            You.XY = new Position (0, 0);
+            do {
+                You.XY = new Position(RandomNum.Next(FloorPlan.Width), RandomNum.Next(FloorPlan.Height));
+            } while (!(FloorPlan.AddItem(You)));
             PlayerLastPosition = You.XY;
         }
 
@@ -364,11 +372,11 @@ namespace RogueLike {
         ///     Used this for testing, but may find a use for it in the future
         /// </summary>
         /// <param name="position">starting point, to be changed to another random point</param>
-        void RandomizePixelPoint (ref Position position) {
-            var newPosition = new Position ();
+        void RandomizePixelPoint(ref Position position) {
+            var newPosition = new Position();
             do {
-                newPosition.X = RandomNum.Next (FloorPlan.Width);
-                newPosition.Y = RandomNum.Next (FloorPlan.Height);
+                newPosition.X = RandomNum.Next(FloorPlan.Width);
+                newPosition.Y = RandomNum.Next(FloorPlan.Height);
             } while (newPosition == position);
             position = newPosition;
         }
@@ -377,10 +385,10 @@ namespace RogueLike {
         ///     Used for testing, but may find a use for it in the future
         /// </summary>
         /// <param name="color">color of the point, which will be changed</param>
-        void RandomizePixelColor (ref int color) {
+        void RandomizePixelColor(ref int color) {
             var newColor = 0;
             do {
-                newColor = RandomNum.Next (0, 256);
+                newColor = RandomNum.Next(0, 256);
             } while (newColor == color);
             color = newColor;
         }

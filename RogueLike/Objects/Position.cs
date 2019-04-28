@@ -6,7 +6,6 @@ namespace RogueLike {
     public struct Position : IComparable<Position> {
         public int X { get; set; }
         public int Y { get; set; }
-
         public const float Rad2Deg = 180f / (float) Math.PI;
         public const float Deg2Rad = (float) Math.PI / 180f;
 

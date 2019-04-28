@@ -6,14 +6,14 @@ namespace RogueLike {
 
         public Gold (int amount) {
             ID = 999;
-            MapCharacter = '*';
+            TextCharacter = "*";
             Color = 99;
             Amount = amount;
         }
 
         public Gold (int amount, Position Pos) {
             ID = 999;
-            MapCharacter = '*';
+            TextCharacter = "*";
             Color = 99;
             Amount = amount;
             XY = Pos;
