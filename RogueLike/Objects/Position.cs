@@ -27,50 +27,39 @@ namespace RogueLike {
         public static Position operator - (Position lhs, Position rhs) {
             return new Position (lhs.X - rhs.X, lhs.Y - rhs.Y);
         }
-
         public static Position operator / (Position lhs, float rhs) {
             return new Position ((int) (lhs.X / rhs), (int) (lhs.Y / rhs));
         }
         public static Position operator * (Position lhs, float rhs) {
             return new Position ((int) (lhs.X * rhs), (int) (lhs.Y * rhs));
         }
-
         public static Position operator + (Position lhs, int rhs) {
             return new Position (lhs.X + rhs, lhs.Y + rhs);
         }
         public static Position operator - (Position lhs, int rhs) {
             return new Position (lhs.X - rhs, lhs.Y - rhs);
         }
-
         public static bool operator == (Position lhs, Position rhs) {
             return ((lhs.X == rhs.X) && (lhs.Y == rhs.Y));
         }
-
         public static bool operator != (Position lhs, Position rhs) {
             return ((lhs.X != rhs.X) || (lhs.Y != rhs.Y));
         }
-
         public static bool operator < (Position lhs, Position rhs) {
-            return ((Distance (new Position (0, 0), lhs) < (Distance (new Position (0, 0), rhs))));
+            return ((Distance (Zero, lhs) < (Distance (Zero, rhs))));
         }
         public static bool operator > (Position lhs, Position rhs) {
-            return ((Distance (new Position (0, 0), lhs) > (Distance (new Position (0, 0), rhs))));
+            return ((Distance (Zero, lhs) > (Distance (Zero, rhs))));
         }
-
         public static bool operator <= (Position lhs, Position rhs) {
-            return ((Distance (new Position (0, 0), lhs) <= (Distance (new Position (0, 0), rhs))));
+            return ((Distance (Zero, lhs) <= (Distance (Zero, rhs))));
         }
-
         public static bool operator >= (Position lhs, Position rhs) {
-            return ((Distance (new Position (0, 0), lhs) >= (Distance (new Position (0, 0), rhs))));
+            return ((Distance (Zero, lhs) >= (Distance (Zero, rhs))));
         }
 
         public int CompareTo (Position that) {
-            int result = (X.CompareTo (that.X));
-            if (result != 0) {
-                return result;
-            }
-            result = (Y.CompareTo (that.Y));
+            int result = (Position.Distance (Zero, this).CompareTo (Position.Distance (Zero, that)));
             if (result != 0) {
                 return result;
             }

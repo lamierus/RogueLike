@@ -126,24 +126,33 @@ namespace RogueLike {
             for (int Current = 0; Current < Rooms.Count; Current++) {
                 for (int Next = 1; Next < Rooms.Count; Next++) {
                     if (Rooms[Current] != Rooms[Next] && !(Rooms[Current].ConnectedRooms.Contains (Rooms[Next]))) {
-                        Hallway hallToAdd = null;
-                        if (isVertical()){
-                            if (Rooms[Current].CheckXParallel (Rooms[Next])) {
-                                hallToAdd = BuildStraightHallway (Rooms[Current]);
-                            }
-                        } else{
-                            if (Rooms[Current].CheckYParallel (Rooms[Next])) {
-                                hallToAdd = BuildStraightHallway (Rooms[Current]);
-                            }
+                        if (Rooms[Current].CheckXParallel (Rooms[Next])) {
+                            Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
                         }
-                        if (hallToAdd == null) {
-                            List<Hallway> hallsToAdd = ProbeForRoom (Rooms[Next], ref floor, out message);
-                            foreach (Hallway H in hallsToAdd) {
-                                Root.Halls.Add (H);
-                            }
-                        } else {
-                            Root.Halls.Add (hallToAdd);
+                        if (Rooms[Current].CheckYParallel (Rooms[Next])) {
+                            Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
                         }
+                    }
+                }
+                List<Room> parellelRooms = Rooms[Current].ConnectedRooms.TakeWhile (R => R.IsIntersectedByAnyOF (Rooms[Current].Parallels[Rooms[Current].ConnectedRooms.IndexOf (R)])).ToList ();
+                foreach (Room Next in parellelRooms) {
+                    Hallway hallToAdd = null;
+                    if (isVertical ()) {
+                        if (Rooms[Current].CheckXParallel (Next)) {
+                            hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (Next));
+                        }
+                    } else {
+                        if (Rooms[Current].CheckYParallel (Next)) {
+                            hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (Next));
+                        }
+                    }
+                    if (hallToAdd == null) {
+                        List<Hallway> hallsToAdd = ProbeForRoom (Next, ref floor, out message);
+                        foreach (Hallway H in hallsToAdd) {
+                            Root.Halls.Add (H);
+                        }
+                    } else {
+                        Root.Halls.Add (hallToAdd);
                     }
                 }
             }
@@ -154,10 +163,10 @@ namespace RogueLike {
         /// </summary>
         /// <param name="room"></param>
         /// <returns></returns>
-        private Hallway BuildStraightHallway (Room room) {
+        private Hallway BuildStraightHallway (Room room, int indexOfOther) {
             Hallway hallway = null;
-            int randomChoice = Rand.Next (room.Parallels.Count);
-            hallway = new Hallway (room.Parallels[randomChoice].Start, room.Parallels[randomChoice].End);
+            int randomChoice = Rand.Next (room.Parallels[indexOfOther].Count);
+            hallway = new Hallway (room.Parallels[indexOfOther][randomChoice].Start, room.Parallels[indexOfOther][randomChoice].End);
             room.ClearParallels ();
             return hallway;
         }
@@ -211,7 +220,7 @@ namespace RogueLike {
         /// <param name="thing"></param>
         private void getRandomStretch (bool vertical, ref Position start, ref Position end, ref FloorGrid floor, ref Room room, out Object thing) {
             int index = 0;
-            int stretch = 20;//Rand.Next (10, 20);
+            int stretch = 20; //Rand.Next (10, 20);
             bool NorS_EorW = isVertical ();
             if (start != end) {
                 if (vertical) {
