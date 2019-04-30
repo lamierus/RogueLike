@@ -134,7 +134,7 @@ namespace RogueLike {
                         }
                     }
                 }
-                List<Room> parellelRooms = Rooms[Current].ConnectedRooms.TakeWhile (R => R.IsIntersectedByAnyOF (Rooms[Current].Parallels[Rooms[Current].ConnectedRooms.IndexOf (R)])).ToList ();
+                List<Room> parellelRooms = Rooms[Current].ConnectedRooms.SkipWhile (R => R.IsIntersectedByAnyOF (Rooms[Current].Parallels[Rooms[Current].ConnectedRooms.IndexOf (R)])).ToList();
                 foreach (Room Next in parellelRooms) {
                     Hallway hallToAdd = null;
                     if (isVertical ()) {

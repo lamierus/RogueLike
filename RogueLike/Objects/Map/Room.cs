@@ -67,7 +67,7 @@ namespace RogueLike {
                 return false;
             }
             GetXAxisParallels (other);
-            return (Parallels != null && Parallels[ConnectedRooms.Count] != null);
+            return (Parallels != null && ConnectedRooms.Count > Parallels.Count);
         }
 
         private void GetXAxisParallels (Room toCheck) {
@@ -97,7 +97,7 @@ namespace RogueLike {
                 return false;
             }
             GetYAxisParallels (other);
-            return (Parallels != null && Parallels[ConnectedRooms.Count] != null);
+            return (Parallels != null && ConnectedRooms.Count > Parallels.Count);
         }
 
         private void GetYAxisParallels (Room toCheck) {
