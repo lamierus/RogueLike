@@ -59,8 +59,8 @@ namespace RogueLike {
         ///     was drawing the rectangle around the edge,  but just use it as a color pallete draw
         /// </summary>
         void DrawFloor () {
-            int LevelWidth = c_MaxWinWidth - c_SideBar;
-            int levelHeight = c_MaxWinHeight;
+            int LevelWidth = 85; //c_MaxWinWidth - c_SideBar;
+            int levelHeight = 25; //c_MaxWinHeight;
             //creating the level grid
             FloorPlan = new FloorGrid (LevelWidth, levelHeight);
             Engine.Fill (new Point (0, 0), new Point (LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
@@ -76,7 +76,8 @@ namespace RogueLike {
             //list to hold each of the dungeon parts (or nodes/leaves)
             List<Dungeon> dungeonParts = new List<Dungeon> ();
             //create the root dungeon, the size of the level grid
-            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0);
+            //Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0);
+            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0, 8, 4);
             dungeon.SetRoot (dungeon);
             dungeonParts.Add (dungeon);
 
@@ -140,19 +141,21 @@ namespace RogueLike {
         /// <param name="halls"></param>
         void AddHalls (List<Hallway> halls) {
             foreach (Hallway H in halls) {
+                Position start = H.Hall.First ();
+                Position end = H.Hall.Last ();
                 // Engine.Line (H.Start.ToPoint (), H.End.ToPoint (), H.Color, H.Character);
-                for (int i = 0; i < (int) (Position.Distance (H.Start, H.End)); i++) {
-                    if (H.Start.X == H.End.X) {
-                        if (H.Start.Y < H.End.Y) {
-                            FloorPlan.AddItem (H.GetMapObject (H.Start.X, H.Start.Y + i));
+                for (int i = 0; i < (int) (Position.Distance (start, end)); i++) {
+                    if (start.X == end.X) {
+                        if (start.Y < end.Y) {
+                            FloorPlan.AddItem (H.GetMapObject (start.X, start.Y + i));
                         } else {
-                            FloorPlan.AddItem (H.GetMapObject (H.Start.X, H.Start.Y - i));
+                            FloorPlan.AddItem (H.GetMapObject (start.X, start.Y - i));
                         }
                     } else {
-                        if (H.Start.X < H.End.X) {
-                            FloorPlan.AddItem (H.GetMapObject (H.Start.X + i, H.Start.Y));
+                        if (start.X < end.X) {
+                            FloorPlan.AddItem (H.GetMapObject (start.X + i, start.Y));
                         } else {
-                            FloorPlan.AddItem (H.GetMapObject (H.Start.X - i, H.Start.Y));
+                            FloorPlan.AddItem (H.GetMapObject (start.X - i, start.Y));
                         }
                     }
                 }

@@ -125,34 +125,33 @@ namespace RogueLike {
             message = null;
             for (int Current = 0; Current < Rooms.Count; Current++) {
                 for (int Next = 1; Next < Rooms.Count; Next++) {
-                    if (Rooms[Current] != Rooms[Next] && !(Rooms[Current].ConnectedRooms.Contains (Rooms[Next]))) {
+                    if (Rooms[Current] != Rooms[Next] &&
+                        !((Rooms[Current].ConnectedRooms.Contains (Rooms[Next])) ||
+                            (Rooms[Next].ConnectedRooms.Contains (Rooms[Current])))) {
                         if (Rooms[Current].CheckXParallel (Rooms[Next])) {
                             Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
+
                         }
                         if (Rooms[Current].CheckYParallel (Rooms[Next])) {
                             Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
+
                         }
                     }
                 }
-                List<Room> parellelRooms = Rooms[Current].ConnectedRooms.SkipWhile (R => R.IsIntersectedByAnyOF (Rooms[Current].Parallels[Rooms[Current].ConnectedRooms.IndexOf (R)])).ToList();
-                foreach (Room Next in parellelRooms) {
+                List<Room> parallelRooms = Rooms[Current].ConnectedRooms
+                    .FindAll (R => Rooms[Current].HallsIntersect (R)).ToList ();
+                for (int i = 0; i < parallelRooms.Count; i++) {
                     Hallway hallToAdd = null;
-                    if (isVertical ()) {
-                        if (Rooms[Current].CheckXParallel (Next)) {
-                            hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (Next));
-                        }
-                    } else {
-                        if (Rooms[Current].CheckYParallel (Next)) {
-                            hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (Next));
-                        }
-                    }
+                    hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (parallelRooms[i]));
                     if (hallToAdd == null) {
-                        List<Hallway> hallsToAdd = ProbeForRoom (Next, ref floor, out message);
-                        foreach (Hallway H in hallsToAdd) {
-                            Root.Halls.Add (H);
-                        }
+                        // List<Hallway> hallsToAdd = ProbeForRoom (Next, ref floor, out message);
+                        // foreach (Hallway H in hallsToAdd) {
+                        //     Root.Halls.Add (H);
+                        // }
                     } else {
-                        Root.Halls.Add (hallToAdd);
+                        if (!(hallToAdd.CheckForAdjacent (Halls))) {
+                            Root.Halls.Add (hallToAdd);
+                        }
                     }
                 }
             }
@@ -166,8 +165,8 @@ namespace RogueLike {
         private Hallway BuildStraightHallway (Room room, int indexOfOther) {
             Hallway hallway = null;
             int randomChoice = Rand.Next (room.Parallels[indexOfOther].Count);
-            hallway = new Hallway (room.Parallels[indexOfOther][randomChoice].Start, room.Parallels[indexOfOther][randomChoice].End);
-            room.ClearParallels ();
+            hallway = new Hallway (room.Parallels[indexOfOther][randomChoice].Hall.First (), room.Parallels[indexOfOther][randomChoice].Hall.Last ());
+
             return hallway;
         }
 
@@ -195,9 +194,11 @@ namespace RogueLike {
                     getRandomStretch (vertical, ref start, ref end, ref floor, ref room, out thing);
                     vertical = !vertical;
                     hallsFound.Add (new Hallway (start, end));
-                    turns++;
-                    if (thing is Floor || turns > 5) {
-                        if (turns > 5) {
+                    if (!(start == end)) {
+                        turns++;
+                    }
+                    if (thing is Floor || turns >= 5) {
+                        if (turns >= 5) {
                             hallsFound.Clear ();
                         }
                         connected = true;
@@ -220,7 +221,7 @@ namespace RogueLike {
         /// <param name="thing"></param>
         private void getRandomStretch (bool vertical, ref Position start, ref Position end, ref FloorGrid floor, ref Room room, out Object thing) {
             int index = 0;
-            int stretch = 20; //Rand.Next (10, 20);
+            int stretch = 15; //Rand.Next (10, 20);
             bool NorS_EorW = isVertical ();
             if (start != end) {
                 if (vertical) {
@@ -248,12 +249,7 @@ namespace RogueLike {
                         end.Y++;
                     }
                     if (end.Y >= floor.Height || end.Y <= 0) {
-                        if (end.Y > floor.Height) {
-                            end.Y = floor.Height;
-                        }
-                        if (end.Y < 0) {
-                            end.Y = 0;
-                        }
+                        end = start;
                         break;
                     }
                 } else {
@@ -263,12 +259,7 @@ namespace RogueLike {
                         end.X++;
                     }
                     if (end.X > floor.Width || end.X < 0) {
-                        if (end.X > floor.Width) {
-                            end.X = floor.Width;
-                        }
-                        if (end.X < 0) {
-                            end.X = 0;
-                        }
+                        end = start;
                         break;
                     }
                 }

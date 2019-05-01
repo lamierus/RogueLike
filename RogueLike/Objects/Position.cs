@@ -91,5 +91,12 @@ namespace RogueLike {
             Y = (Y > max.Y) ? max.Y : Y;
             Y = (Y < min.Y) ? min.Y : Y;
         }
+
+        public bool AdjacentTo (Position other) {
+            if (true) {
+
+            }
+            return false;
+        }
     }
 }

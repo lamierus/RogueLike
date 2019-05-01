@@ -5,12 +5,23 @@ using ConsoleGameEngine;
 
 namespace RogueLike {
     public class Hallway {
-        public Position Start { get; set; }
-        public Position End { get; set; }
-
+        public List<Position> Hall { get; private set; } = new List<Position> ();
         public Hallway (Position start, Position end) {
-            Start = start;
-            End = end;
+            for (int i = 0; i <= (int) Position.Distance (start, end); i++) {
+                if (start.X == end.X) {
+                    if (start.Y < end.Y) {
+                        Hall.Add (new Position (start.X, start.Y + i));
+                    } else {
+                        Hall.Add (new Position (start.X, start.Y - i));
+                    }
+                } else {
+                    if (start.X < end.X) {
+                        Hall.Add (new Position (start.X + i, start.Y));
+                    } else {
+                        Hall.Add (new Position (start.X - i, start.Y));
+                    }
+                }
+            }
         }
         public int Color {
             get { return GetMapObject ().Color; }
@@ -23,6 +34,9 @@ namespace RogueLike {
         }
         private Floor GetMapObject () {
             return new Floor (0, 0);
+        }
+        public bool CheckForAdjacent (List<Hallway> hallsToCheck) {
+            return false;
         }
     }
     public class Room : IComparable<Room> {
@@ -67,7 +81,7 @@ namespace RogueLike {
                 return false;
             }
             GetXAxisParallels (other);
-            return (Parallels != null && ConnectedRooms.Count > Parallels.Count);
+            return (Parallels != null && Parallels.Count > ConnectedRooms.Count);
         }
 
         private void GetXAxisParallels (Room toCheck) {
@@ -97,76 +111,45 @@ namespace RogueLike {
                 return false;
             }
             GetYAxisParallels (other);
-            return (Parallels != null && ConnectedRooms.Count > Parallels.Count);
+            return (Parallels != null && Parallels.Count > ConnectedRooms.Count);
         }
 
         private void GetYAxisParallels (Room toCheck) {
-            List<Hallway> parallels = null;
-            for (int thisX = 0; thisX < Width; thisX++) {
-                for (int thatX = 0; thatX < toCheck.Width; thatX++) {
-                    if (X + thisX == toCheck.X + thatX) {
-                        if (Parallels == null) {
-                            Parallels = new List<List<Hallway>> ();
-                        }
-                        parallels = new List<Hallway> ();
-                        if (Y < toCheck.Y) {
-                            parallels.Add (new Hallway (new Position (X + thisX, Y + Height), new Position (toCheck.X + thatX, toCheck.Y)));
-                        } else {
-                            parallels.Add (new Hallway (new Position (X + thisX, Y), new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height)));
-                        }
-                    }
-                }
-            }
-            if (parallels != null) {
-                Parallels.Add (parallels);
-            }
+            // List<Hallway> parallels = null;
+            // for (int thisX = 0; thisX < Width; thisX++) {
+            //     for (int thatX = 0; thatX < toCheck.Width; thatX++) {
+            //         if (X + thisX == toCheck.X + thatX) {
+            //             if (Parallels == null) {
+            //                 Parallels = new List<List<Hallway>> ();
+            //             }
+            //             parallels = new List<Hallway> ();
+            //             if (Y < toCheck.Y) {
+            //                 parallels.Add (new Hallway (new Position (X + thisX, Y + Height), new Position (toCheck.X + thatX, toCheck.Y)));
+            //             } else {
+            //                 parallels.Add (new Hallway (new Position (X + thisX, Y), new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height)));
+            //             }
+            //         }
+            //     }
+            // }
+            // if (parallels != null) {
+            //     Parallels.Add (parallels);
+            // }
         }
 
         public void ClearParallels () {
             Parallels = null;
         }
 
-        public bool IsIntersectedBy (Hallway toCheck) {
-            List<Position> pointsInHall = new List<Position> ();
-            for (int i = 0; i < (int) Position.Distance (toCheck.Start, toCheck.End); i++) {
-                if (toCheck.Start.X == toCheck.End.X) {
-                    pointsInHall.Add (new Position (toCheck.Start.X, toCheck.Start.Y + i));
-                } else {
-                    pointsInHall.Add (new Position (toCheck.Start.X + i, toCheck.Start.Y));
-                }
-                // if (toCheck.Start.X == toCheck.End.X) {
-                //     if (toCheck.Start.Y < toCheck.End.Y) {
-                //         if (((toCheck.Start.Y + i) >= Y && (toCheck.Start.Y + i) <= (Y + Height)) &&
-                //             (toCheck.Start.X >= X && toCheck.Start.X <= (X + Width))) {
-                //             return true;
-                //         }
-                //     } else {
-                //         if (((toCheck.Start.Y - i) >= Y && (toCheck.Start.Y - i) <= (Y + Height)) &&
-                //             (toCheck.Start.X >= X && toCheck.Start.X <= (X + Width))) {
-                //             return true;
-                //         }
-                //     }
-                // } else {
-                //     if (toCheck.Start.X < toCheck.End.X) {
-                //         if ((toCheck.Start.Y >= Y && toCheck.Start.Y <= (Y + Height) &&
-                //             ((toCheck.Start.X + i) >= X && (toCheck.Start.X + i) <= (X + Width)))) {
-                //             return true;
-                //         }
-                //     } else {
-                //         if ((toCheck.Start.Y >= Y && toCheck.Start.Y <= (Y + Height)) &&
-                //             ((toCheck.Start.X - i) >= X && (toCheck.Start.X - i) <= (X + Width))) {
-                //             return true;
-                //         }
-                //     }
-                // }
-            }
-            return pointsInHall.Exists (point => (point > TopLeft && point < BottomRight));
+        private bool IsIntersectedBy (Room roomToCheck, Hallway hallToCheck) {
+            return hallToCheck.Hall.Exists (point => (point > roomToCheck.TopLeft && point < roomToCheck.BottomRight));
         }
 
-        public bool IsIntersectedByAnyOF (List<Hallway> toCheck) {
-            foreach (Hallway H in toCheck) {
-                if (IsIntersectedBy (H)) {
-                    return true;
+        public bool HallsIntersect (Room toCheck) {
+            foreach (List<Hallway> halls in Parallels) {
+                foreach (Hallway H in halls) {
+                    if (IsIntersectedBy (toCheck, H)) {
+                        return true;
+                    }
                 }
             }
             return false;
