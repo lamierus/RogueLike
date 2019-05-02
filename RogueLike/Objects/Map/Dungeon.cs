@@ -144,12 +144,12 @@ namespace RogueLike {
                     Hallway hallToAdd = null;
                     hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (parallelRooms[i]));
                     if (hallToAdd == null) {
-                        // List<Hallway> hallsToAdd = ProbeForRoom (Next, ref floor, out message);
-                        // foreach (Hallway H in hallsToAdd) {
-                        //     Root.Halls.Add (H);
-                        // }
+                        List<Hallway> hallsToAdd = ProbeForRoom (Rooms[Current], ref floor, out message);
+                        foreach (Hallway H in hallsToAdd) {
+                            Root.Halls.Add (H);
+                        }
                     } else {
-                        if (!(hallToAdd.CheckForAdjacent (Halls))) {
+                        if (!(hallToAdd.CheckForAdjacentOrSame (Halls))) {
                             Root.Halls.Add (hallToAdd);
                         }
                     }

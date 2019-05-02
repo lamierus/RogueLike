@@ -92,9 +92,9 @@ namespace RogueLike {
             Y = (Y < min.Y) ? min.Y : Y;
         }
 
-        public bool AdjacentTo (Position other) {
-            if (true) {
-
+        public bool IsAdjacentOrSame (Position other) {
+            if ((this == other) || (Distance (this, other) < 2)) {
+                return true;
             }
             return false;
         }

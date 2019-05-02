@@ -35,7 +35,24 @@ namespace RogueLike {
         private Floor GetMapObject () {
             return new Floor (0, 0);
         }
-        public bool CheckForAdjacent (List<Hallway> hallsToCheck) {
+        public bool CheckForAdjacentOrSame (List<Hallway> hallsToCheck) {
+            foreach (Hallway H in hallsToCheck) {
+                if (IsAdjacentToOrSameAs (H)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool IsAdjacentToOrSameAs (Hallway hallToCheck) {
+            foreach (Position p in hallToCheck.Hall) {
+                int count = 0;
+                if (Hall.Exists (point => point.IsAdjacentOrSame (p))) {
+                    count++;
+                }
+                if (count >= 3) {
+                    return true;
+                }
+            }
             return false;
         }
     }
@@ -86,8 +103,8 @@ namespace RogueLike {
 
         private void GetXAxisParallels (Room toCheck) {
             List<Hallway> parallels = null;
-            for (int thisY = 0; thisY < Height; thisY++) {
-                for (int thatY = 0; thatY < toCheck.Height; thatY++) {
+            for (int thisY = 0; thisY <= Height; thisY++) {
+                for (int thatY = 0; thatY <= toCheck.Height; thatY++) {
                     if (Y + thisY == toCheck.Y + thatY) {
                         if (Parallels == null) {
                             Parallels = new List<List<Hallway>> ();
@@ -115,25 +132,25 @@ namespace RogueLike {
         }
 
         private void GetYAxisParallels (Room toCheck) {
-            // List<Hallway> parallels = null;
-            // for (int thisX = 0; thisX < Width; thisX++) {
-            //     for (int thatX = 0; thatX < toCheck.Width; thatX++) {
-            //         if (X + thisX == toCheck.X + thatX) {
-            //             if (Parallels == null) {
-            //                 Parallels = new List<List<Hallway>> ();
-            //             }
-            //             parallels = new List<Hallway> ();
-            //             if (Y < toCheck.Y) {
-            //                 parallels.Add (new Hallway (new Position (X + thisX, Y + Height), new Position (toCheck.X + thatX, toCheck.Y)));
-            //             } else {
-            //                 parallels.Add (new Hallway (new Position (X + thisX, Y), new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height)));
-            //             }
-            //         }
-            //     }
-            // }
-            // if (parallels != null) {
-            //     Parallels.Add (parallels);
-            // }
+            List<Hallway> parallels = null;
+            for (int thisX = 0; thisX <= Width; thisX++) {
+                for (int thatX = 0; thatX <= toCheck.Width; thatX++) {
+                    if (X + thisX == toCheck.X + thatX) {
+                        if (Parallels == null) {
+                            Parallels = new List<List<Hallway>> ();
+                        }
+                        parallels = new List<Hallway> ();
+                        if (Y < toCheck.Y) {
+                            parallels.Add (new Hallway (new Position (X + thisX, Y + Height), new Position (toCheck.X + thatX, toCheck.Y)));
+                        } else {
+                            parallels.Add (new Hallway (new Position (X + thisX, Y), new Position (toCheck.X + thatX, toCheck.Y + toCheck.Height)));
+                        }
+                    }
+                }
+            }
+            if (parallels != null) {
+                Parallels.Add (parallels);
+            }
         }
 
         public void ClearParallels () {

@@ -77,7 +77,7 @@ namespace RogueLike {
             List<Dungeon> dungeonParts = new List<Dungeon> ();
             //create the root dungeon, the size of the level grid
             //Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0);
-            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0, 8, 4);
+            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0); //, 8, 8);
             dungeon.SetRoot (dungeon);
             dungeonParts.Add (dungeon);
 
