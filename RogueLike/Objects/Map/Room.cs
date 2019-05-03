@@ -44,12 +44,12 @@ namespace RogueLike {
             return false;
         }
         public bool IsAdjacentToOrSameAs (Hallway hallToCheck) {
+            int count = 0;
             foreach (Position p in hallToCheck.Hall) {
-                int count = 0;
                 if (Hall.Exists (point => point.IsAdjacentOrSame (p))) {
                     count++;
                 }
-                if (count >= 3) {
+                if (count >= 2) {
                     return true;
                 }
             }

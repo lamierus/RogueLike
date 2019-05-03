@@ -7,7 +7,7 @@ using ConsoleGameEngine;
 namespace RogueLike {
     public class Dungeon {
         private Random Rand = new Random ();
-        private readonly int Width, Height, X, Y, MinWidth, MinHeight;
+        private readonly int Width, Height, X, Y, MinWidth, MinHeight, MinRoomWidth, MinRoomHeight;
         public Dungeon (Dungeon root, Dungeon leftBranch, Dungeon rightBranch, Room room) {
             this.Root = root;
             this.LeftBranch = leftBranch;
@@ -30,6 +30,8 @@ namespace RogueLike {
             Y = y;
             MinWidth = minWidth;
             MinHeight = minHeight;
+            MinRoomWidth = MinWidth - 2;
+            MinRoomHeight = MinHeight - 2;
         }
 
         public void SetRoot (Dungeon root) {
@@ -110,8 +112,8 @@ namespace RogueLike {
                 //create a randomly sized room, no bigger than the dungeon node and no smaller than the mimimum size
                 int roomXOffset = (Width - MinWidth <= 0) ? 0 : Rand.Next (Width - MinWidth);
                 int roomYOffset = (Height - MinHeight <= 0) ? 0 : Rand.Next (Height - MinHeight);
-                int roomWidth = Math.Max (Rand.Next (Width - roomXOffset), MinWidth);
-                int roomHeight = Math.Max (Rand.Next (Height - roomYOffset), MinHeight);
+                int roomWidth = Math.Max (Rand.Next (Width - roomXOffset), MinRoomWidth);
+                int roomHeight = Math.Max (Rand.Next (Height - roomYOffset), MinRoomHeight);
                 Room = new Room (roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
                 Root.Rooms.Add (Room);
             }
@@ -149,9 +151,7 @@ namespace RogueLike {
                             Root.Halls.Add (H);
                         }
                     } else {
-                        if (!(hallToAdd.CheckForAdjacentOrSame (Halls))) {
-                            Root.Halls.Add (hallToAdd);
-                        }
+                        Root.Halls.Add (hallToAdd);
                     }
                 }
             }
@@ -166,8 +166,10 @@ namespace RogueLike {
             Hallway hallway = null;
             int randomChoice = Rand.Next (room.Parallels[indexOfOther].Count);
             hallway = new Hallway (room.Parallels[indexOfOther][randomChoice].Hall.First (), room.Parallels[indexOfOther][randomChoice].Hall.Last ());
-
-            return hallway;
+            if (!(hallway.CheckForAdjacentOrSame (Halls))) {
+                return hallway;
+            }
+            return null;
         }
 
         /// <summary>
@@ -180,8 +182,8 @@ namespace RogueLike {
         private List<Hallway> ProbeForRoom (Room room, ref FloorGrid floor, out string message) {
             message = null;
             List<Hallway> hallsFound = null;
-            if ((room.X > MinWidth) || (room.X + room.Width < Width - MinWidth) ||
-                (room.Y > MinHeight) || (room.Y + room.Height < Height - MinHeight)) {
+            if ((room.X > MinRoomWidth) || (room.X + room.Width < Width - MinRoomWidth) ||
+                (room.Y > MinRoomHeight) || (room.Y + room.Height < Height - MinRoomHeight)) {
                 hallsFound = new List<Hallway> ();
                 bool connected = false;
                 Position start = new Position (-1, -1);
@@ -193,18 +195,18 @@ namespace RogueLike {
                 while (!connected) {
                     getRandomStretch (vertical, ref start, ref end, ref floor, ref room, out thing);
                     vertical = !vertical;
-                    hallsFound.Add (new Hallway (start, end));
-                    if (!(start == end)) {
+                    var newHallway = new Hallway (start, end);
+                    if (!(newHallway.CheckForAdjacentOrSame (Halls))) {
+                        hallsFound.Add (newHallway);
                         turns++;
                     }
-                    if (thing is Floor || turns >= 5) {
-                        if (turns >= 5) {
+                    if (thing is Floor || turns >= 6) {
+                        if (turns >= 6) {
                             hallsFound.Clear ();
                         }
                         connected = true;
-                    } else {
-                        start = end;
                     }
+                    start = end;
                 }
             }
             return hallsFound;

@@ -59,8 +59,8 @@ namespace RogueLike {
         ///     was drawing the rectangle around the edge,  but just use it as a color pallete draw
         /// </summary>
         void DrawFloor () {
-            int LevelWidth = 85; //c_MaxWinWidth - c_SideBar;
-            int levelHeight = 25; //c_MaxWinHeight;
+            int LevelWidth = c_MaxWinWidth - c_SideBar;
+            int levelHeight = c_MaxWinHeight;
             //creating the level grid
             FloorPlan = new FloorGrid (LevelWidth, levelHeight);
             Engine.Fill (new Point (0, 0), new Point (LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
@@ -76,8 +76,8 @@ namespace RogueLike {
             //list to hold each of the dungeon parts (or nodes/leaves)
             List<Dungeon> dungeonParts = new List<Dungeon> ();
             //create the root dungeon, the size of the level grid
-            //Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0);
-            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0); //, 8, 8);
+            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0);
+            //Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0, 8, 4);
             dungeon.SetRoot (dungeon);
             dungeonParts.Add (dungeon);
 

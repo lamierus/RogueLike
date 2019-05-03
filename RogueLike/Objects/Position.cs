@@ -93,7 +93,7 @@ namespace RogueLike {
         }
 
         public bool IsAdjacentOrSame (Position other) {
-            if ((this == other) || (Distance (this, other) < 2)) {
+            if ((this == other) || ((int)(Distance (this, other)) <= 1)) {
                 return true;
             }
             return false;
