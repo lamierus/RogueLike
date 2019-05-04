@@ -158,7 +158,7 @@ namespace RogueLike {
         }
 
         private bool IsIntersectedBy (Room roomToCheck, Hallway hallToCheck) {
-            return hallToCheck.Hall.Exists (point => (point > roomToCheck.TopLeft && point < roomToCheck.BottomRight));
+            return hallToCheck.Hall.Exists (point => (point >= roomToCheck.TopLeft && point <= roomToCheck.BottomRight));
         }
 
         public bool HallsIntersect (Room toCheck) {

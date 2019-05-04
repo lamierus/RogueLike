@@ -144,7 +144,7 @@ namespace RogueLike {
                     .FindAll (R => Rooms[Current].HallsIntersect (R)).ToList ();
                 for (int i = 0; i < parallelRooms.Count; i++) {
                     Hallway hallToAdd = null;
-                    hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (parallelRooms[i]));
+                    // hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (parallelRooms[i]));
                     if (hallToAdd == null) {
                         List<Hallway> hallsToAdd = ProbeForRoom (Rooms[Current], ref floor, out message);
                         foreach (Hallway H in hallsToAdd) {
@@ -200,13 +200,18 @@ namespace RogueLike {
                         hallsFound.Add (newHallway);
                         turns++;
                     }
-                    if (thing is Floor || turns >= 6) {
-                        if (turns >= 6) {
-                            hallsFound.Clear ();
-                        }
+                    if (turns >= 6) {
+                        hallsFound.Clear ();
+                        turns = 0;
+                        start = new Position (-1, -1);
+                        end = new Position (-2, -2);
+                        thing = null;
+                        hallsFound.Clear();
+                    } else if (thing is Floor) {
                         connected = true;
+                    } else{
+                        start = end;
                     }
-                    start = end;
                 }
             }
             return hallsFound;
