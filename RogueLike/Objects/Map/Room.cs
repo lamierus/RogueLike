@@ -5,10 +5,11 @@ using ConsoleGameEngine;
 
 namespace RogueLike {
     public class Room : IComparable<Room> {
+        // public List<List<Hallway>> Parallels { get; private set; }
+        // public List<Room> ConnectedRooms { get; set; } = new List<Room> ();
+        public List<Position> Rectangle { get; private set; } = new List<Position> ();
         public Position TopLeft { get; private set; }
         public Position BottomRight { get; private set; }
-        public List<List<Hallway>> Parallels { get; private set; }
-        public List<Room> ConnectedRooms { get; set; } = new List<Room> ();
         public int X { get; private set; }
         public int Y { get; private set; }
         public int Width { get; private set; }
@@ -30,6 +31,7 @@ namespace RogueLike {
             Y = y;
             Width = width;
             Height = height;
+            BuildRect ();
         }
 
         public Room (Position topLeft, Position bottomRight) {
@@ -39,7 +41,38 @@ namespace RogueLike {
             Y = topLeft.Y;
             Width = Math.Abs (topLeft.X - bottomRight.X);
             Height = Math.Abs (topLeft.Y - bottomRight.Y);
+            BuildRect ();
         }
+
+        private void BuildRect () {
+            // Rect = new Position[Width][];
+            for (int x = 0; x < Width; x++) {
+                // Rect[x] = new Position[Height];
+                for (int y = 0; y < Height; y++) {
+                    // Rect[x][y] = new Position (X + x, Y + y);
+                    Rectangle.Add (new Position (X + x, Y + y));
+                }
+            }
+        }
+
+        public bool IsIntersectedBy (Room other) {
+            return Rectangle.Exists (pt => (pt >= other.TopLeft && pt <= other.BottomRight));
+        }
+
+        private bool IsIntersectedBy (Hallway hallToCheck) {
+            return hallToCheck.Hall.Exists (point => (point >= TopLeft && point <= BottomRight));
+        }
+
+        // public bool HallsIntersect (Room toCheck) {
+        //     foreach (List<Hallway> halls in Parallels) {
+        //         foreach (Hallway H in halls) {
+        //             if (IsIntersectedBy (toCheck, H)) {
+        //                 return true;
+        //             }
+        //         }
+        //     }
+        //     return false;
+        // }
 
         // public bool CheckXParallel (Room other) {
         //     if (other == null) {
@@ -105,21 +138,6 @@ namespace RogueLike {
         //     Parallels = null;
         // }
 
-        // private bool IsIntersectedBy (Room roomToCheck, Hallway hallToCheck) {
-        //     return hallToCheck.Hall.Exists (point => (point >= roomToCheck.TopLeft && point <= roomToCheck.BottomRight));
-        // }
-
-        // public bool HallsIntersect (Room toCheck) {
-        //     foreach (List<Hallway> halls in Parallels) {
-        //         foreach (Hallway H in halls) {
-        //             if (IsIntersectedBy (toCheck, H)) {
-        //                 return true;
-        //             }
-        //         }
-        //     }
-        //     return false;
-        // }
-        
         public static bool operator < (Room lhs, Room rhs) {
             return (lhs.TopLeft < rhs.TopLeft);
         }

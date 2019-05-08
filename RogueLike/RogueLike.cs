@@ -74,48 +74,47 @@ namespace RogueLike {
         void BuildRooms (int levelWidth, int levelHeight) {
 
             //list to hold each of the dungeon parts (or nodes/leaves)
-            List<Dungeon> dungeonParts = new List<Dungeon> ();
+            //List<Dungeon> dungeonParts = new List<Dungeon> ();
             //create the root dungeon, the size of the level grid
-            Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0);
+            Dungeon dungeon = new Dungeon (levelWidth, levelHeight);
             //Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0, 8, 4);
-            dungeon.SetRoot (dungeon);
-            dungeonParts.Add (dungeon);
+            //dungeonParts.Add (dungeon);
 
-            bool didSplit = true;
+            // bool didSplit = true;
 
-            //this will cause the loop to continue until it has stopped making splits
-            while (didSplit) {
-                didSplit = false;
-                for (int i = 0; i < dungeonParts.Count; i++) {
-                    //grab the part to split
-                    Dungeon toSplit = dungeonParts.ElementAt (i);
-                    //if this leaf is not already split, split it
-                    if (toSplit.LeftBranch == null && toSplit.RightBranch == null) {
-                        if (toSplit.Split ()) {
-                            //If we did split, add the child branches to the dungeon parts list
-                            dungeonParts.Add (toSplit.LeftBranch);
-                            dungeonParts.Add (toSplit.RightBranch);
-                            didSplit = true;
-                            i = 0;
-                        }
-                    }
-                }
-            }
+            // //this will cause the loop to continue until it has stopped making splits
+            // while (didSplit) {
+            //     didSplit = false;
+            //     for (int i = 0; i < dungeonParts.Count; i++) {
+            //         //grab the part to split
+            //         Dungeon toSplit = dungeonParts.ElementAt (i);
+            //         //if this leaf is not already split, split it
+            //         if (toSplit.LeftBranch == null && toSplit.RightBranch == null) {
+            //             if (toSplit.Split ()) {
+            //                 //If we did split, add the child branches to the dungeon parts list
+            //                 dungeonParts.Add (toSplit.LeftBranch);
+            //                 dungeonParts.Add (toSplit.RightBranch);
+            //                 didSplit = true;
+            //                 i = 0;
+            //             }
+            //         }
+            //     }
+            // }
 
             //create a list to hold all of the rooms
-            List<Room> rooms = new List<Room> ();
+            //List<Room> rooms = new List<Room> ();
             //run through, creating all of the rooms
-            dungeon.GenerateRooms ();
+            //dungeon.GenerateRooms (ref FloorPlan);
             //move on to draw the level, sending all of the created rooms.
-            AddRooms (dungeon.Rooms);
+            // AddRooms (dungeon.Rooms);
 
-            List<Hallway> halls = new List<Hallway> ();
-            string message = null;
-            dungeon.GenerateHalls (ref FloorPlan, out message);
-            if (message != null) {
-                AddLog (message);
-            }
-            AddHalls (dungeon.Halls);
+            // List<Hallway> halls = new List<Hallway> ();
+            // string message = null;
+            // dungeon.GenerateHalls (ref FloorPlan, out message);
+            // if (message != null) {
+            //     AddLog (message);
+            // }
+            // AddHalls (dungeon.Halls);
         }
 
         /// <summary>

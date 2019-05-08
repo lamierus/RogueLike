@@ -14,5 +14,14 @@ namespace RogueLike {
             XY.X = x;
             XY.Y = y;
         }
+
+        public Floor (Position pos) {
+            Color = 0;
+            Character = ConsoleCharacter.Light;
+            Immovable = true;
+            FloorToCeiling = false;
+            AboveOrBelow = false;
+            XY = pos;
+        }
     }
 }

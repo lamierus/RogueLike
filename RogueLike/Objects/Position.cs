@@ -46,17 +46,29 @@ namespace RogueLike {
             return ((lhs.X != rhs.X) || (lhs.Y != rhs.Y));
         }
         public static bool operator < (Position lhs, Position rhs) {
-            return ((Distance (Zero, lhs) < (Distance (Zero, rhs))));
+            return (lhs.X < rhs.X || lhs.Y < rhs.Y);
         }
         public static bool operator > (Position lhs, Position rhs) {
-            return ((Distance (Zero, lhs) > (Distance (Zero, rhs))));
+            return (lhs.X > rhs.X || lhs.Y > rhs.Y);
         }
         public static bool operator <= (Position lhs, Position rhs) {
-            return ((Distance (Zero, lhs) <= (Distance (Zero, rhs))));
+            return (lhs < rhs || lhs == rhs);
         }
         public static bool operator >= (Position lhs, Position rhs) {
-            return ((Distance (Zero, lhs) >= (Distance (Zero, rhs))));
+            return (lhs > rhs || lhs == rhs);
         }
+        // public static bool operator < (Position lhs, Position rhs) {
+        //     return ((Distance (Zero, lhs) < (Distance (Zero, rhs))));
+        // }
+        // public static bool operator > (Position lhs, Position rhs) {
+        //     return ((Distance (Zero, lhs) > (Distance (Zero, rhs))));
+        // }
+        // public static bool operator <= (Position lhs, Position rhs) {
+        //     return ((Distance (Zero, lhs) <= (Distance (Zero, rhs))));
+        // }
+        // public static bool operator >= (Position lhs, Position rhs) {
+        //     return ((Distance (Zero, lhs) >= (Distance (Zero, rhs))));
+        // }
 
         public int CompareTo (Position that) {
             int result = (Position.Distance (Zero, this).CompareTo (Position.Distance (Zero, that)));
@@ -93,7 +105,7 @@ namespace RogueLike {
         }
 
         public bool IsAdjacentOrSame (Position other) {
-            if ((this == other) || ((int)(Distance (this, other)) <= 1)) {
+            if ((this == other) || ((int) (Distance (this, other)) <= 1)) {
                 return true;
             }
             return false;

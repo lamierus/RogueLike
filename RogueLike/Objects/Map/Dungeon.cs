@@ -7,18 +7,21 @@ using ConsoleGameEngine;
 namespace RogueLike {
     public class Dungeon {
         private Random Rand = new Random ();
-        private readonly int Width, Height, X, Y, MinWidth, MinHeight, MinRoomWidth, MinRoomHeight, NumRoomTries, roomExtraSize = 0;
-        private Dungeon Root { get; set; }
-        public Dungeon LeftBranch { get; private set; }
-        public Dungeon RightBranch { get; private set; }
-        public Room Room { get; private set; }
+        private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8, MinRoomWidth, MinRoomHeight, NumRoomTries = 300, roomExtraSize = 0;
+        private int CurrentRegion = -1;
+        private int[, ] Regions;
+        // // private Dungeon Root { get; set; }
+        // public Dungeon LeftBranch { get; private set; }
+        // public Dungeon RightBranch { get; private set; }
+        // public Room Room { get; private set; }
+        // public List<Hallway> Halls { get; private set; } = new List<Hallway> ();
         public List<Room> Rooms { get; private set; } = new List<Room> ();
-        public List<Hallway> Halls { get; private set; } = new List<Hallway> ();
 
         // constructor with minimums built into it, so they can be provided, if you want
-        public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth = 16, int minHeight = 8, int numRoomTries = 300) {
+        public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth, int minHeight, int numRoomTries) {
             Width = fullWidth;
             Height = fullHeight;
+            Regions = new int[Width, Height];
             X = x;
             Y = y;
             MinWidth = minWidth;
@@ -28,9 +31,47 @@ namespace RogueLike {
             NumRoomTries = numRoomTries;
         }
 
-        public void SetRoot (Dungeon root) {
-            Root = root;
+        public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth, int minHeight) {
+            Width = fullWidth;
+            Height = fullHeight;
+            Regions = new int[Width, Height];
+            X = x;
+            Y = y;
+            MinWidth = minWidth;
+            MinHeight = minHeight;
+            MinRoomWidth = MinWidth - 2;
+            MinRoomHeight = MinHeight - 2;
         }
+
+        public Dungeon (int fullWidth, int fullHeight, int x, int y, int numRoomTries) {
+            Width = fullWidth;
+            Height = fullHeight;
+            Regions = new int[Width, Height];
+            X = x;
+            Y = y;
+            MinRoomWidth = MinWidth - 2;
+            MinRoomHeight = MinHeight - 2;
+            NumRoomTries = numRoomTries;
+        }
+        public Dungeon (int fullWidth, int fullHeight, int x, int y) {
+            Width = fullWidth;
+            Height = fullHeight;
+            Regions = new int[Width, Height];
+            X = x;
+            Y = y;
+            MinRoomWidth = MinWidth - 2;
+            MinRoomHeight = MinHeight - 2;
+        }
+        public Dungeon (int fullWidth, int fullHeight) {
+            Width = fullWidth;
+            Height = fullHeight;
+            MinRoomWidth = MinWidth - 2;
+            MinRoomHeight = MinHeight - 2;
+        }
+
+        // public void SetRoot (Dungeon root) {
+        //     Root = root;
+        // }
 
         /// <summary>
         ///     provide a quick true or false to randomly pick vertical or horizontal
@@ -41,7 +82,32 @@ namespace RogueLike {
             return (VorH >.5) ? true : false;
         }
 
-        public void GenerateRooms (ref FloorGrid floor) {
+        void generate (ref FloorGrid floor) {
+            // if (stage.width % 2 == 0 || stage.height % 2 == 0) {
+            //     throw new ArgumentError ("The stage must be odd-sized.");
+            // }
+            Regions = new int[Width, Height];
+
+            GenerateRooms (ref floor);
+
+            // Fill in all of the empty space with mazes.
+            for (var y = 0; y < Height; y += 2) {
+                for (var x = 0; x < Width; x += 2) {
+                    var pos = new Position (x, y);
+                    if (!(floor.GetItem (pos) is Wall)) {
+                        continue;
+                    }
+                    GrowMaze (pos, ref floor);
+                }
+            }
+
+            //_connectRegions ();
+            //_removeDeadEnds ();
+
+            //_rooms.forEach (onDecorateRoom);
+        }
+
+        private void GenerateRooms (ref FloorGrid floor) {
             /// Places rooms ignoring the existing maze corridors.
             for (var i = 0; i < NumRoomTries; i++) {
                 // Pick a random room size. The funny math here does two things:
@@ -66,247 +132,303 @@ namespace RogueLike {
 
                 var overlaps = false;
                 foreach (var other in Rooms) {
-                    if (room.distanceTo (other) <= 0) {
+                    if (room.IsIntersectedBy (other)) {
                         overlaps = true;
                         break;
                     }
                 }
 
-                if (overlaps) continue;
+                if (overlaps) {
+                    continue;
+                }
 
                 Rooms.Add (room);
 
-                // _startRegion ();
-                // foreach (var pos in new Room (width, height, x, y)) {
-                //         _carve (pos);
-                //     }
-                // }
+                StartRegion ();
+                foreach (var pos in new Room (width, height, x, y).Rectangle) {
+                    Carve (new Floor (pos), ref floor);
+                }
             }
-
-            // /// <summary>
-            // ///     
-            // /// </summary>
-            // /// <returns></returns>
-            // public bool Split () {
-            //     //bail if the branches aren't null, as it's already split
-            //     if (LeftBranch != null || RightBranch != null) {
-            //         return false;
-            //     }
-
-            //     bool vertical = isVertical ();
-            //     //find the maximum height/width
-            //     //int max = ((vertical) ? Width : Height) - c_MinSize;
-            //     int maxWidth = Width - MinWidth;
-            //     int maxHeight = Height - MinHeight;
-            //     //bail if the maximum is smaller than or equal to the minimum
-            //     if (maxWidth <= MinWidth || maxHeight <= MinHeight) {
-            //         return false;
-            //     }
-
-            //     //I was going to use this to randomize the sizes of the nodes even more.  Maybe I'll come back to this, sometime
-            //     int minWidth = MinWidth; //(int)Math.Ceiling(MinWidth * .50);
-            //     int minHeight = MinHeight; //Math.Max((int)Math.Ceiling(MinHeight * .45), 4);
-
-            //     int splitPoint;
-            //     if (vertical) { //vertical split
-            //         splitPoint = Rand.Next (maxWidth);
-            //         // adjust split point so there's at least c_MinSize in both partitions
-            //         if (splitPoint < MinWidth) {
-            //             splitPoint = MinWidth;
-            //         }
-            //         LeftBranch = new Dungeon (splitPoint, Height, X, Y, minWidth, minHeight);
-            //         RightBranch = new Dungeon (Width - splitPoint, Height, X + splitPoint, Y, minWidth, minHeight);
-            //     } else { //horizontal split
-            //         splitPoint = Rand.Next (maxHeight);
-            //         // adjust split point so there's at least c_MinSize in both partitions
-            //         if (splitPoint < MinHeight) {
-            //             splitPoint = MinHeight;
-            //         }
-            //         LeftBranch = new Dungeon (Width, splitPoint, X, Y, minWidth, minHeight);
-            //         RightBranch = new Dungeon (Width, Height - splitPoint, X, Y + splitPoint, minWidth, minHeight);
-            //     }
-            //     LeftBranch.Root = Root;
-            //     RightBranch.Root = Root;
-            //     return true;
-            // }
-
-            // /// <summary>
-            // ///     iterate through each of the nodes and generate rooms at the bottom of the branch
-            // /// </summary>
-            // /// <param name="rooms"></param>
-            // /// <param name="halls"></param>
-            // public void GenerateRooms () {
-            //     //if neither of the  branches are null, then we'll go into here and attempt to generate rooms
-            //     if (LeftBranch != null || RightBranch != null) {
-            //         if (LeftBranch != null) {
-            //             LeftBranch.GenerateRooms ();
-            //         }
-            //         if (RightBranch != null) {
-            //             RightBranch.GenerateRooms ();
-            //         }
-            //     } else {
-            //         //create a randomly sized room, no bigger than the dungeon node and no smaller than the mimimum size
-            //         int roomXOffset = (Width - MinWidth <= 1) ? 1 : Rand.Next (Width - MinWidth) - 1;
-            //         int roomYOffset = (Height - MinHeight <= 1) ? 1 : Rand.Next (Height - MinHeight) - 1;
-            //         int roomWidth = Math.Max (Rand.Next (Width - roomXOffset), MinRoomWidth);
-            //         int roomHeight = Math.Max (Rand.Next (Height - roomYOffset), MinRoomHeight);
-            //         Room = new Room (roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
-            //         Root.Rooms.Add (Room);
-            //     }
-            // }
-
-            // /// <summary>
-            // ///     
-            // /// </summary>
-            // /// <param name="floor"></param>
-            // public void GenerateHalls (ref FloorGrid floor, out string message) {
-            //     message = null;
-            //     for (int Current = 0; Current < Rooms.Count; Current++) {
-            //         for (int Next = 1; Next < Rooms.Count; Next++) {
-            //             if (Rooms[Current] != Rooms[Next] &&
-            //                 !((Rooms[Current].ConnectedRooms.Contains (Rooms[Next])) ||
-            //                     (Rooms[Next].ConnectedRooms.Contains (Rooms[Current])))) {
-            //                 if (Rooms[Current].CheckXParallel (Rooms[Next])) {
-            //                     Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
-
-            //                 }
-            //                 if (Rooms[Current].CheckYParallel (Rooms[Next])) {
-            //                     Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
-
-            //                 }
-            //             }
-            //         }
-            //         List<Room> parallelRooms = Rooms[Current].ConnectedRooms
-            //             .FindAll (R => Rooms[Current].HallsIntersect (R)).ToList ();
-            //         for (int i = 0; i < parallelRooms.Count; i++) {
-            //             Hallway hallToAdd = null;
-            //             // hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (parallelRooms[i]));
-            //             if (hallToAdd == null) {
-            //                 List<Hallway> hallsToAdd = ProbeForRoom (Rooms[Current], ref floor, out message);
-            //                 foreach (Hallway H in hallsToAdd) {
-            //                     Root.Halls.Add (H);
-            //                 }
-            //             } else {
-            //                 Root.Halls.Add (hallToAdd);
-            //             }
-            //         }
-            //     }
-            // }
-
-            // /// <summary>
-            // ///     
-            // /// </summary>
-            // /// <param name="room"></param>
-            // /// <returns></returns>
-            // private Hallway BuildStraightHallway (Room room, int indexOfOther) {
-            //     Hallway hallway = null;
-            //     int randomChoice = Rand.Next (room.Parallels[indexOfOther].Count);
-            //     hallway = new Hallway (room.Parallels[indexOfOther][randomChoice].Hall.First (), room.Parallels[indexOfOther][randomChoice].Hall.Last ());
-            //     if (!(hallway.CheckForAdjacentOrSame (Halls))) {
-            //         return hallway;
-            //     }
-            //     return null;
-            // }
-
-            // /// <summary>
-            // ///     
-            // /// </summary>
-            // /// <param name="room"></param>
-            // /// <param name="floor"></param>
-            // /// <param name="message"></param>
-            // /// <returns></returns>
-            // private List<Hallway> ProbeForRoom (Room room, ref FloorGrid floor, out string message) {
-            //     message = null;
-            //     List<Hallway> hallsFound = null;
-            //     if ((room.X > MinRoomWidth) || (room.X + room.Width < Width - MinRoomWidth) ||
-            //         (room.Y > MinRoomHeight) || (room.Y + room.Height < Height - MinRoomHeight)) {
-            //         hallsFound = new List<Hallway> ();
-            //         bool connected = false;
-            //         Position start = new Position (-1, -1);
-            //         Position end = new Position (-2, -2);
-            //         Object thing;
-            //         bool vertical = isVertical ();
-            //         int turns = 0;
-
-            //         while (!connected) {
-            //             getRandomStretch (vertical, ref start, ref end, ref floor, ref room, out thing);
-            //             vertical = !vertical;
-            //             var newHallway = new Hallway (start, end);
-            //             if (!(newHallway.CheckForAdjacentOrSame (Halls))) {
-            //                 hallsFound.Add (newHallway);
-            //                 turns++;
-            //             }
-            //             if (turns >= 6) {
-            //                 hallsFound.Clear ();
-            //                 turns = 0;
-            //                 start = new Position (-1, -1);
-            //                 end = new Position (-2, -2);
-            //                 thing = null;
-            //             } else if (thing is Floor) {
-            //                 connected = true;
-            //             } else {
-            //                 start = end;
-            //             }
-            //         }
-            //     }
-            //     return hallsFound;
-            // }
-
-            // /// <summary>
-            // ///     
-            // /// </summary>
-            // /// <param name="vertical"></param>
-            // /// <param name="start"></param>
-            // /// <param name="end"></param>
-            // /// <param name="floor"></param>
-            // /// <param name="room"></param>
-            // /// <param name="thing"></param>
-            // private void getRandomStretch (bool vertical, ref Position start, ref Position end, ref FloorGrid floor, ref Room room, out Object thing) {
-            //     int index = 0;
-            //     int stretch = 15; //Rand.Next (10, 20);
-            //     bool NorS_EorW = isVertical ();
-            //     if (start != end) {
-            //         if (vertical) {
-            //             if (NorS_EorW) {
-            //                 start = new Position (Rand.Next (room.X, room.X + room.Width), room.Y);
-            //             } else {
-            //                 start = new Position (Rand.Next (room.X, room.X + room.Width), room.Y + room.Height);
-            //             }
-            //         } else {
-            //             if (NorS_EorW) {
-            //                 start = new Position (room.X, Rand.Next (room.Y, room.Y + room.Height));
-            //             } else {
-            //                 start = new Position (room.X + room.Width, Rand.Next (room.Y, room.Y + room.Height));
-            //             }
-            //         }
-            //         end = start;
-            //     }
-            //     do {
-            //         thing = null;
-            //         index++;
-            //         if (vertical) {
-            //             if (NorS_EorW) {
-            //                 end.Y--;
-            //             } else {
-            //                 end.Y++;
-            //             }
-            //             if (end.Y >= floor.Height || end.Y <= 0) {
-            //                 end = start;
-            //                 break;
-            //             }
-            //         } else {
-            //             if (NorS_EorW) {
-            //                 end.X--;
-            //             } else {
-            //                 end.X++;
-            //             }
-            //             if (end.X > floor.Width || end.X < 0) {
-            //                 end = start;
-            //                 break;
-            //             }
-            //         }
-            //         thing = floor.Grid[end.X][end.Y];
-            //     } while (!(thing is Floor) && index <= stretch);
-            // }
         }
+
+        /// Implementation of the "growing tree" algorithm from here:
+        /// http://www.astrolog.org/labyrnth/algrithm.htm.
+        private void GrowMaze (Position start, ref FloorGrid floor) {
+            var cells = < Vec >[];
+            var lastDir;
+
+            StartRegion ();
+            Carve (start, ref floor);
+
+            cells.add (start);
+            while (cells.isNotEmpty) {
+                var cell = cells.last;
+
+                // See which adjacent cells are open.
+                var unmadeCells = < Direction >[];
+
+                for (var dir in Direction.CARDINAL) {
+                    if (_canCarve (cell, dir)) unmadeCells.add (dir);
+                }
+
+                if (unmadeCells.isNotEmpty) {
+                    // Based on how "windy" passages are, try to prefer carving in the
+                    // same direction.
+                    var dir;
+                    if (unmadeCells.contains (lastDir) && rng.range (100) > windingPercent) {
+                        dir = lastDir;
+                    } else {
+                        dir = rng.item (unmadeCells);
+                    }
+
+                    _carve (cell + dir);
+                    _carve (cell + dir * 2);
+
+                    cells.add (cell + dir * 2);
+                    lastDir = dir;
+                } else {
+                    // No adjacent uncarved cells.
+                    cells.removeLast ();
+
+                    // This path has ended.
+                    lastDir = null;
+                }
+            }
+        }
+
+        private void StartRegion () {
+            CurrentRegion++;
+        }
+
+        private void Carve (Object obj, ref FloorGrid floor) {
+            floor.AddItem (obj);
+            Regions[obj.XY.X, obj.XY.Y] = CurrentRegion;
+        }
+
+        // /// <summary>
+        // ///     
+        // /// </summary>
+        // /// <returns></returns>
+        // public bool Split () {
+        //     //bail if the branches aren't null, as it's already split
+        //     if (LeftBranch != null || RightBranch != null) {
+        //         return false;
+        //     }
+
+        //     bool vertical = isVertical ();
+        //     //find the maximum height/width
+        //     //int max = ((vertical) ? Width : Height) - c_MinSize;
+        //     int maxWidth = Width - MinWidth;
+        //     int maxHeight = Height - MinHeight;
+        //     //bail if the maximum is smaller than or equal to the minimum
+        //     if (maxWidth <= MinWidth || maxHeight <= MinHeight) {
+        //         return false;
+        //     }
+
+        //     //I was going to use this to randomize the sizes of the nodes even more.  Maybe I'll come back to this, sometime
+        //     int minWidth = MinWidth; //(int)Math.Ceiling(MinWidth * .50);
+        //     int minHeight = MinHeight; //Math.Max((int)Math.Ceiling(MinHeight * .45), 4);
+
+        //     int splitPoint;
+        //     if (vertical) { //vertical split
+        //         splitPoint = Rand.Next (maxWidth);
+        //         // adjust split point so there's at least c_MinSize in both partitions
+        //         if (splitPoint < MinWidth) {
+        //             splitPoint = MinWidth;
+        //         }
+        //         LeftBranch = new Dungeon (splitPoint, Height, X, Y, minWidth, minHeight);
+        //         RightBranch = new Dungeon (Width - splitPoint, Height, X + splitPoint, Y, minWidth, minHeight);
+        //     } else { //horizontal split
+        //         splitPoint = Rand.Next (maxHeight);
+        //         // adjust split point so there's at least c_MinSize in both partitions
+        //         if (splitPoint < MinHeight) {
+        //             splitPoint = MinHeight;
+        //         }
+        //         LeftBranch = new Dungeon (Width, splitPoint, X, Y, minWidth, minHeight);
+        //         RightBranch = new Dungeon (Width, Height - splitPoint, X, Y + splitPoint, minWidth, minHeight);
+        //     }
+        //     LeftBranch.Root = Root;
+        //     RightBranch.Root = Root;
+        //     return true;
+        // }
+
+        // /// <summary>
+        // ///     iterate through each of the nodes and generate rooms at the bottom of the branch
+        // /// </summary>
+        // /// <param name="rooms"></param>
+        // /// <param name="halls"></param>
+        // public void GenerateRooms () {
+        //     //if neither of the  branches are null, then we'll go into here and attempt to generate rooms
+        //     if (LeftBranch != null || RightBranch != null) {
+        //         if (LeftBranch != null) {
+        //             LeftBranch.GenerateRooms ();
+        //         }
+        //         if (RightBranch != null) {
+        //             RightBranch.GenerateRooms ();
+        //         }
+        //     } else {
+        //         //create a randomly sized room, no bigger than the dungeon node and no smaller than the mimimum size
+        //         int roomXOffset = (Width - MinWidth <= 1) ? 1 : Rand.Next (Width - MinWidth) - 1;
+        //         int roomYOffset = (Height - MinHeight <= 1) ? 1 : Rand.Next (Height - MinHeight) - 1;
+        //         int roomWidth = Math.Max (Rand.Next (Width - roomXOffset), MinRoomWidth);
+        //         int roomHeight = Math.Max (Rand.Next (Height - roomYOffset), MinRoomHeight);
+        //         Room = new Room (roomWidth, roomHeight, X + roomXOffset, Y + roomYOffset);
+        //         Root.Rooms.Add (Room);
+        //     }
+        // }
+
+        // /// <summary>
+        // ///     
+        // /// </summary>
+        // /// <param name="floor"></param>
+        // public void GenerateHalls (ref FloorGrid floor, out string message) {
+        //     message = null;
+        //     for (int Current = 0; Current < Rooms.Count; Current++) {
+        //         for (int Next = 1; Next < Rooms.Count; Next++) {
+        //             if (Rooms[Current] != Rooms[Next] &&
+        //                 !((Rooms[Current].ConnectedRooms.Contains (Rooms[Next])) ||
+        //                     (Rooms[Next].ConnectedRooms.Contains (Rooms[Current])))) {
+        //                 if (Rooms[Current].CheckXParallel (Rooms[Next])) {
+        //                     Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
+
+        //                 }
+        //                 if (Rooms[Current].CheckYParallel (Rooms[Next])) {
+        //                     Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
+
+        //                 }
+        //             }
+        //         }
+        //         List<Room> parallelRooms = Rooms[Current].ConnectedRooms
+        //             .FindAll (R => Rooms[Current].HallsIntersect (R)).ToList ();
+        //         for (int i = 0; i < parallelRooms.Count; i++) {
+        //             Hallway hallToAdd = null;
+        //             // hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (parallelRooms[i]));
+        //             if (hallToAdd == null) {
+        //                 List<Hallway> hallsToAdd = ProbeForRoom (Rooms[Current], ref floor, out message);
+        //                 foreach (Hallway H in hallsToAdd) {
+        //                     Root.Halls.Add (H);
+        //                 }
+        //             } else {
+        //                 Root.Halls.Add (hallToAdd);
+        //             }
+        //         }
+        //     }
+        // }
+
+        // /// <summary>
+        // ///     
+        // /// </summary>
+        // /// <param name="room"></param>
+        // /// <returns></returns>
+        // private Hallway BuildStraightHallway (Room room, int indexOfOther) {
+        //     Hallway hallway = null;
+        //     int randomChoice = Rand.Next (room.Parallels[indexOfOther].Count);
+        //     hallway = new Hallway (room.Parallels[indexOfOther][randomChoice].Hall.First (), room.Parallels[indexOfOther][randomChoice].Hall.Last ());
+        //     if (!(hallway.CheckForAdjacentOrSame (Halls))) {
+        //         return hallway;
+        //     }
+        //     return null;
+        // }
+
+        // /// <summary>
+        // ///     
+        // /// </summary>
+        // /// <param name="room"></param>
+        // /// <param name="floor"></param>
+        // /// <param name="message"></param>
+        // /// <returns></returns>
+        // private List<Hallway> ProbeForRoom (Room room, ref FloorGrid floor, out string message) {
+        //     message = null;
+        //     List<Hallway> hallsFound = null;
+        //     if ((room.X > MinRoomWidth) || (room.X + room.Width < Width - MinRoomWidth) ||
+        //         (room.Y > MinRoomHeight) || (room.Y + room.Height < Height - MinRoomHeight)) {
+        //         hallsFound = new List<Hallway> ();
+        //         bool connected = false;
+        //         Position start = new Position (-1, -1);
+        //         Position end = new Position (-2, -2);
+        //         Object thing;
+        //         bool vertical = isVertical ();
+        //         int turns = 0;
+
+        //         while (!connected) {
+        //             getRandomStretch (vertical, ref start, ref end, ref floor, ref room, out thing);
+        //             vertical = !vertical;
+        //             var newHallway = new Hallway (start, end);
+        //             if (!(newHallway.CheckForAdjacentOrSame (Halls))) {
+        //                 hallsFound.Add (newHallway);
+        //                 turns++;
+        //             }
+        //             if (turns >= 6) {
+        //                 hallsFound.Clear ();
+        //                 turns = 0;
+        //                 start = new Position (-1, -1);
+        //                 end = new Position (-2, -2);
+        //                 thing = null;
+        //             } else if (thing is Floor) {
+        //                 connected = true;
+        //             } else {
+        //                 start = end;
+        //             }
+        //         }
+        //     }
+        //     return hallsFound;
+        // }
+
+        // /// <summary>
+        // ///     
+        // /// </summary>
+        // /// <param name="vertical"></param>
+        // /// <param name="start"></param>
+        // /// <param name="end"></param>
+        // /// <param name="floor"></param>
+        // /// <param name="room"></param>
+        // /// <param name="thing"></param>
+        // private void getRandomStretch (bool vertical, ref Position start, ref Position end, ref FloorGrid floor, ref Room room, out Object thing) {
+        //     int index = 0;
+        //     int stretch = 15; //Rand.Next (10, 20);
+        //     bool NorS_EorW = isVertical ();
+        //     if (start != end) {
+        //         if (vertical) {
+        //             if (NorS_EorW) {
+        //                 start = new Position (Rand.Next (room.X, room.X + room.Width), room.Y);
+        //             } else {
+        //                 start = new Position (Rand.Next (room.X, room.X + room.Width), room.Y + room.Height);
+        //             }
+        //         } else {
+        //             if (NorS_EorW) {
+        //                 start = new Position (room.X, Rand.Next (room.Y, room.Y + room.Height));
+        //             } else {
+        //                 start = new Position (room.X + room.Width, Rand.Next (room.Y, room.Y + room.Height));
+        //             }
+        //         }
+        //         end = start;
+        //     }
+        //     do {
+        //         thing = null;
+        //         index++;
+        //         if (vertical) {
+        //             if (NorS_EorW) {
+        //                 end.Y--;
+        //             } else {
+        //                 end.Y++;
+        //             }
+        //             if (end.Y >= floor.Height || end.Y <= 0) {
+        //                 end = start;
+        //                 break;
+        //             }
+        //         } else {
+        //             if (NorS_EorW) {
+        //                 end.X--;
+        //             } else {
+        //                 end.X++;
+        //             }
+        //             if (end.X > floor.Width || end.X < 0) {
+        //                 end = start;
+        //                 break;
+        //             }
+        //         }
+        //         thing = floor.Grid[end.X][end.Y];
+        //     } while (!(thing is Floor) && index <= stretch);
+        // }
     }
+}
