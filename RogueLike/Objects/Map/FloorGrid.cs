@@ -13,16 +13,24 @@ namespace RogueLike {
             for (int x = 0; x < width; x++) {
                 Grid[x] = new Object[height];
                 for (int y = 0; y < height; y++) {
-                    Grid[x][y] = new Wall (x, y);
+                    Grid[x][y] = new NullSpace (x, y);
                 }
             }
             Width = width - 1;
             Height = height - 1;
         }
 
+        public bool InBounds (Position pos) {
+            return pos.X >= 0 && pos.Y >= 0 && pos.X <= Width && pos.Y <= Height;
+        }
+
         public bool AddItem (Object objToAdd) {
             if (objToAdd is Floor) {
                 Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Floor;
+                return true;
+            }
+            if (objToAdd is Wall) {
+                Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Wall;
                 return true;
             }
             if (Grid[objToAdd.XY.X][objToAdd.XY.Y] is Floor) {

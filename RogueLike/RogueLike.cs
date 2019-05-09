@@ -63,7 +63,7 @@ namespace RogueLike {
             int levelHeight = c_MaxWinHeight;
             //creating the level grid
             FloorPlan = new FloorGrid (LevelWidth, levelHeight);
-            Engine.Fill (new Point (0, 0), new Point (LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
+            // Engine.Fill (new Point (0, 0), new Point (LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
 
             BuildRooms (LevelWidth, levelHeight);
         }
@@ -77,6 +77,7 @@ namespace RogueLike {
             //List<Dungeon> dungeonParts = new List<Dungeon> ();
             //create the root dungeon, the size of the level grid
             Dungeon dungeon = new Dungeon (levelWidth, levelHeight);
+            dungeon.Generate (ref FloorPlan);
             //Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0, 8, 4);
             //dungeonParts.Add (dungeon);
 

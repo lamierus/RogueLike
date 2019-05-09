@@ -6,7 +6,7 @@ using ConsoleGameEngine;
 namespace RogueLike {
     public class Floor : Structure {
         public Floor (int x, int y) {
-            Color = 0;
+            Color = 4;
             Character = ConsoleCharacter.Light;
             Immovable = true;
             FloorToCeiling = false;
@@ -16,7 +16,7 @@ namespace RogueLike {
         }
 
         public Floor (Position pos) {
-            Color = 0;
+            Color = 4;
             Character = ConsoleCharacter.Light;
             Immovable = true;
             FloorToCeiling = false;

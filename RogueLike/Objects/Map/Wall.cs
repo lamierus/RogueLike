@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ConsoleGameEngine;
+﻿using ConsoleGameEngine;
 
 namespace RogueLike {
     public class Wall : Structure {
@@ -13,6 +10,13 @@ namespace RogueLike {
             FloorToCeiling = true;
             XY.X = x;
             XY.Y = y;
+        }
+        public Wall (Position pos) {
+            Color = 8;
+            Character = ConsoleCharacter.Full;
+            Immovable = true;
+            FloorToCeiling = true;
+            XY = pos;
         }
     }
 }

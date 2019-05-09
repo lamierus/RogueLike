@@ -7,7 +7,8 @@ using ConsoleGameEngine;
 namespace RogueLike {
     public class Dungeon {
         private Random Rand = new Random ();
-        private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8, MinRoomWidth, MinRoomHeight, NumRoomTries = 300, roomExtraSize = 0;
+        private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8,
+            MinRoomWidth, MinRoomHeight, NumRoomTries = 1000, roomExtraSize = 4, WindingPercent = 0;
         private int CurrentRegion = -1;
         private int[, ] Regions;
         // // private Dungeon Root { get; set; }
@@ -82,7 +83,7 @@ namespace RogueLike {
             return (VorH >.5) ? true : false;
         }
 
-        void generate (ref FloorGrid floor) {
+        public void Generate (ref FloorGrid floor) {
             // if (stage.width % 2 == 0 || stage.height % 2 == 0) {
             //     throw new ArgumentError ("The stage must be odd-sized.");
             // }
@@ -91,10 +92,10 @@ namespace RogueLike {
             GenerateRooms (ref floor);
 
             // Fill in all of the empty space with mazes.
-            for (var y = 0; y < Height; y += 2) {
-                for (var x = 0; x < Width; x += 2) {
+            for (int y = 0; y < Height; y += 2) {
+                for (int x = 0; x < Width; x += 2) {
                     var pos = new Position (x, y);
-                    if (!(floor.GetItem (pos) is Wall)) {
+                    if (!(floor.GetItem (pos) is NullSpace)) {
                         continue;
                     }
                     GrowMaze (pos, ref floor);
@@ -109,13 +110,13 @@ namespace RogueLike {
 
         private void GenerateRooms (ref FloorGrid floor) {
             /// Places rooms ignoring the existing maze corridors.
-            for (var i = 0; i < NumRoomTries; i++) {
+            for (int i = 0; i < NumRoomTries; i++) {
                 // Pick a random room size. The funny math here does two things:
                 // - It makes sure rooms are odd-sized to line up with maze.
                 // - It avoids creating rooms that are too rectangular: too tall and
                 //   narrow or too wide and flat.
                 // TODO: This isn't very flexible or tunable. Do something better here.
-                var size = Rand.Next (1, 3 + roomExtraSize) * 2 + 1;
+                var size = Rand.Next (2, 3 + roomExtraSize) * 2;
                 var rectangularity = Rand.Next (0, 1 + (int) (size / 2)) * 2;
                 var width = size;
                 var height = size;
@@ -125,8 +126,8 @@ namespace RogueLike {
                     height += rectangularity;
                 }
 
-                var x = Rand.Next ((int) ((Width - width) / 2)) * 2 + 1;
-                var y = Rand.Next ((int) ((Height - height) / 2)) * 2 + 1;
+                var x = Rand.Next ((int) ((Width - width) / 2)) * 2;
+                var y = Rand.Next ((int) ((Height - height) / 2)) * 2;
 
                 var room = new Room (width, height, x, y);
 
@@ -145,8 +146,12 @@ namespace RogueLike {
                 Rooms.Add (room);
 
                 StartRegion ();
-                foreach (var pos in new Room (width, height, x, y).Rectangle) {
-                    Carve (new Floor (pos), ref floor);
+                foreach (var pos in room.Rectangle) {
+                    if (room.IsInRoom (pos)) {
+                        Carve (new Floor (pos), ref floor);
+                    } else {
+                        Carve (new Wall (pos), ref floor);
+                    }
                 }
             }
         }
@@ -154,46 +159,170 @@ namespace RogueLike {
         /// Implementation of the "growing tree" algorithm from here:
         /// http://www.astrolog.org/labyrnth/algrithm.htm.
         private void GrowMaze (Position start, ref FloorGrid floor) {
-            var cells = < Vec >[];
-            var lastDir;
+            List<Position> cells = new List<Position> ();
+            Stack<Position> them = new Stack<Position> ();
+            Position lastDir = new Position ();
 
             StartRegion ();
-            Carve (start, ref floor);
+            Carve (new Floor (start), ref floor);
 
-            cells.add (start);
-            while (cells.isNotEmpty) {
-                var cell = cells.last;
+            cells.Add (start);
+            while (cells.Count > 0) {
+                var cell = cells.Last ();
 
                 // See which adjacent cells are open.
-                var unmadeCells = < Direction >[];
+                var unmadeCells = new List<Position> ();
 
-                for (var dir in Direction.CARDINAL) {
-                    if (_canCarve (cell, dir)) unmadeCells.add (dir);
+                foreach (var dir in Direction.Cardinals) {
+                    if (CanCarve (cell, dir, ref floor)) {
+                        unmadeCells.Add (dir);
+                    }
                 }
 
-                if (unmadeCells.isNotEmpty) {
-                    // Based on how "windy" passages are, try to prefer carving in the
-                    // same direction.
-                    var dir;
-                    if (unmadeCells.contains (lastDir) && rng.range (100) > windingPercent) {
+                if (unmadeCells.Count > 0) {
+                    // Based on how "windy" passages are, try to prefer carving in the same direction.
+                    Position dir;
+                    if (unmadeCells.Contains (lastDir) && Rand.Next (100) > WindingPercent) {
                         dir = lastDir;
                     } else {
-                        dir = rng.item (unmadeCells);
+                        dir = unmadeCells[Rand.Next (unmadeCells.Count - 1)];
                     }
 
-                    _carve (cell + dir);
-                    _carve (cell + dir * 2);
+                    Carve (new Floor (cell + dir), ref floor);
+                    //Carve (new Floor (cell + dir * 2), ref floor);
 
-                    cells.add (cell + dir * 2);
+                    //cells.Add (cell + dir * 2);
+                    cells.Add (cell + dir);
                     lastDir = dir;
                 } else {
                     // No adjacent uncarved cells.
-                    cells.removeLast ();
+                    cells.RemoveAt (cells.Count - 1);
 
                     // This path has ended.
-                    lastDir = null;
+                    lastDir = Position.Zero;
                 }
             }
+        }
+
+        // void ConnectRegions () {
+        //     // Find all of the tiles that can connect two (or more) regions.
+        //     var connectorRegions = < Vec,
+        //         Set<int>> { };
+        //     for (var pos in bounds.inflate (-1)) {
+        //         // Can't already be part of a region.
+        //         if (getTile (pos) != Tiles.wall) continue;
+
+        //         var regions = new Set<int> ();
+        //         for (var dir in Direction.CARDINAL) {
+        //             var region = _regions[pos + dir];
+        //             if (region != null) regions.add (region);
+        //         }
+
+        //         if (regions.length < 2) continue;
+
+        //         connectorRegions[pos] = regions;
+        //     }
+
+        //     var connectors = connectorRegions.keys.toList ();
+
+        //     // Keep track of which regions have been merged. This maps an original
+        //     // region index to the one it has been merged to.
+        //     var merged = { };
+        //     var openRegions = new Set<int> ();
+        //     for (var i = 0; i <= _currentRegion; i++) {
+        //         merged[i] = i;
+        //         openRegions.add (i);
+        //     }
+
+        //     // Keep connecting regions until we're down to one.
+        //     while (openRegions.length > 1) {
+        //         var connector = rng.item (connectors);
+
+        //         // Carve the connection.
+        //         _addJunction (connector);
+
+        //         // Merge the connected regions. We'll pick one region (arbitrarily) and
+        //         // map all of the other regions to its index.
+        //         var regions = connectorRegions[connector]
+        //             .map ((region) => merged[region]);
+        //         var dest = regions.first;
+        //         var sources = regions.skip (1).toList ();
+
+        //         // Merge all of the affected regions. We have to look at *all* of the
+        //         // regions because other regions may have previously been merged with
+        //         // some of the ones we're merging now.
+        //         for (var i = 0; i <= _currentRegion; i++) {
+        //             if (sources.contains (merged[i])) {
+        //                 merged[i] = dest;
+        //             }
+        //         }
+
+        //         // The sources are no longer in use.
+        //         openRegions.removeAll (sources);
+
+        //         // Remove any connectors that aren't needed anymore.
+        //         connectors.removeWhere ((pos) {
+        //             // Don't allow connectors right next to each other.
+        //             if (connector - pos < 2) return true;
+
+        //             // If the connector no long spans different regions, we don't need it.
+        //             var regions = connectorRegions[pos].map ((region) => merged[region])
+        //                 .toSet ();
+
+        //             if (regions.length > 1) return false;
+
+        //             // This connecter isn't needed, but connect it occasionally so that the
+        //             // dungeon isn't singly-connected.
+        //             if (rng.oneIn (extraConnectorChance)) _addJunction (pos);
+
+        //             return true;
+        //         });
+        //     }
+        // }
+
+        // void _addJunction (Vec pos) {
+        //     if (rng.oneIn (4)) {
+        //         setTile (pos, rng.oneIn (3) ? Tiles.openDoor : Tiles.floor);
+        //     } else {
+        //         setTile (pos, Tiles.closedDoor);
+        //     }
+        // }
+
+        // void _removeDeadEnds () {
+        //     var done = false;
+
+        //     while (!done) {
+        //         done = true;
+
+        //         for (var pos in bounds.inflate (-1)) {
+        //             if (getTile (pos) == Tiles.wall) continue;
+
+        //             // If it only has one exit, it's a dead end.
+        //             var exits = 0;
+        //             for (var dir in Direction.CARDINAL) {
+        //                 if (getTile (pos + dir) != Tiles.wall) exits++;
+        //             }
+
+        //             if (exits != 1) continue;
+
+        //             done = false;
+        //             setTile (pos, Tiles.wall);
+        //         }
+        //     }
+        // }
+
+        /// Gets whether or not an opening can be carved from the given starting
+        /// [Cell] at [pos] to the adjacent Cell facing [direction]. Returns `true`
+        /// if the starting Cell is in bounds and the destination Cell is filled
+        /// (or out of bounds).
+        bool CanCarve (Position pos, Position direction, ref FloorGrid floor) {
+            // Must end in bounds.
+            if (!floor.InBounds (pos + direction)) {
+                return false;
+            }
+
+            // Destination must not be open.
+            return floor.GetItem (pos + direction) is NullSpace;
         }
 
         private void StartRegion () {

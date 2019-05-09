@@ -55,6 +55,14 @@ namespace RogueLike {
             }
         }
 
+        public bool IsInBounds (Position pos) {
+            return (pos >= TopLeft && pos <= BottomRight);
+        }
+
+        public bool IsInRoom (Position pos) {
+            return Rectangle.Contains (pos) && (!pos.IsInLine (TopLeft) && !pos.IsInLine (BottomRight));
+        }
+
         public bool IsIntersectedBy (Room other) {
             return Rectangle.Exists (pt => (pt >= other.TopLeft && pt <= other.BottomRight));
         }

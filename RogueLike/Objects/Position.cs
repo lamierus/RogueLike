@@ -46,6 +46,7 @@ namespace RogueLike {
             return ((lhs.X != rhs.X) || (lhs.Y != rhs.Y));
         }
         public static bool operator < (Position lhs, Position rhs) {
+
             return (lhs.X < rhs.X || lhs.Y < rhs.Y);
         }
         public static bool operator > (Position lhs, Position rhs) {
@@ -79,7 +80,10 @@ namespace RogueLike {
         }
 
         public override bool Equals (object obj) {
-            return Equals (obj);
+            if (!(obj is Position)) {
+                return false;
+            }
+            return this == (Position) obj;
         }
 
         public override int GetHashCode () {
@@ -102,6 +106,10 @@ namespace RogueLike {
 
             Y = (Y > max.Y) ? max.Y : Y;
             Y = (Y < min.Y) ? min.Y : Y;
+        }
+
+        public bool IsInLine (Position other) {
+            return (X == other.X) || (Y == other.Y);
         }
 
         public bool IsAdjacentOrSame (Position other) {
