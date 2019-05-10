@@ -8,7 +8,7 @@ namespace RogueLike {
     public class Dungeon {
         private Random Rand = new Random ();
         private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8,
-            MinRoomWidth, MinRoomHeight, NumRoomTries = 1000, roomExtraSize = 4, WindingPercent = 0;
+            MinRoomWidth, MinRoomHeight, NumRoomTries = 3000, roomExtraSize = 4, WindingPercent = 0;
         private int CurrentRegion = -1;
         private int[, ] Regions;
         // // private Dungeon Root { get; set; }
@@ -118,16 +118,16 @@ namespace RogueLike {
                 // TODO: This isn't very flexible or tunable. Do something better here.
                 var size = Rand.Next (2, 3 + roomExtraSize) * 2;
                 var rectangularity = Rand.Next (0, 1 + (int) (size / 2)) * 2;
-                var width = size;
-                var height = size;
+                var width = Rand.Next (MinRoomHeight, MinRoomHeight + roomExtraSize);
+                var height = Rand.Next (MinRoomWidth, MinRoomWidth + roomExtraSize);
                 if (isVertical ()) {
                     width += rectangularity;
                 } else {
                     height += rectangularity;
                 }
 
-                var x = Rand.Next ((int) ((Width - width) / 2)) * 2;
-                var y = Rand.Next ((int) ((Height - height) / 2)) * 2;
+                var x = Rand.Next ((int) (((Width - width) / 2) * 1.5));
+                var y = Rand.Next ((int) (((Height - height) / 2) * 1.5));
 
                 var room = new Room (width, height, x, y);
 
@@ -147,10 +147,10 @@ namespace RogueLike {
 
                 StartRegion ();
                 foreach (var pos in room.Rectangle) {
-                    if (room.IsInRoom (pos)) {
-                        Carve (new Floor (pos), ref floor);
-                    } else {
+                    if (pos.IsInLine (room.TopLeft) || pos.IsInLine (room.BottomRight)) {
                         Carve (new Wall (pos), ref floor);
+                    } else {
+                        Carve (new Floor (pos), ref floor);
                     }
                 }
             }

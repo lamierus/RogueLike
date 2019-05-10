@@ -109,7 +109,7 @@ namespace RogueLike {
         }
 
         public bool IsInLine (Position other) {
-            return (X == other.X) || (Y == other.Y);
+            return (X == other.X || Y == other.Y);
         }
 
         public bool IsAdjacentOrSame (Position other) {

@@ -46,9 +46,9 @@ namespace RogueLike {
 
         private void BuildRect () {
             // Rect = new Position[Width][];
-            for (int x = 0; x < Width; x++) {
+            for (int x = 0; x <= Width; x++) {
                 // Rect[x] = new Position[Height];
-                for (int y = 0; y < Height; y++) {
+                for (int y = 0; y <= Height; y++) {
                     // Rect[x][y] = new Position (X + x, Y + y);
                     Rectangle.Add (new Position (X + x, Y + y));
                 }
@@ -60,15 +60,15 @@ namespace RogueLike {
         }
 
         public bool IsInRoom (Position pos) {
-            return Rectangle.Contains (pos) && (!pos.IsInLine (TopLeft) && !pos.IsInLine (BottomRight));
+            return (pos > TopLeft && pos < BottomRight);
         }
 
         public bool IsIntersectedBy (Room other) {
-            return Rectangle.Exists (pt => (pt >= other.TopLeft && pt <= other.BottomRight));
+            return other.Rectangle.Exists (pt => IsInBounds (pt));
         }
 
         private bool IsIntersectedBy (Hallway hallToCheck) {
-            return hallToCheck.Hall.Exists (point => (point >= TopLeft && point <= BottomRight));
+            return hallToCheck.Hall.Exists (pt => IsInBounds (pt));
         }
 
         // public bool HallsIntersect (Room toCheck) {
