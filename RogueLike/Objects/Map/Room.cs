@@ -56,7 +56,7 @@ namespace RogueLike {
         }
 
         public bool IsInBounds (Position pos) {
-            return (pos >= TopLeft && pos <= BottomRight);
+            return Rectangle.Contains (pos);
         }
 
         public bool IsInRoom (Position pos) {
@@ -64,6 +64,12 @@ namespace RogueLike {
         }
 
         public bool IsIntersectedBy (Room other) {
+            // foreach (Position pt in Rectangle) {
+            //     if (other.Rectangle.Contains (pt)) {
+            //         return true;
+            //     }
+            // }
+            // return false;
             return other.Rectangle.Exists (pt => IsInBounds (pt));
         }
 

@@ -8,7 +8,7 @@ namespace RogueLike {
     public class Dungeon {
         private Random Rand = new Random ();
         private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8,
-            MinRoomWidth, MinRoomHeight, NumRoomTries = 3000, roomExtraSize = 4, WindingPercent = 0;
+            MinRoomWidth, MinRoomHeight, NumRoomTries = 300, roomExtraSize = 4, WindingPercent = 0;
         private int CurrentRegion = -1;
         private int[, ] Regions;
         // // private Dungeon Root { get; set; }
@@ -19,50 +19,50 @@ namespace RogueLike {
         public List<Room> Rooms { get; private set; } = new List<Room> ();
 
         // constructor with minimums built into it, so they can be provided, if you want
-        public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth, int minHeight, int numRoomTries) {
-            Width = fullWidth;
-            Height = fullHeight;
-            Regions = new int[Width, Height];
-            X = x;
-            Y = y;
-            MinWidth = minWidth;
-            MinHeight = minHeight;
-            MinRoomWidth = MinWidth - 2;
-            MinRoomHeight = MinHeight - 2;
-            NumRoomTries = numRoomTries;
-        }
+        // public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth, int minHeight, int numRoomTries) {
+        //     Width = fullWidth;
+        //     Height = fullHeight;
+        //     Regions = new int[Width, Height];
+        //     X = x;
+        //     Y = y;
+        //     MinWidth = minWidth;
+        //     MinHeight = minHeight;
+        //     MinRoomWidth = MinWidth - 2;
+        //     MinRoomHeight = MinHeight - 2;
+        //     NumRoomTries = numRoomTries;
+        // }
 
-        public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth, int minHeight) {
-            Width = fullWidth;
-            Height = fullHeight;
-            Regions = new int[Width, Height];
-            X = x;
-            Y = y;
-            MinWidth = minWidth;
-            MinHeight = minHeight;
-            MinRoomWidth = MinWidth - 2;
-            MinRoomHeight = MinHeight - 2;
-        }
+        // public Dungeon (int fullWidth, int fullHeight, int x, int y, int minWidth, int minHeight) {
+        //     Width = fullWidth;
+        //     Height = fullHeight;
+        //     Regions = new int[Width, Height];
+        //     X = x;
+        //     Y = y;
+        //     MinWidth = minWidth;
+        //     MinHeight = minHeight;
+        //     MinRoomWidth = MinWidth - 2;
+        //     MinRoomHeight = MinHeight - 2;
+        // }
 
-        public Dungeon (int fullWidth, int fullHeight, int x, int y, int numRoomTries) {
-            Width = fullWidth;
-            Height = fullHeight;
-            Regions = new int[Width, Height];
-            X = x;
-            Y = y;
-            MinRoomWidth = MinWidth - 2;
-            MinRoomHeight = MinHeight - 2;
-            NumRoomTries = numRoomTries;
-        }
-        public Dungeon (int fullWidth, int fullHeight, int x, int y) {
-            Width = fullWidth;
-            Height = fullHeight;
-            Regions = new int[Width, Height];
-            X = x;
-            Y = y;
-            MinRoomWidth = MinWidth - 2;
-            MinRoomHeight = MinHeight - 2;
-        }
+        // public Dungeon (int fullWidth, int fullHeight, int x, int y, int numRoomTries) {
+        //     Width = fullWidth;
+        //     Height = fullHeight;
+        //     Regions = new int[Width, Height];
+        //     X = x;
+        //     Y = y;
+        //     MinRoomWidth = MinWidth - 2;
+        //     MinRoomHeight = MinHeight - 2;
+        //     NumRoomTries = numRoomTries;
+        // }
+        // public Dungeon (int fullWidth, int fullHeight, int x, int y) {
+        //     Width = fullWidth;
+        //     Height = fullHeight;
+        //     Regions = new int[Width, Height];
+        //     X = x;
+        //     Y = y;
+        //     MinRoomWidth = MinWidth - 2;
+        //     MinRoomHeight = MinHeight - 2;
+        // }
         public Dungeon (int fullWidth, int fullHeight) {
             Width = fullWidth;
             Height = fullHeight;
@@ -115,25 +115,24 @@ namespace RogueLike {
                 // - It makes sure rooms are odd-sized to line up with maze.
                 // - It avoids creating rooms that are too rectangular: too tall and
                 //   narrow or too wide and flat.
-                // TODO: This isn't very flexible or tunable. Do something better here.
                 var size = Rand.Next (2, 3 + roomExtraSize) * 2;
-                var rectangularity = Rand.Next (0, 1 + (int) (size / 2)) * 2;
-                var width = Rand.Next (MinRoomHeight, MinRoomHeight + roomExtraSize);
-                var height = Rand.Next (MinRoomWidth, MinRoomWidth + roomExtraSize);
+                var rectangularity = Rand.Next (0, 1 + (int)((size / 2) * 2.5));
+                var height = Rand.Next (MinRoomHeight, MinRoomHeight + roomExtraSize);
+                var width = Rand.Next (MinRoomWidth, MinRoomWidth + roomExtraSize);
                 if (isVertical ()) {
                     width += rectangularity;
                 } else {
                     height += rectangularity;
                 }
 
-                var x = Rand.Next ((int) (((Width - width) / 2) * 1.5));
-                var y = Rand.Next ((int) (((Height - height) / 2) * 1.5));
+                var x = Rand.Next (Width - width);
+                var y = Rand.Next (Height - height);
 
                 var room = new Room (width, height, x, y);
 
                 var overlaps = false;
                 foreach (var other in Rooms) {
-                    if (room.IsIntersectedBy (other)) {
+                    if (other.IsIntersectedBy(room)) {
                         overlaps = true;
                         break;
                     }
@@ -161,7 +160,7 @@ namespace RogueLike {
         private void GrowMaze (Position start, ref FloorGrid floor) {
             List<Position> cells = new List<Position> ();
             Stack<Position> them = new Stack<Position> ();
-            Position lastDir = new Position ();
+            Position lastDir = Position.Zero;
 
             StartRegion ();
             Carve (new Floor (start), ref floor);
@@ -204,81 +203,80 @@ namespace RogueLike {
             }
         }
 
-        // void ConnectRegions () {
-        //     // Find all of the tiles that can connect two (or more) regions.
-        //     var connectorRegions = < Vec,
-        //         Set<int>> { };
-        //     for (var pos in bounds.inflate (-1)) {
-        //         // Can't already be part of a region.
-        //         if (getTile (pos) != Tiles.wall) continue;
+        void ConnectRegions (ref FloorGrid floor) {
+            // Find all of the tiles that can connect two (or more) regions.
+            var connectorRegions = < Vec, Set<int>> { };
+            foreach (var pos in bounds.inflate (-1)) {
+                // Can't already be part of a region.
+                if (getTile (pos) != Tiles.wall) continue;
 
-        //         var regions = new Set<int> ();
-        //         for (var dir in Direction.CARDINAL) {
-        //             var region = _regions[pos + dir];
-        //             if (region != null) regions.add (region);
-        //         }
+                var regions = new Set<int> ();
+                foreach (var dir in Direction.Cardinals) {
+                    var region = _regions[pos + dir];
+                    if (region != null) regions.add (region);
+                }
 
-        //         if (regions.length < 2) continue;
+                if (regions.length < 2) continue;
 
-        //         connectorRegions[pos] = regions;
-        //     }
+                connectorRegions[pos] = regions;
+            }
 
-        //     var connectors = connectorRegions.keys.toList ();
+            var connectors = connectorRegions.keys.toList ();
 
-        //     // Keep track of which regions have been merged. This maps an original
-        //     // region index to the one it has been merged to.
-        //     var merged = { };
-        //     var openRegions = new Set<int> ();
-        //     for (var i = 0; i <= _currentRegion; i++) {
-        //         merged[i] = i;
-        //         openRegions.add (i);
-        //     }
+            // Keep track of which regions have been merged. This maps an original
+            // region index to the one it has been merged to.
+            var merged = { };
+            var openRegions = new Set<int> ();
+            for (var i = 0; i <= _currentRegion; i++) {
+                merged[i] = i;
+                openRegions.add (i);
+            }
 
-        //     // Keep connecting regions until we're down to one.
-        //     while (openRegions.length > 1) {
-        //         var connector = rng.item (connectors);
+            // Keep connecting regions until we're down to one.
+            // while (openRegions.length > 1) {
+            //     var connector = rng.item (connectors);
 
-        //         // Carve the connection.
-        //         _addJunction (connector);
+            //     // Carve the connection.
+            //     _addJunction (connector);
 
-        //         // Merge the connected regions. We'll pick one region (arbitrarily) and
-        //         // map all of the other regions to its index.
-        //         var regions = connectorRegions[connector]
-        //             .map ((region) => merged[region]);
-        //         var dest = regions.first;
-        //         var sources = regions.skip (1).toList ();
+            //     // Merge the connected regions. We'll pick one region (arbitrarily) and
+            //     // map all of the other regions to its index.
+            //     var regions = connectorRegions[connector]
+            //         .map ((region) => merged[region]);
+            //     var dest = regions.first;
+            //     var sources = regions.skip (1).toList ();
 
-        //         // Merge all of the affected regions. We have to look at *all* of the
-        //         // regions because other regions may have previously been merged with
-        //         // some of the ones we're merging now.
-        //         for (var i = 0; i <= _currentRegion; i++) {
-        //             if (sources.contains (merged[i])) {
-        //                 merged[i] = dest;
-        //             }
-        //         }
+            //     // Merge all of the affected regions. We have to look at *all* of the
+            //     // regions because other regions may have previously been merged with
+            //     // some of the ones we're merging now.
+            //     for (var i = 0; i <= _currentRegion; i++) {
+            //         if (sources.contains (merged[i])) {
+            //             merged[i] = dest;
+            //         }
+            //     }
 
-        //         // The sources are no longer in use.
-        //         openRegions.removeAll (sources);
+            //     // The sources are no longer in use.
+            //     openRegions.removeAll (sources);
 
-        //         // Remove any connectors that aren't needed anymore.
-        //         connectors.removeWhere ((pos) {
-        //             // Don't allow connectors right next to each other.
-        //             if (connector - pos < 2) return true;
+            //     // Remove any connectors that aren't needed anymore.
+            //     connectors.removeWhere ((pos) {
+            //         // Don't allow connectors right next to each other.
+            //         if (connector - pos < 2) return true;
 
-        //             // If the connector no long spans different regions, we don't need it.
-        //             var regions = connectorRegions[pos].map ((region) => merged[region])
-        //                 .toSet ();
+            //         // If the connector no long spans different regions, we don't need it.
+            //         var regions = connectorRegions[pos].map ((region) => merged[region])
+            //             .toSet ();
 
-        //             if (regions.length > 1) return false;
+            //         if (regions.length > 1) return false;
 
-        //             // This connecter isn't needed, but connect it occasionally so that the
-        //             // dungeon isn't singly-connected.
-        //             if (rng.oneIn (extraConnectorChance)) _addJunction (pos);
+            //         // This connecter isn't needed, but connect it occasionally so that the
+            //         // dungeon isn't singly-connected.
+            //         if (rng.oneIn (extraConnectorChance)) _addJunction (pos);
 
-        //             return true;
-        //         });
-        //     }
-        // }
+            //         return true;
+            //     });
+            // }
+        }
 
         // void _addJunction (Vec pos) {
         //     if (rng.oneIn (4)) {

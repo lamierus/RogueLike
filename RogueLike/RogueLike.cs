@@ -21,7 +21,6 @@ namespace RogueLike {
         const int c_PixelHeight = 12;
         const int c_MaxWinWidth = 170;
         const int c_MaxWinHeight = 50;
-        const int BlankSpotColor = 0;
         const int InventoryTextColor = 3;
         const ConsoleKey keyClose = ConsoleKey.Escape;
 
