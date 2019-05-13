@@ -117,50 +117,50 @@ namespace RogueLike {
             // AddHalls (dungeon.Halls);
         }
 
-        /// <summary>
-        ///     draw the rooms created by the dungeon algorithm, adding the walls to the level grid, so they can be solid
-        /// </summary>
-        /// <param name="rooms"></param>
-        /// <param name="halls"></param>
-        void AddRooms (List<Room> rooms) {
-            foreach (Room R in rooms) {
-                // for (int i = 0; i <= R.Height / 2; i++) {
-                //     Engine.Rectangle ((R.TopLeft + i).ToPoint (), (R.BottomRight - i).ToPoint (), R.Color, R.Character);
-                // }
-                for (int x = 0; x <= R.Width; x++) {
-                    for (int y = 0; y <= R.Height; y++) {
-                        FloorPlan.AddItem (new Floor ((R.X + x), (R.Y + y)));
-                    }
-                }
-            }
-        }
+        // /// <summary>
+        // ///     draw the rooms created by the dungeon algorithm, adding the walls to the level grid, so they can be solid
+        // /// </summary>
+        // /// <param name="rooms"></param>
+        // /// <param name="halls"></param>
+        // void AddRooms (List<Room> rooms) {
+        //     foreach (Room R in rooms) {
+        //         // for (int i = 0; i <= R.Height / 2; i++) {
+        //         //     Engine.Rectangle ((R.TopLeft + i).ToPoint (), (R.BottomRight - i).ToPoint (), R.Color, R.Character);
+        //         // }
+        //         for (int x = 0; x <= R.Width; x++) {
+        //             for (int y = 0; y <= R.Height; y++) {
+        //                 FloorPlan.AddItem (new Floor ((R.X + x), (R.Y + y)));
+        //             }
+        //         }
+        //     }
+        // }
 
-        /// <summary>
-        ///     
-        /// </summary>
-        /// <param name="halls"></param>
-        void AddHalls (List<Hallway> halls) {
-            foreach (Hallway H in halls) {
-                Position start = H.Hall.First ();
-                Position end = H.Hall.Last ();
-                // Engine.Line (H.Start.ToPoint (), H.End.ToPoint (), H.Color, H.Character);
-                for (int i = 0; i < (int) (Position.Distance (start, end)); i++) {
-                    if (start.X == end.X) {
-                        if (start.Y < end.Y) {
-                            FloorPlan.AddItem (H.GetMapObject (start.X, start.Y + i));
-                        } else {
-                            FloorPlan.AddItem (H.GetMapObject (start.X, start.Y - i));
-                        }
-                    } else {
-                        if (start.X < end.X) {
-                            FloorPlan.AddItem (H.GetMapObject (start.X + i, start.Y));
-                        } else {
-                            FloorPlan.AddItem (H.GetMapObject (start.X - i, start.Y));
-                        }
-                    }
-                }
-            }
-        }
+        // /// <summary>
+        // ///     
+        // /// </summary>
+        // /// <param name="halls"></param>
+        // void AddHalls (List<Hallway> halls) {
+        //     foreach (Hallway H in halls) {
+        //         Position start = H.Hall.First ();
+        //         Position end = H.Hall.Last ();
+        //         // Engine.Line (H.Start.ToPoint (), H.End.ToPoint (), H.Color, H.Character);
+        //         for (int i = 0; i < (int) (Position.Distance (start, end)); i++) {
+        //             if (start.X == end.X) {
+        //                 if (start.Y < end.Y) {
+        //                     FloorPlan.AddItem (H.GetMapObject (start.X, start.Y + i));
+        //                 } else {
+        //                     FloorPlan.AddItem (H.GetMapObject (start.X, start.Y - i));
+        //                 }
+        //             } else {
+        //                 if (start.X < end.X) {
+        //                     FloorPlan.AddItem (H.GetMapObject (start.X + i, start.Y));
+        //                 } else {
+        //                     FloorPlan.AddItem (H.GetMapObject (start.X - i, start.Y));
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         /// <summary>
         ///     currently only adds 1 item randomly on the level, doesn't even check if it's in a room
@@ -346,7 +346,7 @@ namespace RogueLike {
             for (int x = 0; x <= FloorPlan.Width; x++) {
                 for (int y = 0; y <= FloorPlan.Height; y++) {
                     Position pt = new Position (x, y);
-                    Object obj = FloorPlan.GetItem(pt);
+                    Object obj = FloorPlan.GetItem (pt);
                     Engine.SetPixel (pt.ToPoint (), obj.Color, obj.Character);
                     if (obj is Mob || obj is Item) {
                         Engine.WriteText (pt.ToPoint (), obj.TextCharacter, obj.Color);

@@ -10,7 +10,7 @@ namespace RogueLike {
         private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8,
             MinRoomWidth, MinRoomHeight, NumRoomTries = 300, roomExtraSize = 4, WindingPercent = 0;
         private int CurrentRegion = -1;
-        private int[,] Regions;
+        private int[, ] Regions;
         // // private Dungeon Root { get; set; }
         // public Dungeon LeftBranch { get; private set; }
         // public Dungeon RightBranch { get; private set; }
@@ -146,10 +146,10 @@ namespace RogueLike {
 
                 StartRegion ();
                 foreach (var pos in room.Rectangle) {
-                    if (pos.IsInLine (room.TopLeft) || pos.IsInLine (room.BottomRight)) {
-                        Carve (new Wall (pos), ref floor);
-                    } else {
+                    if (room.IsInRoom (pos)) {
                         Carve (new Floor (pos), ref floor);
+                    } else {
+                        Carve (new Wall (pos), ref floor);
                     }
                 }
             }
@@ -205,35 +205,38 @@ namespace RogueLike {
 
         void ConnectRegions (ref FloorGrid floor) {
             // Find all of the tiles that can connect two (or more) regions.
-            Dictionary<int, Position> connectorRegions = new Dictionary<int, Position> ();
-            //var connectorRegions = <Vec, Set<int>> { };
-            foreach (var pos in bounds.inflate (-1)) {
-                // Can't already be part of a region.
-                if (!(floor.GetItem (pos) is Wall)) {
-                    continue;
-                }
+            // Dictionary<int, Position> connectorRegions = new Dictionary<int, Position> ();
+            // //var connectorRegions = <Vec, Set<int>> { };
+            // for (int x = 0; x < Width; x++) {
+            //     for (int y = 0; y < Height; y++) {
+            //         Position pos = new Position (x, y);
+            //         // Can't already be part of a region.
+            //         if (!(floor.GetItem (pos) is Wall)) {
+            //             continue;
+            //         }
 
-                var regions = new Set<int> ();
-                foreach (var dir in Direction.Cardinals) {
-                    var region = _regions[pos + dir];
-                    if (region != null) regions.add (region);
-                }
+            //         var regions = new Set<int> ();
+            //         foreach (var dir in Direction.Cardinals) {
+            //             var region = Regions[pos + dir];
+            //             if (region != null) regions.add (region);
+            //         }
 
-                if (regions.length < 2) continue;
+            //         if (regions.length < 2) continue;
 
-                connectorRegions[pos] = regions;
-            }
+            //         connectorRegions[pos] = regions;
+            //     }
+            // }
 
-            var connectors = connectorRegions.keys.toList ();
+            //     var connectors = connectorRegions.keys.toList ();
 
-            // Keep track of which regions have been merged. This maps an original
-            // region index to the one it has been merged to.
-            var merged = { };
-            var openRegions = new Set<int> ();
-            for (var i = 0; i <= _currentRegion; i++) {
-                merged[i] = i;
-                openRegions.add (i);
-            }
+            //     // Keep track of which regions have been merged. This maps an original
+            //     // region index to the one it has been merged to.
+            //     var merged = { };
+            //     var openRegions = new Set<int> ();
+            //     for (var i = 0; i <= _currentRegion; i++) {
+            //         merged[i] = i;
+            //         openRegions.add (i);
+            //     }
 
             // Keep connecting regions until we're down to one.
             // while (openRegions.length > 1) {

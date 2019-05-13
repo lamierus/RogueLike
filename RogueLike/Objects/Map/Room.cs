@@ -60,7 +60,7 @@ namespace RogueLike {
         }
 
         public bool IsInRoom (Position pos) {
-            return (pos > TopLeft && pos < BottomRight);
+            return (IsInBounds (pos) && !(TopLeft.IsInLine (pos) || BottomRight.IsInLine (pos)));
         }
 
         public bool IsIntersectedBy (Room other) {
