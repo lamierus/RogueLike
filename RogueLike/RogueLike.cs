@@ -293,8 +293,8 @@ namespace RogueLike {
                     if ((You.XY.Y + moveY < c_MaxWinHeight) && (You.XY.Y + moveY > -1))
                         NextMove.Y += moveY;
                     //find out if they ran into anything
-                    if (!(FloorPlan.Grid[NextMove.X][NextMove.Y] is Floor)) {
-                        Object thing = FloorPlan.Grid[NextMove.X][NextMove.Y];
+                    if (!(FloorPlan.GetItem (NextMove) is Floor)) {
+                        Object thing = FloorPlan.GetItem (NextMove);
                         bool attacked;
                         string message;
                         //make the player interact with the object run into
@@ -345,9 +345,11 @@ namespace RogueLike {
             }*/
             for (int x = 0; x <= FloorPlan.Width; x++) {
                 for (int y = 0; y <= FloorPlan.Height; y++) {
-                    Engine.SetPixel (new Point (x, y), FloorPlan.Grid[x][y].Color, FloorPlan.Grid[x][y].Character);
-                    if (FloorPlan.Grid[x][y] is Mob || FloorPlan.Grid[x][y] is Item) {
-                        Engine.WriteText (new Point (x, y), FloorPlan.Grid[x][y].TextCharacter, FloorPlan.Grid[x][y].Color);
+                    Position pt = new Position (x, y);
+                    Object obj = FloorPlan.GetItem(pt);
+                    Engine.SetPixel (pt.ToPoint (), obj.Color, obj.Character);
+                    if (obj is Mob || obj is Item) {
+                        Engine.WriteText (pt.ToPoint (), obj.TextCharacter, obj.Color);
                     }
                 }
             }

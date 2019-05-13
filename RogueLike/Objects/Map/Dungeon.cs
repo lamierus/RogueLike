@@ -10,7 +10,7 @@ namespace RogueLike {
         private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8,
             MinRoomWidth, MinRoomHeight, NumRoomTries = 300, roomExtraSize = 4, WindingPercent = 0;
         private int CurrentRegion = -1;
-        private int[, ] Regions;
+        private int[,] Regions;
         // // private Dungeon Root { get; set; }
         // public Dungeon LeftBranch { get; private set; }
         // public Dungeon RightBranch { get; private set; }
@@ -116,7 +116,7 @@ namespace RogueLike {
                 // - It avoids creating rooms that are too rectangular: too tall and
                 //   narrow or too wide and flat.
                 var size = Rand.Next (2, 3 + roomExtraSize) * 2;
-                var rectangularity = Rand.Next (0, 1 + (int)((size / 2) * 2.5));
+                var rectangularity = Rand.Next (0, 1 + (int) ((size / 2) * 2.5));
                 var height = Rand.Next (MinRoomHeight, MinRoomHeight + roomExtraSize);
                 var width = Rand.Next (MinRoomWidth, MinRoomWidth + roomExtraSize);
                 if (isVertical ()) {
@@ -132,7 +132,7 @@ namespace RogueLike {
 
                 var overlaps = false;
                 foreach (var other in Rooms) {
-                    if (other.IsIntersectedBy(room)) {
+                    if (other.IsIntersectedBy (room)) {
                         overlaps = true;
                         break;
                     }
@@ -205,10 +205,13 @@ namespace RogueLike {
 
         void ConnectRegions (ref FloorGrid floor) {
             // Find all of the tiles that can connect two (or more) regions.
-            var connectorRegions = < Vec, Set<int>> { };
+            Dictionary<int, Position> connectorRegions = new Dictionary<int, Position> ();
+            //var connectorRegions = <Vec, Set<int>> { };
             foreach (var pos in bounds.inflate (-1)) {
                 // Can't already be part of a region.
-                if (getTile (pos) != Tiles.wall) continue;
+                if (!(floor.GetItem (pos) is Wall)) {
+                    continue;
+                }
 
                 var regions = new Set<int> ();
                 foreach (var dir in Direction.Cardinals) {

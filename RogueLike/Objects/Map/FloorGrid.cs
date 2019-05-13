@@ -4,16 +4,15 @@ using System.Text;
 
 namespace RogueLike {
     public class FloorGrid {
-        public Object[][] Grid { get; private set; }
+        private Object[, ] Grid;
         public int Width { get; private set; }
         public int Height { get; private set; }
 
         public FloorGrid (int width, int height) {
-            Grid = new Object[width][];
+            Grid = new Object[width, height];
             for (int x = 0; x < width; x++) {
-                Grid[x] = new Object[height];
                 for (int y = 0; y < height; y++) {
-                    Grid[x][y] = new NullSpace (x, y);
+                    Grid[x, y] = new NullSpace (x, y);
                 }
             }
             Width = width - 1;
@@ -26,20 +25,20 @@ namespace RogueLike {
 
         public bool AddItem (Object objToAdd) {
             if (objToAdd is Floor) {
-                Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Floor;
+                Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Floor;
                 return true;
             }
             if (objToAdd is Wall) {
-                Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Wall;
+                Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Wall;
                 return true;
             }
-            if (Grid[objToAdd.XY.X][objToAdd.XY.Y] is Floor) {
+            if (Grid[objToAdd.XY.X, objToAdd.XY.Y] is Floor) {
                 if (objToAdd is Player) {
-                    Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Player;
+                    Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Player;
                     return true;
                 }
                 if (objToAdd is Item) {
-                    Grid[objToAdd.XY.X][objToAdd.XY.Y] = objToAdd as Item;
+                    Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Item;
                     return true;
                 }
             }
@@ -47,11 +46,11 @@ namespace RogueLike {
         }
 
         public Object GetItem (Position pos) {
-            return Grid[pos.X][pos.Y];
+            return Grid[pos.X, pos.Y];
         }
 
         private void RemoveObject (Object objToRemove) {
-            Grid[objToRemove.XY.X][objToRemove.XY.Y] = null;
+            Grid[objToRemove.XY.X, objToRemove.XY.Y] = null;
         }
 
         public void PickUpItem (Item itemPickedUp) {
@@ -60,8 +59,8 @@ namespace RogueLike {
 
         public void MoveObject (Object objToMove, Position XY) {
             if (objToMove is Player) {
-                Grid[objToMove.XY.X][objToMove.XY.Y] = new Floor (objToMove.XY.X, objToMove.XY.Y);
-                Grid[XY.X][XY.Y] = objToMove as Player;
+                Grid[objToMove.XY.X, objToMove.XY.Y] = new Floor (objToMove.XY.X, objToMove.XY.Y);
+                Grid[XY.X, XY.Y] = objToMove as Player;
             }
         }
     }
