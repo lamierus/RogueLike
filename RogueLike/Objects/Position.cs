@@ -17,6 +17,10 @@ namespace RogueLike {
             Y = y;
         }
 
+        public Position (Position pos) {
+            this = pos;
+        }
+
         public Vector ToVector () => new Vector ((float) X, (float) Y);
         public override string ToString () => String.Format ("({0}, {1})", X, Y);
         public Point ToPoint () => new Point (X, Y);

@@ -87,7 +87,12 @@ namespace RogueLike {
             // if (stage.width % 2 == 0 || stage.height % 2 == 0) {
             //     throw new ArgumentError ("The stage must be odd-sized.");
             // }
-            Regions = new int[Width, Height];
+            //Regions = new int[Width, Height];
+            for (int x = 0; x < Width; x++) {
+                for (int y = 0; y < Height; y++) {
+                    Regions[x, y] = CurrentRegion;
+                }
+            }
 
             GenerateRooms (ref floor);
 
@@ -204,46 +209,51 @@ namespace RogueLike {
         }
 
         void ConnectRegions (ref FloorGrid floor) {
-            // Find all of the tiles that can connect two (or more) regions.
-            // Dictionary<int, Position> connectorRegions = new Dictionary<int, Position> ();
-            // //var connectorRegions = <Vec, Set<int>> { };
-            // for (int x = 0; x < Width; x++) {
-            //     for (int y = 0; y < Height; y++) {
-            //         Position pos = new Position (x, y);
-            //         // Can't already be part of a region.
-            //         if (!(floor.GetItem (pos) is Wall)) {
-            //             continue;
-            //         }
+            //Find all of the tiles that can connect two (or more) regions.
+            Dictionary<Position, HashSet<int>> connectorRegions = new Dictionary<Position, HashSet<int>> ();
+            //var connectorRegions = <Vec, Set<int>> { };
+            for (int x = 0; x < Width; x++) {
+                for (int y = 0; y < Height; y++) {
+                    Position pos = new Position (x, y);
+                    // Can't already be part of a region.
+                    // if (!(floor.GetItem (pos) is Wall)) {
+                    //     continue;
+                    // }
 
-            //         var regions = new Set<int> ();
-            //         foreach (var dir in Direction.Cardinals) {
-            //             var region = Regions[pos + dir];
-            //             if (region != null) regions.add (region);
-            //         }
+                    var regions = new HashSet<int> ();
+                    foreach (var dir in Direction.Cardinals) {
+                        var eachDirection = new Position (pos + dir);
+                        var region = Regions[eachDirection.X, eachDirection.Y];
+                        if (region != -1) {
+                            regions.Add (region);
+                        }
+                    }
 
-            //         if (regions.length < 2) continue;
+                    if (regions.Count < 2) {
+                        continue;
+                    }
+                    connectorRegions.Add (pos, regions);
+                    // connectorRegions[pos] = regions;
+                }
+            }
 
-            //         connectorRegions[pos] = regions;
-            //     }
-            // }
+            var connectors = connectorRegions.Keys.ToList ();
 
-            //     var connectors = connectorRegions.keys.toList ();
+            // Keep track of which regions have been merged. This maps an original
+            // region index to the one it has been merged to.
+            var merged = new List<int> ();
+            var openRegions = new HashSet<int> ();
+            for (int i = 0; i <= CurrentRegion; i++) {
+                merged.Add (i);
+                openRegions.Add (i);
+            }
 
-            //     // Keep track of which regions have been merged. This maps an original
-            //     // region index to the one it has been merged to.
-            //     var merged = { };
-            //     var openRegions = new Set<int> ();
-            //     for (var i = 0; i <= _currentRegion; i++) {
-            //         merged[i] = i;
-            //         openRegions.add (i);
-            //     }
-
-            // Keep connecting regions until we're down to one.
-            // while (openRegions.length > 1) {
-            //     var connector = rng.item (connectors);
+            // //Keep connecting regions until we're down to one.
+            // while (openRegions.Count > 1) {
+            //     var connector = connectors[Rand.Next (connectors.Count - 1)];
 
             //     // Carve the connection.
-            //     _addJunction (connector);
+            //     AddJunction (connector);
 
             //     // Merge the connected regions. We'll pick one region (arbitrarily) and
             //     // map all of the other regions to its index.
@@ -255,17 +265,17 @@ namespace RogueLike {
             //     // Merge all of the affected regions. We have to look at *all* of the
             //     // regions because other regions may have previously been merged with
             //     // some of the ones we're merging now.
-            //     for (var i = 0; i <= _currentRegion; i++) {
+            //     for (var i = 0; i <= CurrentRegion; i++) {
             //         if (sources.contains (merged[i])) {
             //             merged[i] = dest;
             //         }
             //     }
 
             //     // The sources are no longer in use.
-            //     openRegions.removeAll (sources);
+            //     openRegions.RemoveAll (sources);
 
             //     // Remove any connectors that aren't needed anymore.
-            //     connectors.removeWhere ((pos) {
+            //     connectors.RemoveWhere ((pos) {
             //         // Don't allow connectors right next to each other.
             //         if (connector - pos < 2) return true;
 
@@ -277,20 +287,20 @@ namespace RogueLike {
 
             //         // This connecter isn't needed, but connect it occasionally so that the
             //         // dungeon isn't singly-connected.
-            //         if (rng.oneIn (extraConnectorChance)) _addJunction (pos);
+            //         if (rng.oneIn (extraConnectorChance)) AddJunction (pos);
 
             //         return true;
             //     });
             // }
         }
 
-        // void _addJunction (Vec pos) {
-        //     if (rng.oneIn (4)) {
-        //         setTile (pos, rng.oneIn (3) ? Tiles.openDoor : Tiles.floor);
-        //     } else {
-        //         setTile (pos, Tiles.closedDoor);
-        //     }
-        // }
+        void AddJunction (Position pos, ref FloorGrid floor) {
+            // if (Rand.oneIn (4)) {
+            //     setTile (pos, Rand.oneIn (3) ? Tiles.openDoor : Tiles.floor);
+            // } else {
+            //     setTile (pos, Tiles.closedDoor);
+            // }
+        }
 
         // void _removeDeadEnds () {
         //     var done = false;
