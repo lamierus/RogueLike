@@ -10,5 +10,12 @@ namespace RogueLike {
             XY.X = x;
             XY.Y = y;
         }
+        public NullSpace (Position pos) {
+            Color = 0;
+            Character = ConsoleCharacter.Null;
+            Immovable = true;
+            FloorToCeiling = true;
+            XY = pos;
+        }
     }
 }

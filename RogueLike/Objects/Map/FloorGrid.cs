@@ -23,13 +23,17 @@ namespace RogueLike {
             return pos.X >= 0 && pos.Y >= 0 && pos.X <= Width && pos.Y <= Height;
         }
 
-        public bool AddItem (Object objToAdd) {
+        public bool AddObject (Object objToAdd) {
             if (objToAdd is Floor) {
                 Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Floor;
                 return true;
             }
             if (objToAdd is Wall) {
                 Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Wall;
+                return true;
+            }
+            if (objToAdd is Door) {
+                Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Door;
                 return true;
             }
             if (Grid[objToAdd.XY.X, objToAdd.XY.Y] is Floor) {
@@ -45,7 +49,7 @@ namespace RogueLike {
             return false;
         }
 
-        public Object GetItem (Position pos) {
+        public Object GetObject (Position pos) {
             return Grid[pos.X, pos.Y];
         }
 

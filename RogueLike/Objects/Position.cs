@@ -91,7 +91,14 @@ namespace RogueLike {
         }
 
         public override int GetHashCode () {
-            return GetHashCode ();
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;
+                // Suitable nullity checks etc, of course :)
+                hash *= 23 + X.GetHashCode ();
+                hash *= 23 + Y.GetHashCode ();
+                return hash;
+            }
         }
 
         /// <summary> Calculates distance between two points. </summary>

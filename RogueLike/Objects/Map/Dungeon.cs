@@ -68,6 +68,7 @@ namespace RogueLike {
             Height = fullHeight;
             MinRoomWidth = MinWidth - 2;
             MinRoomHeight = MinHeight - 2;
+            Regions = new int[Width, Height];
         }
 
         // public void SetRoot (Dungeon root) {
@@ -100,15 +101,15 @@ namespace RogueLike {
             for (int y = 0; y < Height; y += 2) {
                 for (int x = 0; x < Width; x += 2) {
                     var pos = new Position (x, y);
-                    if (!(floor.GetItem (pos) is NullSpace)) {
+                    if (!(floor.GetObject (pos) is NullSpace)) {
                         continue;
                     }
                     GrowMaze (pos, ref floor);
                 }
             }
 
-            //_connectRegions ();
-            //_removeDeadEnds ();
+            ConnectRegions (ref floor);
+            RemoveDeadEnds (ref floor);
 
             //_rooms.forEach (onDecorateRoom);
         }
@@ -165,7 +166,7 @@ namespace RogueLike {
         private void GrowMaze (Position start, ref FloorGrid floor) {
             List<Position> cells = new List<Position> ();
             Stack<Position> them = new Stack<Position> ();
-            Position lastDir = Position.Zero;
+            Position lastDir = start;
 
             StartRegion ();
             Carve (new Floor (start), ref floor);
@@ -193,6 +194,10 @@ namespace RogueLike {
                     }
 
                     Carve (new Floor (cell + dir), ref floor);
+                    unmadeCells.Remove (dir);
+                    foreach (var pos in unmadeCells) {
+                        Carve (new Wall (cell + pos), ref floor);
+                    }
                     //Carve (new Floor (cell + dir * 2), ref floor);
 
                     //cells.Add (cell + dir * 2);
@@ -215,17 +220,19 @@ namespace RogueLike {
             for (int x = 0; x < Width; x++) {
                 for (int y = 0; y < Height; y++) {
                     Position pos = new Position (x, y);
-                    // Can't already be part of a region.
-                    // if (!(floor.GetItem (pos) is Wall)) {
-                    //     continue;
-                    // }
+                    //Can't already be part of a region.
+                    if (!(floor.GetObject (pos) is Wall)) {
+                        continue;
+                    }
 
                     var regions = new HashSet<int> ();
                     foreach (var dir in Direction.Cardinals) {
-                        var eachDirection = new Position (pos + dir);
-                        var region = Regions[eachDirection.X, eachDirection.Y];
-                        if (region != -1) {
-                            regions.Add (region);
+                        if (floor.InBounds (pos + dir)) {
+                            var eachDirection = new Position (pos + dir);
+                            var region = Regions[eachDirection.X, eachDirection.Y];
+                            if (region != -1) {
+                                regions.Add (region);
+                            }
                         }
                     }
 
@@ -248,82 +255,88 @@ namespace RogueLike {
                 openRegions.Add (i);
             }
 
-            // //Keep connecting regions until we're down to one.
-            // while (openRegions.Count > 1) {
-            //     var connector = connectors[Rand.Next (connectors.Count - 1)];
+            //Keep connecting regions until we're down to one.
+            while (openRegions.Count > 1) {
+                var connector = connectors[Rand.Next (connectors.Count - 1)];
 
-            //     // Carve the connection.
-            //     AddJunction (connector);
+                // Carve the connection.
+                AddJunction (connector, ref floor);
 
-            //     // Merge the connected regions. We'll pick one region (arbitrarily) and
-            //     // map all of the other regions to its index.
-            //     var regions = connectorRegions[connector]
-            //         .map ((region) => merged[region]);
-            //     var dest = regions.first;
-            //     var sources = regions.skip (1).toList ();
+                // Merge the connected regions. We'll pick one region (arbitrarily) and
+                // map all of the other regions to its index.
+                var regions = connectorRegions[connector].Select (region => merged[region]);
+                var dest = regions.First ();
+                var sources = regions.Skip (1).ToList ();
 
-            //     // Merge all of the affected regions. We have to look at *all* of the
-            //     // regions because other regions may have previously been merged with
-            //     // some of the ones we're merging now.
-            //     for (var i = 0; i <= CurrentRegion; i++) {
-            //         if (sources.contains (merged[i])) {
-            //             merged[i] = dest;
-            //         }
-            //     }
+                // Merge all of the affected regions. We have to look at *all* of the
+                // regions because other regions may have previously been merged with
+                // some of the ones we're merging now.
+                for (var i = 0; i <= CurrentRegion; i++) {
+                    if (sources.Contains (merged[i])) {
+                        merged[i] = dest;
+                    }
+                }
 
-            //     // The sources are no longer in use.
-            //     openRegions.RemoveAll (sources);
+                // The sources are no longer in use.
+                openRegions.RemoveWhere (i => sources.Contains (i));
 
-            //     // Remove any connectors that aren't needed anymore.
-            //     connectors.RemoveWhere ((pos) {
-            //         // Don't allow connectors right next to each other.
-            //         if (connector - pos < 2) return true;
+                // Remove any connectors that aren't needed anymore.
+                connectors.RemoveAll (pos => {
+                    // Don't allow connectors right next to each other.
+                    if (Position.Distance (connector, pos) < 2) return true;
 
-            //         // If the connector no long spans different regions, we don't need it.
-            //         var regions = connectorRegions[pos].map ((region) => merged[region])
-            //             .toSet ();
+                    // If the connector no longer spans different regions, we don't need it.
+                    regions = connectorRegions[pos].Select ((region) => merged[region]);
 
-            //         if (regions.length > 1) return false;
+                    if (regions.Count () > 1) return false;
 
-            //         // This connecter isn't needed, but connect it occasionally so that the
-            //         // dungeon isn't singly-connected.
-            //         if (rng.oneIn (extraConnectorChance)) AddJunction (pos);
+                    // // This connecter isn't needed, but connect it occasionally so that the
+                    // // dungeon isn't singly-connected.
+                    // if (rng.oneIn (extraConnectorChance)) AddJunction (pos);
 
-            //         return true;
-            //     });
-            // }
+                    return true;
+                });
+            }
         }
 
         void AddJunction (Position pos, ref FloorGrid floor) {
-            // if (Rand.oneIn (4)) {
-            //     setTile (pos, Rand.oneIn (3) ? Tiles.openDoor : Tiles.floor);
+            // if (Rand.Next (3) == 0) {
+            //     floor.AddItem (new Floor (pos));
             // } else {
-            //     setTile (pos, Tiles.closedDoor);
+            floor.AddObject (new Door (pos));
             // }
         }
 
-        // void _removeDeadEnds () {
-        //     var done = false;
+        void RemoveDeadEnds (ref FloorGrid floor) {
+            var done = false;
 
-        //     while (!done) {
-        //         done = true;
+            while (!done) {
+                done = true;
 
-        //         for (var pos in bounds.inflate (-1)) {
-        //             if (getTile (pos) == Tiles.wall) continue;
+                for (int x = 0; x < floor.Width; x++) {
+                    for (int y = 0; y < floor.Height; y++) {
+                        Position pos = new Position (x, y);
+                        //foreach (var pos in bounds.inflate (-1))
+                        if (floor.GetObject (pos) is Wall) continue;
 
-        //             // If it only has one exit, it's a dead end.
-        //             var exits = 0;
-        //             for (var dir in Direction.CARDINAL) {
-        //                 if (getTile (pos + dir) != Tiles.wall) exits++;
-        //             }
+                        // If it only has one exit, it's a dead end.
+                        var exits = 0;
+                        foreach (var dir in Direction.Cardinals) {
+                            if (floor.InBounds (pos + dir)) {
+                                if (floor.GetObject (pos + dir) is Floor) {
+                                    exits++;
+                                }
+                            }
+                        }
 
-        //             if (exits != 1) continue;
+                        if (exits != 1) continue;
 
-        //             done = false;
-        //             setTile (pos, Tiles.wall);
-        //         }
-        //     }
-        // }
+                        done = false;
+                        floor.AddObject (new Wall (pos));
+                    }
+                }
+            }
+        }
 
         /// Gets whether or not an opening can be carved from the given starting
         /// [Cell] at [pos] to the adjacent Cell facing [direction]. Returns `true`
@@ -336,7 +349,7 @@ namespace RogueLike {
             }
 
             // Destination must not be open.
-            return floor.GetItem (pos + direction) is NullSpace;
+            return floor.GetObject (pos + direction) is NullSpace;
         }
 
         private void StartRegion () {
@@ -344,7 +357,7 @@ namespace RogueLike {
         }
 
         private void Carve (Object obj, ref FloorGrid floor) {
-            floor.AddItem (obj);
+            floor.AddObject (obj);
             Regions[obj.XY.X, obj.XY.Y] = CurrentRegion;
         }
 
