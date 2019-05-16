@@ -66,8 +66,8 @@ namespace RogueLike {
         public Dungeon (int fullWidth, int fullHeight) {
             Width = fullWidth;
             Height = fullHeight;
-            MinRoomWidth = MinWidth - 2;
-            MinRoomHeight = MinHeight - 2;
+            MinRoomWidth = MinWidth;
+            MinRoomHeight = MinHeight;
             Regions = new int[Width, Height];
         }
 
