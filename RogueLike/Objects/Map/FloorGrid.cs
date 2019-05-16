@@ -23,7 +23,7 @@ namespace RogueLike {
             return pos.X >= 0 && pos.Y >= 0 && pos.X <= Width && pos.Y <= Height;
         }
 
-        public bool AddObject (Object objToAdd) {
+        public bool SetObject (Object objToAdd) {
             if (objToAdd is Floor) {
                 Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Floor;
                 return true;
@@ -61,11 +61,19 @@ namespace RogueLike {
             RemoveObject (itemPickedUp);
         }
 
-        public void MoveObject (Object objToMove, Position XY) {
-            if (objToMove is Player) {
-                Grid[objToMove.XY.X, objToMove.XY.Y] = new Floor (objToMove.XY.X, objToMove.XY.Y);
-                Grid[XY.X, XY.Y] = objToMove as Player;
-            }
+        public void MoveObject (Object objToMove, Position newXY) {
+            // if (objToMove is Player) {
+            //     var oldXY = new Position (objToMove.XY);
+            //     var objOnSPace = GetObject (newXY);
+            //     if (objOnSPace is Floor) {
+            //         Grid[oldXY.X, oldXY.Y] = new Floor (oldXY.X, oldXY.Y);
+            //     } else if (objOnSPace is Door) {
+            //         if (!(objOnSPace as Door).Locked) {
+            //             Grid[oldXY.X, oldXY.Y] = new Door (oldXY, false, true);
+            //         }
+            //     }
+            //     Grid[newXY.X, newXY.Y] = objToMove as Player;
+            // }
         }
     }
 }

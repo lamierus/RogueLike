@@ -170,7 +170,7 @@ namespace RogueLike {
             var itemAmount = RandomNum.Next (1, 99);
             RandomizePixelPoint (ref itemPos);
             Gold item = new Gold (itemAmount, itemPos);
-            FloorPlan.AddObject (item);
+            FloorPlan.SetObject (item);
             Engine.WriteText (item.XY.ToPoint (), item.Character.ToString (), item.Color);
 
         }
@@ -298,16 +298,22 @@ namespace RogueLike {
                         bool attacked;
                         string message;
                         //make the player interact with the object run into
-                        if (You.Interact (thing, out attacked, out message))
+                        if (You.Interact (thing, out attacked, out message)) {
                             if (!attacked) {
                                 if (thing is Item) {
                                     FloorPlan.PickUpItem (thing as Item);
+                                }
+                                if (thing is Door) {
+                                    FloorPlan.SetObject (new Door (thing.XY, false, true));
+                                }
+                                if (!(thing is Wall || thing is NullSpace)) {
                                     MovePlayer (NextMove);
                                 }
                                 if (message != null) {
                                     AddLog (message);
                                 }
                             } //TODO: add code for attacking a monster
+                        }
                     } else {
                         MovePlayer (NextMove);
                     }
@@ -357,6 +363,7 @@ namespace RogueLike {
             for (int x = 1; x <= 51 /*96*/ ; x += 3) {
                 Engine.WriteText (new Point (x, c_MaxWinHeight - 1), i.ToString (" ##"), i++);
             }
+            Engine.WriteText (You.XY.ToPoint (), You.TextCharacter, 2);
             UpdateSideBar ();
             UpdateLog ();
             Engine.DisplayBuffer ();
@@ -369,7 +376,7 @@ namespace RogueLike {
             GameState = true;
             do {
                 You.XY = new Position (RandomNum.Next (FloorPlan.Width), RandomNum.Next (FloorPlan.Height));
-            } while (!(FloorPlan.AddObject (You)));
+            } while (!(FloorPlan.GetObject (You.XY) is Floor));
             PlayerLastPosition = You.XY;
         }
 

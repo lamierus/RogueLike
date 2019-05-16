@@ -48,6 +48,13 @@ namespace RogueLike {
             if (obj is Wall) {
                 return true;
             }
+            if (obj is Door) {
+                if ((obj as Door).Locked) {
+                    message = "This door is locked!";
+                    return false;
+                }
+                return true;
+            }
             attacked = true;
             message = "Attacked a " + (obj as Mob).Name + "!";
             return false;

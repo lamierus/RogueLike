@@ -109,7 +109,7 @@ namespace RogueLike {
             }
 
             ConnectRegions (ref floor);
-            RemoveDeadEnds (ref floor);
+            //RemoveDeadEnds (ref floor);
 
             //_rooms.forEach (onDecorateRoom);
         }
@@ -303,7 +303,7 @@ namespace RogueLike {
             // if (Rand.Next (3) == 0) {
             //     floor.AddItem (new Floor (pos));
             // } else {
-            floor.AddObject (new Door (pos));
+            floor.SetObject (new Door (pos));
             // }
         }
 
@@ -332,7 +332,7 @@ namespace RogueLike {
                         if (exits != 1) continue;
 
                         done = false;
-                        floor.AddObject (new Wall (pos));
+                        floor.SetObject (new Wall (pos));
                     }
                 }
             }
@@ -357,7 +357,7 @@ namespace RogueLike {
         }
 
         private void Carve (Object obj, ref FloorGrid floor) {
-            floor.AddObject (obj);
+            floor.SetObject (obj);
             Regions[obj.XY.X, obj.XY.Y] = CurrentRegion;
         }
 
