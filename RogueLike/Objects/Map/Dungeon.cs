@@ -8,14 +8,9 @@ namespace RogueLike {
     public class Dungeon {
         private Random Rand = new Random ();
         private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8,
-            MinRoomWidth, MinRoomHeight, NumRoomTries = 300, roomExtraSize = 4, WindingPercent = 0;
+            MinRoomWidth, MinRoomHeight, NumRoomTries = 1000, roomExtraSize = 4, WindingPercent = 0;
         private int CurrentRegion = -1;
         private int[, ] Regions;
-        // // private Dungeon Root { get; set; }
-        // public Dungeon LeftBranch { get; private set; }
-        // public Dungeon RightBranch { get; private set; }
-        // public Room Room { get; private set; }
-        // public List<Hallway> Halls { get; private set; } = new List<Hallway> ();
         public List<Room> Rooms { get; private set; } = new List<Room> ();
 
         // constructor with minimums built into it, so they can be provided, if you want
@@ -71,10 +66,6 @@ namespace RogueLike {
             Regions = new int[Width, Height];
         }
 
-        // public void SetRoot (Dungeon root) {
-        //     Root = root;
-        // }
-
         /// <summary>
         ///     provide a quick true or false to randomly pick vertical or horizontal
         /// </summary>
@@ -88,7 +79,6 @@ namespace RogueLike {
             // if (stage.width % 2 == 0 || stage.height % 2 == 0) {
             //     throw new ArgumentError ("The stage must be odd-sized.");
             // }
-            //Regions = new int[Width, Height];
             for (int x = 0; x < Width; x++) {
                 for (int y = 0; y < Height; y++) {
                     Regions[x, y] = CurrentRegion;
