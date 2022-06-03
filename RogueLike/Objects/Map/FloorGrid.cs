@@ -19,7 +19,7 @@ namespace RogueLike {
             Height = height - 1;
         }
 
-        public bool InBounds (Position pos) {
+        public bool IsInBounds (Position pos) {
             return pos.X >= 0 && pos.Y >= 0 && pos.X <= Width && pos.Y <= Height;
         }
 
@@ -28,11 +28,11 @@ namespace RogueLike {
                 Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Floor;
                 return true;
             }
-            if (objToAdd is Wall) {
+            else if (objToAdd is Wall) {
                 Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Wall;
                 return true;
             }
-            if (objToAdd is Door) {
+            else if (objToAdd is Door) {
                 Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Door;
                 return true;
             }
@@ -41,7 +41,11 @@ namespace RogueLike {
                     Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Player;
                     return true;
                 }
-                if (objToAdd is Item) {
+                else if (objToAdd is Monster) {
+                    Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Monster;
+                    return true;
+                }
+                else if (objToAdd is Item) {
                     Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Item;
                     return true;
                 }
@@ -54,7 +58,8 @@ namespace RogueLike {
         }
 
         private void RemoveObject (Object objToRemove) {
-            Grid[objToRemove.XY.X, objToRemove.XY.Y] = null;
+            var removable = new Position(objToRemove.XY.X, objToRemove.XY.Y);
+            Grid[removable.X, removable.Y] = new Floor(removable);
         }
 
         public void PickUpItem (Item itemPickedUp) {

@@ -27,6 +27,7 @@ namespace RogueLike {
         public Player You = new Player ();
         public Position PlayerLastPosition;
         public FloorGrid FloorPlan;
+        public Dungeon Dungeon = new Dungeon();
 
         private Position LogTopLeft = new Position (c_MaxWinWidth - c_SideBar + 1, 37);
         private Position LogBottomRight = new Position (c_MaxWinWidth - 2, 48);
@@ -55,28 +56,30 @@ namespace RogueLike {
         }
 
         /// <summary>
-        ///     was drawing the rectangle around the edge,  but just use it as a color pallete draw
+        ///     sets the dungeon floor plan to be the max level width and height provided by constants
         /// </summary>
         void DrawFloor () {
-            int LevelWidth = c_MaxWinWidth - c_SideBar;
+            int levelWidth = c_MaxWinWidth - c_SideBar;
             int levelHeight = c_MaxWinHeight;
             //creating the level grid
-            FloorPlan = new FloorGrid (LevelWidth, levelHeight);
+            FloorPlan = new FloorGrid (levelWidth, levelHeight);
             // Engine.Fill (new Point (0, 0), new Point (LevelWidth, levelHeight), 2, ConsoleCharacter.Full);
-
-            BuildRooms (LevelWidth, levelHeight);
+            //BuildRooms (LevelWidth, levelHeight);
+            DungeonFloor dungeonFloor = new DungeonFloor (levelWidth, levelHeight);
+            dungeonFloor.Generate (ref FloorPlan);
+            Dungeon.AddFloor(dungeonFloor);
         }
-
+        /*
         /// <summary>
         ///     the algorithm to use the Dungeon and build the level in a fairly random manner
+        ///     DEPRECATED - no longer needed
         /// </summary>
         void BuildRooms (int levelWidth, int levelHeight) {
 
             //list to hold each of the dungeon parts (or nodes/leaves)
             //List<Dungeon> dungeonParts = new List<Dungeon> ();
             //create the root dungeon, the size of the level grid
-            Dungeon dungeon = new Dungeon (levelWidth, levelHeight);
-            dungeon.Generate (ref FloorPlan);
+            
             //Dungeon dungeon = new Dungeon (levelWidth, levelHeight, 0, 0, 8, 4);
             //dungeonParts.Add (dungeon);
 
@@ -116,7 +119,7 @@ namespace RogueLike {
             // }
             // AddHalls (dungeon.Halls);
         }
-
+        */
         // /// <summary>
         // ///     draw the rooms created by the dungeon algorithm, adding the walls to the level grid, so they can be solid
         // /// </summary>
