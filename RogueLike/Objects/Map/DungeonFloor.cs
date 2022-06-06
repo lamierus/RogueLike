@@ -111,6 +111,7 @@ namespace RogueLike {
                     }
                 }
             }
+            Rooms.Sort();
         }
 
         /// <summary>
@@ -118,7 +119,10 @@ namespace RogueLike {
         /// </summary>
         /// <param name="floor"> referenced floor plan from the program</param>
         public void GenerateHalls (ref FloorGrid floor) {
-            
+            //we can assume the rooms are sorted from the top left, per the Rooms.Sort() function called during generation
+            foreach (Room R in Rooms){
+                
+            }
             /*message = null;
             for (int Current = 0; Current < Rooms.Count; Current++) {
                 for (int Next = 1; Next < Rooms.Count; Next++) {
@@ -150,6 +154,10 @@ namespace RogueLike {
                     }
                 }
             }*/
+        }
+
+        private void CheckRoomXParallels(){
+
         }
 
         void AddDoor (Position pos, ref FloorGrid floor) {
