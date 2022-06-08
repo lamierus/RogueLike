@@ -7,7 +7,7 @@ namespace RogueLike {
     public class Floor : Structure {
         public Floor (int x, int y) {
             Color = 4;
-            Character = ConsoleCharacter.Light;
+            SolidCharacter = ConsoleCharacter.Light;
             Immovable = true;
             FloorToCeiling = false;
             AboveOrBelow = false;
@@ -17,7 +17,7 @@ namespace RogueLike {
 
         public Floor (Position pos) {
             Color = 4;
-            Character = ConsoleCharacter.Light;
+            SolidCharacter = ConsoleCharacter.Light;
             Immovable = true;
             FloorToCeiling = false;
             AboveOrBelow = false;

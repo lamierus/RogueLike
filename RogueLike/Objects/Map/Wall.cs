@@ -5,7 +5,7 @@ namespace RogueLike {
 
         public Wall (int x, int y) {
             Color = 8;
-            Character = ConsoleCharacter.Full;
+            SolidCharacter = ConsoleCharacter.Full;
             Immovable = true;
             FloorToCeiling = true;
             XY.X = x;
@@ -13,7 +13,7 @@ namespace RogueLike {
         }
         public Wall (Position pos) {
             Color = 8;
-            Character = ConsoleCharacter.Full;
+            SolidCharacter = ConsoleCharacter.Full;
             Immovable = true;
             FloorToCeiling = true;
             XY = pos;

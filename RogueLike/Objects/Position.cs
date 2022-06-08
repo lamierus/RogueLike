@@ -50,14 +50,14 @@ namespace RogueLike {
             return ((lhs.X != rhs.X) || (lhs.Y != rhs.Y));
         }
         public static bool operator < (Position lhs, Position rhs) {
-
             return (lhs.X < rhs.X || lhs.Y < rhs.Y);
-        }
-        public static bool operator > (Position lhs, Position rhs) {
-            return (lhs.X > rhs.X || lhs.Y > rhs.Y);
         }
         public static bool operator <= (Position lhs, Position rhs) {
             return (lhs < rhs || lhs == rhs);
+        }
+        public static bool operator > (Position lhs, Position rhs) {
+            //return (lhs.X > rhs.X || lhs.Y > rhs.Y);
+            return (lhs.Y > rhs.Y || lhs.X > rhs.X);
         }
         public static bool operator >= (Position lhs, Position rhs) {
             return (lhs > rhs || lhs == rhs);

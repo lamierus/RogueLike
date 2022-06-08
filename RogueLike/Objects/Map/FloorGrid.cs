@@ -36,6 +36,10 @@ namespace RogueLike {
                 Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Door;
                 return true;
             }
+            else if (objToAdd is Rug) {
+                Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Rug;
+                return true;
+            }
             if (Grid[objToAdd.XY.X, objToAdd.XY.Y] is Floor) {
                 if (objToAdd is Player) {
                     Grid[objToAdd.XY.X, objToAdd.XY.Y] = objToAdd as Player;

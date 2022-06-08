@@ -13,11 +13,11 @@ namespace RogueLike {
             Locked = isLocked;
             Open = isOpen;
             if (Open) {
-                Character = ConsoleCharacter.Light;
+                SolidCharacter = ConsoleCharacter.Light;
                 FloorToCeiling = false;
                 Color = 4;
             } else {
-                Character = ConsoleCharacter.BoxDrawingL_H;
+                SolidCharacter = ConsoleCharacter.BoxDrawingL_H;
                 FloorToCeiling = true;
                 Color = 8;
             }

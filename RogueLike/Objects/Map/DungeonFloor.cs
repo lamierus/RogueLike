@@ -44,6 +44,7 @@ namespace RogueLike {
             }
 
             GenerateRooms (ref floor);
+            CarveRooms(ref floor);
             GenerateHalls (ref floor);
             /*// Fill in all of the empty space with mazes.
             for (int y = 0; y < Height; y += 2) {
@@ -100,18 +101,28 @@ namespace RogueLike {
                 }
 
                 Rooms.Add (room);
-
                 StartNewRegion ();
-                //CurrentRegion++;
-                foreach (var pos in room.Rectangle) {
-                    if (room.IsInRoom (pos)) {
-                        Carve (new Floor (pos), ref floor);
+            }
+            Rooms.Sort();
+        }
+
+        /// <summary>
+        ///     
+        /// </summary>
+        /// <param name="floor"> referenced floor plan from the program</param>
+        private void CarveRooms(ref FloorGrid floor){
+            foreach (Room r in Rooms){
+                foreach (Position pos in r.Rectangle) {
+                    if (r.IsInRoom (pos)) {
+                        if (isVertical()){
+                            Carve (new Floor (pos), ref floor);
+                        }
+                        else Carve (new Rug(pos, Rooms.IndexOf(r).ToString()), ref floor);
                     } else {
                         Carve (new Wall (pos), ref floor);
                     }
                 }
             }
-            Rooms.Sort();
         }
 
         /// <summary>

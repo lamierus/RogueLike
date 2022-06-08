@@ -105,23 +105,23 @@ namespace RogueLike {
             return this.Equals (obj as Room);
         }
 
-        public bool Equals (Room rhs) {
+        public bool Equals (Room toCompare) {
             // If parameter is null, return false.
-            if (Object.ReferenceEquals (rhs, null)) {
+            if (Object.ReferenceEquals (toCompare, null)) {
                 return false;
             }
             // Optimization for a common success case.
-            if (Object.ReferenceEquals (this, rhs)) {
+            if (Object.ReferenceEquals (this, toCompare)) {
                 return true;
             }
             // If run-time types are not exactly the same, return false.
-            if (this.GetType () != rhs.GetType ()) {
+            if (this.GetType () != toCompare.GetType ()) {
                 return false;
             }
             // Return true if the fields match.
             // Note that the base class is not invoked because it is
             // System.Object, which defines Equals as reference equality.
-            return (TopLeft == rhs.TopLeft) && (BottomRight == rhs.BottomRight);
+            return (TopLeft == toCompare.TopLeft) && (BottomRight == toCompare.BottomRight);
         }
 
         public int CompareTo (Room that) {

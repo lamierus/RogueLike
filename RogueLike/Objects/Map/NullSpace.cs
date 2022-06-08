@@ -4,7 +4,7 @@ namespace RogueLike {
     public class NullSpace : Structure {
         public NullSpace (int x, int y) {
             Color = 0;
-            Character = ConsoleCharacter.Null;
+            SolidCharacter = ConsoleCharacter.Null;
             Immovable = true;
             FloorToCeiling = true;
             XY.X = x;
@@ -12,7 +12,7 @@ namespace RogueLike {
         }
         public NullSpace (Position pos) {
             Color = 0;
-            Character = ConsoleCharacter.Null;
+            SolidCharacter = ConsoleCharacter.Null;
             Immovable = true;
             FloorToCeiling = true;
             XY = pos;

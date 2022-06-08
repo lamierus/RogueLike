@@ -27,7 +27,7 @@ namespace RogueLike {
             get { return GetMapObject ().Color; }
         }
         public ConsoleCharacter Character {
-            get { return GetMapObject ().Character; }
+            get { return GetMapObject ().SolidCharacter; }
         }
         public Floor GetMapObject (int x, int y) {
             return new Floor (x, y);
@@ -35,7 +35,7 @@ namespace RogueLike {
         private Floor GetMapObject () {
             return new Floor (0, 0);
         }
-        public bool CheckForAdjacentOrSame (List<Hallway> hallsToCheck) {
+        /*public bool CheckForAdjacentOrSame (List<Hallway> hallsToCheck) {
             foreach (Hallway H in hallsToCheck) {
                 if (IsAdjacentToOrSameAs (H)) {
                     return true;
@@ -54,6 +54,6 @@ namespace RogueLike {
                 }
             }
             return false;
-        }
+        }*/
     }
 }

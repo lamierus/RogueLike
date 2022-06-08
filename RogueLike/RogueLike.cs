@@ -79,7 +79,7 @@ namespace RogueLike {
             RandomizePixelPoint (ref itemPos);
             Gold item = new Gold (itemAmount, itemPos);
             FloorPlan.SetObject (item);
-            Engine.WriteText (item.XY.ToPoint (), item.Character.ToString (), item.Color);
+            Engine.WriteText (item.XY.ToPoint (), item.SolidCharacter.ToString (), item.Color);
 
         }
 
@@ -261,9 +261,26 @@ namespace RogueLike {
                 for (int y = 0; y <= FloorPlan.Height; y++) {
                     Position pt = new Position (x, y);
                     Object obj = FloorPlan.GetObject (pt);
-                    Engine.SetPixel (pt.ToPoint (), obj.Color, obj.Character);
-                    if (obj is Mob || obj is Item) {
+                    Engine.SetPixel (pt.ToPoint (), obj.Color, obj.SolidCharacter);
+                    if (obj is Mob || obj is Item || obj is Rug) {
+                        /*if (obj.Width > 1){
+                            Point drawingPoint = pt.ToPoint();
+                            for (int objX = 0; objX < obj.Width; objX++){
+                                Engine.WriteText (drawingPoint, obj.ObjectText[x], obj.Color);
+                                drawingPoint.X++;
+                            }
+                            if (obj.Length > 1){
+                                drawingPoint = pt.ToPoint();
+                                drawingPoint.Y++;  // automatically jump to line 2, as the first was already rendered
+                                for (int objY = 1; objY < obj.Length; objY++){
+                                    Engine.WriteText (drawingPoint, obj.ObjectText[x], obj.Color);
+                                    drawingPoint.Y++;
+                                }
+                            }
+                        }
+                        else */
                         Engine.WriteText (pt.ToPoint (), obj.TextCharacter, obj.Color);
+                        
                     }
                 }
             }

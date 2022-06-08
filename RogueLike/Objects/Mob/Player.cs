@@ -55,6 +55,9 @@ namespace RogueLike {
                 }
                 return true;
             }
+            if (obj is Rug) {
+                return true;
+            }
             attacked = true;
             message = "Attacked a " + (obj as Mob).Name + "!";
             return false;
