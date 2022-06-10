@@ -1,10 +1,10 @@
-/*using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace RogueLike {
     public enum Directions {
         North,
-        South,
         East,
+        South,
         West
     }
     public class Direction {
@@ -14,4 +14,4 @@ namespace RogueLike {
         public static Position West = new Position (0, -1);
         public static List<Position> Cardinals = new List<Position> { North, South, East, West };
     }
-}*/
+}

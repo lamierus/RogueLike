@@ -132,44 +132,27 @@ namespace RogueLike {
         /// </summary>
         /// <param name="floor"> referenced floor plan from the program</param>
         public void GenerateHalls (ref FloorGrid floor) {
-            //we can assume the rooms are sorted from the top left, per the Rooms.Sort() function called during generation
             foreach (Room R in Rooms){
+                for (int dir = 0; dir > 4; dir++){
+                    List<Position> Wall = R.GetRoomWall(dir);
+                    int index = Rand.Next(0, Wall.Count);
+                    Position start = Wall[index];
+                    Hallway newHall;
+                    Direction directTheProbe; // TODO - add directionals
+                    if (SendProbe(start, dir, ref floor, out newHall)){
+                        
+                    }
+                }
             }
-            /*message = null;
-            for (int Current = 0; Current < Rooms.Count; Current++) {
-                for (int Next = 1; Next < Rooms.Count; Next++) {
-                    if (Rooms[Current] != Rooms[Next] &&
-                        !((Rooms[Current].ConnectedRooms.Contains (Rooms[Next])) ||
-                            (Rooms[Next].ConnectedRooms.Contains (Rooms[Current])))) {
-                        if (Rooms[Current].CheckXParallel (Rooms[Next])) {
-                            Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
-
-                        }
-                        if (Rooms[Current].CheckYParallel (Rooms[Next])) {
-                            Rooms[Current].ConnectedRooms.Add (Rooms[Next]);
-
-                        }
-                    }
-                }
-                List<Room> parallelRooms = Rooms[Current].ConnectedRooms
-                    .FindAll (R => Rooms[Current].HallsIntersect (R)).ToList ();
-                for (int i = 0; i < parallelRooms.Count; i++) {
-                    Hallway hallToAdd = null;
-                    // hallToAdd = BuildStraightHallway (Rooms[Current], Rooms[Current].ConnectedRooms.IndexOf (parallelRooms[i]));
-                    if (hallToAdd == null) {
-                        List<Hallway> hallsToAdd = ProbeForRoom (Rooms[Current], ref floor, out message);
-                        foreach (Hallway H in hallsToAdd) {
-                            Root.Halls.Add (H);
-                        }
-                    } else {
-                        Root.Halls.Add (hallToAdd);
-                    }
-                }
-            }*/
         }
 
-        private void CheckRoomXParallels(){
+        private bool SendProbe(Position start, int direction, ref FloorGrid floor, out Hallway newHall){
+            Position probe = start;
+            while (floor.IsInBounds(probe)){
 
+            }
+            newHall = new Hallway(start, new Position(start + direction));
+            return true;
         }
 
         void AddDoor (Position pos, ref FloorGrid floor) {
@@ -203,59 +186,6 @@ namespace RogueLike {
             Regions[obj.XY.X, obj.XY.Y] = CurrentRegion;
         }
         
-        /*/// Implementation of the "growing tree" algorithm from here:
-        /// http://www.astrolog.org/labyrnth/algrithm.htm.
-        private void GrowMaze (Position start, ref FloorGrid floor) {
-            List<Position> cells = new List<Position> ();
-            //Stack<Position> them = new Stack<Position> ();
-            Position lastDir = start;
-
-            StartNewRegion ();
-            //CurrentRegion++;
-            Carve (new Floor (start), ref floor);
-
-            cells.Add (start);
-            while (cells.Count > 0) {
-                var cell = cells.Last ();
-
-                // See which adjacent cells are open.
-                var unmadeCells = new List<Position> ();
-
-                foreach (var dir in Direction.Cardinals) {
-                    if (CanCarve (cell, dir, ref floor)) {
-                        unmadeCells.Add (dir);
-                    }
-                }
-
-                if (unmadeCells.Count > 0) {
-                    // Based on how "windy" passages are, try to prefer carving in the same direction.
-                    Position dir;
-                    if (unmadeCells.Contains (lastDir) && Rand.Next (100) > WindingPercent) {
-                        dir = lastDir;
-                    } else {
-                        dir = unmadeCells[Rand.Next (unmadeCells.Count - 1)];
-                    }
-
-                    Carve (new Floor (cell + dir), ref floor);
-                    unmadeCells.Remove (dir);
-                    foreach (var pos in unmadeCells) {
-                        Carve (new Wall (cell + pos), ref floor);
-                    }
-                    //Carve (new Floor (cell + dir * 2), ref floor);
-
-                    //cells.Add (cell + dir * 2);
-                    cells.Add (cell + dir);
-                    lastDir = dir;
-                } else {
-                    // No adjacent uncarved cells.
-                    cells.RemoveAt (cells.Count - 1);
-
-                    // This path has ended.
-                    lastDir = Position.Zero;
-                }
-            }
-        }*/
-
         /*void ConnectRegions (ref FloorGrid floor) {
             //Find all of the tiles that can connect two (or more) regions.
             Dictionary<Position, HashSet<int>> connectorRegions = new Dictionary<Position, HashSet<int>> ();
@@ -339,37 +269,6 @@ namespace RogueLike {
 
                     return true;
                 });
-            }
-        }*/
-
-        /*void RemoveDeadEnds (ref FloorGrid floor) {
-            var done = false;
-
-            while (!done) {
-                done = true;
-
-                for (int x = 0; x < floor.Width; x++) {
-                    for (int y = 0; y < floor.Height; y++) {
-                        Position pos = new Position (x, y);
-                        //foreach (var pos in bounds.inflate (-1))
-                        if (floor.GetObject (pos) is Wall) continue;
-
-                        // If it only has one exit, it's a dead end.
-                        var exits = 0;
-                        foreach (var dir in Direction.Cardinals) {
-                            if (floor.IsInBounds (pos + dir)) {
-                                if (floor.GetObject (pos + dir) is Floor) {
-                                    exits++;
-                                }
-                            }
-                        }
-
-                        if (exits != 1) continue;
-
-                        done = false;
-                        floor.SetObject (new Wall (pos));
-                    }
-                }
             }
         }*/
     }

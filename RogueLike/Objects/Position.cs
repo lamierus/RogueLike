@@ -40,8 +40,14 @@ namespace RogueLike {
         public static Position operator + (Position lhs, int rhs) {
             return new Position (lhs.X + rhs, lhs.Y + rhs);
         }
+        public static Position operator ++ (Position lhs) {
+            return new Position (lhs.X + 1, lhs.Y + 1);
+        }
         public static Position operator - (Position lhs, int rhs) {
             return new Position (lhs.X - rhs, lhs.Y - rhs);
+        }
+        public static Position operator -- (Position lhs) {
+            return new Position (lhs.X - 1, lhs.Y - 1);
         }
         public static bool operator == (Position lhs, Position rhs) {
             return ((lhs.X == rhs.X) && (lhs.Y == rhs.Y));
