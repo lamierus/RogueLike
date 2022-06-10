@@ -57,13 +57,33 @@ namespace RogueLike {
                 }
             }
         }
+
+        public List<Position> GetRoomWall (int direction){
+            List<Position> Wall = new List<Position>();
+            switch (direction){
+                case 0: // North
+                    Wall = Rectangle.FindAll(point => point.IsInLineX(TopLeft));
+                    break;
+                case 1: // East
+                    Wall = Rectangle.FindAll(point => point.IsInLineX(BottomRight));
+                    break;
+                case 2: // South
+                    Wall = Rectangle.FindAll(point => point.IsInLineX(BottomRight));
+                    break;
+                case 3: // West
+                    Wall = Rectangle.FindAll(point => point.IsInLineY(TopLeft));
+                    break;
+            }
+            return Wall;
+        }
         
         public bool IsInBounds (Position pos) {
             return (Rectangle.Contains (pos) || Rectangle.Contains (pos));
         }
 
         public bool IsInRoom (Position pos) {
-            return (IsInBounds (pos) && !(TopLeft.IsInLine (pos) || BottomRight.IsInLine (pos)));
+            return (IsInBounds (pos) && !(TopLeft.IsInLineX (pos) || TopLeft.IsInLineY (pos) ||
+                                            BottomRight.IsInLineX (pos) || BottomRight.IsInLineY (pos)));
         }
 
         public bool IsIntersectedBy (Room other) {

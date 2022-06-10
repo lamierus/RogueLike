@@ -46,6 +46,8 @@ namespace RogueLike {
             GenerateRooms (ref floor);
             CarveRooms(ref floor);
             GenerateHalls (ref floor);
+            //CarveHalls(ref floor);
+
             /*// Fill in all of the empty space with mazes.
             for (int y = 0; y < Height; y += 2) {
                 for (int x = 0; x < Width; x += 2) {
@@ -132,7 +134,6 @@ namespace RogueLike {
         public void GenerateHalls (ref FloorGrid floor) {
             //we can assume the rooms are sorted from the top left, per the Rooms.Sort() function called during generation
             foreach (Room R in Rooms){
-                
             }
             /*message = null;
             for (int Current = 0; Current < Rooms.Count; Current++) {

@@ -119,8 +119,12 @@ namespace RogueLike {
             Y = (Y < min.Y) ? min.Y : Y;
         }
 
-        public bool IsInLine (Position other) {
-            return (X == other.X || Y == other.Y);
+        public bool IsInLineX (Position other) {
+            return (X == other.X);
+        }
+
+        public bool IsInLineY (Position other) {
+            return (Y == other.Y);
         }
 
         public bool IsAdjacentOrSame (Position other) {
