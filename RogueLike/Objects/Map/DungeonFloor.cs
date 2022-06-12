@@ -133,23 +133,27 @@ namespace RogueLike {
         /// <param name="floor"> referenced floor plan from the program</param>
         public void GenerateHalls (ref FloorGrid floor) {
             foreach (Room R in Rooms){
-                for (int dir = 0; dir > 4; dir++){
+                for (int dir = 0; dir < 4; dir++){
                     List<Position> Wall = R.GetRoomWall(dir);
                     int index = Rand.Next(0, Wall.Count);
                     Position start = Wall[index];
                     Hallway newHall;
-                    Direction directTheProbe; // TODO - add directionals
-                    if (SendProbe(start, dir, ref floor, out newHall)){
+                    if (SendProbe(start, Direction.whichDirection(dir), ref floor, out newHall)){
                         
                     }
                 }
+                /*if (R != Rooms.Last()){
+                    
+                } else{
+
+                }*/
             }
         }
 
-        private bool SendProbe(Position start, int direction, ref FloorGrid floor, out Hallway newHall){
-            Position probe = start;
+        private bool SendProbe(Position start, Position direction, ref FloorGrid floor, out Hallway newHall){
+            Position probe = start + direction;
             while (floor.IsInBounds(probe)){
-
+                
             }
             newHall = new Hallway(start, new Position(start + direction));
             return true;

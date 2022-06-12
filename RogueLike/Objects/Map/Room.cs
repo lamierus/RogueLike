@@ -94,6 +94,11 @@ namespace RogueLike {
             return hallToCheck.Hall.Exists (pt => IsInBounds (pt));
         }
 
+        public Position Center(){
+            Position center = new Position(TopLeft.X + (Width/2), TopLeft.Y + (Height/2));
+            return center;
+        }
+
         public static bool operator < (Room lhs, Room rhs) {
             return (lhs.TopLeft < rhs.TopLeft);
         }
