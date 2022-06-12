@@ -12,6 +12,7 @@ namespace RogueLike {
         private int CurrentRegion = -1;
         private int[, ] Regions;
         public List<Room> Rooms { get; private set; } = new List<Room> ();
+        public List<Hallway> Halls { get; private set; } = new List<Hallway>();
 
         public DungeonFloor (int fullWidth, int fullHeight) {
             Width = fullWidth;
@@ -46,8 +47,7 @@ namespace RogueLike {
             GenerateRooms (ref floor);
             CarveRooms(ref floor);
             GenerateHalls (ref floor);
-            //CarveHalls(ref floor);
-
+            CarveHalls(ref floor);
             /*// Fill in all of the empty space with mazes.
             for (int y = 0; y < Height; y += 2) {
                 for (int x = 0; x < Width; x += 2) {
@@ -132,53 +132,50 @@ namespace RogueLike {
         /// </summary>
         /// <param name="floor"> referenced floor plan from the program</param>
         public void GenerateHalls (ref FloorGrid floor) {
+            //go through each room and probe out from each direction to attempt to find hallways in straight lines
             foreach (Room R in Rooms){
                 for (int dir = 0; dir < 4; dir++){
                     List<Position> Wall = R.GetRoomWall(dir);
-                    int index = Rand.Next(0, Wall.Count);
+                    int index = Rand.Next(1, Wall.Count - 1);
                     Position start = Wall[index];
                     Hallway newHall;
                     if (SendProbe(start, Direction.whichDirection(dir), ref floor, out newHall)){
-                        
+                        R.Doors.Add(start);
+                        Halls.Add(newHall);
                     }
                 }
-                /*if (R != Rooms.Last()){
-                    
-                } else{
-
-                }*/
             }
         }
 
         private bool SendProbe(Position start, Position direction, ref FloorGrid floor, out Hallway newHall){
             Position probe = start + direction;
+            newHall = new Hallway(start, probe);
             while (floor.IsInBounds(probe)){
-                
+                Object obj = floor.GetObject(probe);
+                if (obj is Wall){
+                    newHall = new Hallway(start, probe);
+                    return true;
+                }
+                probe += direction;
             }
-            newHall = new Hallway(start, new Position(start + direction));
-            return true;
+            return false;
         }
 
-        void AddDoor (Position pos, ref FloorGrid floor) {
-            // if (Rand.Next (3) == 0) {
-            //     floor.AddItem (new Floor (pos));
-            // } else {
-            floor.SetObject (new Door (pos));
-            // }
-        }
-
-        /// Gets whether or not an opening can be carved from the given starting
-        /// [Cell] at [pos] to the adjacent Cell facing [direction]. Returns `true`
-        /// if the starting Cell is in bounds and the destination Cell is filled
-        /// (or out of bounds).
-        bool CanCarve (Position pos, Position direction, ref FloorGrid floor) {
-            // Must end in bounds.
-            if (!floor.IsInBounds (pos + direction)) {
-                return false;
+        private void CarveHalls(ref FloorGrid floor){
+            foreach (Hallway H in Halls){
+                foreach (Floor F in H.Hall) {
+                    if (F.XY == H.Start || F.XY == H.End){
+                        Carve(new Door(F.XY), ref floor);
+                    } else {
+                        Carve (F, ref floor);
+                    }
+                }
+                foreach (Wall W in H.Walls){
+                    if (floor.IsInBounds(W.XY)){
+                        Carve(W, ref floor);
+                    }
+                }
             }
-
-            // Destination must not be open.
-            return floor.GetObject (pos + direction) is NullSpace;
         }
 
         private void StartNewRegion () {

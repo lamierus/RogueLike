@@ -10,5 +10,15 @@ namespace RogueLike {
         public static Position whichDirection(int direction){
             return Cardinals[direction];
         }
+
+        public static Position whichDirection(Position lhs, Position rhs){
+            
+            int X = lhs.X - rhs.X;
+            int Y = lhs.Y - rhs.Y;
+            if (X == 0){
+                return (Y > 0) ? North : South;
+            }
+            return (X < 0) ? East : West;
+        }
     }
 }

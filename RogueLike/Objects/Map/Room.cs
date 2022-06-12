@@ -5,8 +5,6 @@ using ConsoleGameEngine;
 
 namespace RogueLike {
     public class Room : IComparable<Room> {
-        // public List<List<Hallway>> Parallels { get; private set; }
-        // public List<Room> ConnectedRooms { get; set; } = new List<Room> ();
         public List<Position> Rectangle { get; private set; } = new List<Position> ();
         public Position TopLeft { get; private set; }
         public Position BottomRight { get; private set; }
@@ -24,6 +22,7 @@ namespace RogueLike {
         public Floor GetMapObject (int x, int y) {
             return new Floor (x, y);
         }
+        public List<Position> Doors { get; set; } = new List<Position>();
 
         public Room (int width, int height, int x, int y) {
             TopLeft = new Position (x, y);
@@ -65,7 +64,7 @@ namespace RogueLike {
                     Wall = Rectangle.FindAll(point => point.IsInLineX(TopLeft));
                     break;
                 case 1: // East
-                    Wall = Rectangle.FindAll(point => point.IsInLineX(BottomRight));
+                    Wall = Rectangle.FindAll(point => point.IsInLineY(BottomRight));
                     break;
                 case 2: // South
                     Wall = Rectangle.FindAll(point => point.IsInLineX(BottomRight));
@@ -88,10 +87,6 @@ namespace RogueLike {
 
         public bool IsIntersectedBy (Room other) {
             return other.Rectangle.Exists (pt => IsInBounds (pt));
-        }
-
-        private bool IsIntersectedBy (Hallway hallToCheck) {
-            return hallToCheck.Hall.Exists (pt => IsInBounds (pt));
         }
 
         public Position Center(){
