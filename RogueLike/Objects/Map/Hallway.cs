@@ -5,14 +5,18 @@ using ConsoleGameEngine;
 
 namespace RogueLike {
     public class Hallway {
-        public List<Floor> Hall {get; private set;} = new List<Floor>();
+        public List<Floor> Hall { get; private set; }
         public Position Start {
             get{ return Hall[0].XY; }
         }
         public Position End {
             get { return Hall[Hall.Count-1].XY; }
         }
+        public Hallway (){
+
+        }
         public Hallway (Position start, Position end) {
+            Hall = new List<Floor>();
             for (int i = 0; i <= (int) Position.Distance (start, end); i++) {
                 if (start.IsInLineX(end)) {
                     if (start.Y < end.Y) {

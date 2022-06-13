@@ -1,4 +1,5 @@
 ﻿using ConsoleGameEngine;
+using System.Collections.Generic;
 
 namespace RogueLike {
     public class Wall : Structure {
@@ -17,6 +18,12 @@ namespace RogueLike {
             Immovable = true;
             FloorToCeiling = true;
             XY = pos;
+        }
+
+        public bool isCorner (ref FloorGrid floor){
+            List<Object> adjacents = floor.GetAdjacent(this);
+            return (adjacents[0] == adjacents[1] ||
+                    adjacents[2] == adjacents[3]) ? true : false;
         }
     }
 }

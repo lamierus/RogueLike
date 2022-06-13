@@ -61,6 +61,26 @@ namespace RogueLike {
             return Grid[pos.X, pos.Y];
         }
 
+        public Object GetObject (Object obj) {
+            return Grid[obj.XY.X, obj.XY.Y];
+        }
+
+        public List<Object> GetAdjacent(Position pos){
+            List<Object> adjacents = new List<Object>();
+            foreach (Position dir in Direction.Cardinals){
+                adjacents.Add(GetObject(pos + dir));
+            }
+            return adjacents;
+        }
+
+        public List<Object> GetAdjacent(Object obj){
+            List<Object> adjacents = new List<Object>();
+            foreach (Position dir in Direction.Cardinals){
+                adjacents.Add(GetObject(obj.XY + dir));
+            }
+            return adjacents;
+        }
+
         private void RemoveObject (Object objToRemove) {
             var removable = new Position(objToRemove.XY.X, objToRemove.XY.Y);
             Grid[removable.X, removable.Y] = new Floor(removable);
