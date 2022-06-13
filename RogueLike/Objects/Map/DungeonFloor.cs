@@ -170,11 +170,6 @@ namespace RogueLike {
                         Carve (F, ref floor);
                     }
                 }
-                foreach (Wall W in H.Walls){
-                    if (floor.IsInBounds(W.XY)){
-                        Carve(W, ref floor);
-                    }
-                }
             }
         }
 
@@ -186,91 +181,5 @@ namespace RogueLike {
             floor.SetObject (obj);
             Regions[obj.XY.X, obj.XY.Y] = CurrentRegion;
         }
-        
-        /*void ConnectRegions (ref FloorGrid floor) {
-            //Find all of the tiles that can connect two (or more) regions.
-            Dictionary<Position, HashSet<int>> connectorRegions = new Dictionary<Position, HashSet<int>> ();
-            //var connectorRegions = <Vec, Set<int>> { };
-            for (int x = 0; x < Width; x++) {
-                for (int y = 0; y < Height; y++) {
-                    Position pos = new Position (x, y);
-                    //Can't already be part of a region.
-                    if (!(floor.GetObject (pos) is Wall)) {
-                        continue;
-                    }
-
-                    var regions = new HashSet<int> ();
-                    foreach (var dir in Direction.Cardinals) {
-                        if (floor.IsInBounds (pos + dir)) {
-                            var eachDirection = new Position (pos + dir);
-                            var region = Regions[eachDirection.X, eachDirection.Y];
-                            if (region != -1) {
-                                regions.Add (region);
-                            }
-                        }
-                    }
-
-                    if (regions.Count < 2) {
-                        continue;
-                    }
-                    connectorRegions.Add (pos, regions);
-                    // connectorRegions[pos] = regions;
-                }
-            }
-
-            var connectors = connectorRegions.Keys.ToList ();
-
-            // Keep track of which regions have been merged. This maps an original
-            // region index to the one it has been merged to.
-            var merged = new List<int> ();
-            var openRegions = new HashSet<int> ();
-            for (int i = 0; i <= CurrentRegion; i++) {
-                merged.Add (i);
-                openRegions.Add (i);
-            }
-
-            //Keep connecting regions until we're down to one.
-            while (openRegions.Count > 1) {
-                var connector = connectors[Rand.Next (connectors.Count - 1)];
-
-                // Carve the connection.
-                AddJunction (connector, ref floor);
-
-                // Merge the connected regions. We'll pick one region (arbitrarily) and
-                // map all of the other regions to its index.
-                var regions = connectorRegions[connector].Select (region => merged[region]);
-                var dest = regions.First ();
-                var sources = regions.Skip (1).ToList ();
-
-                // Merge all of the affected regions. We have to look at *all* of the
-                // regions because other regions may have previously been merged with
-                // some of the ones we're merging now.
-                for (var i = 0; i <= CurrentRegion; i++) {
-                    if (sources.Contains (merged[i])) {
-                        merged[i] = dest;
-                    }
-                }
-
-                // The sources are no longer in use.
-                openRegions.RemoveWhere (i => sources.Contains (i));
-
-                // Remove any connectors that aren't needed anymore.
-                connectors.RemoveAll (pos => {
-                    // Don't allow connectors right next to each other.
-                    if (Position.Distance (connector, pos) < 2) return true;
-
-                    // If the connector no longer spans different regions, we don't need it.
-                    regions = connectorRegions[pos].Select ((region) => merged[region]);
-
-                    if (regions.Count () > 1) return false;
-
-                    // // This connecter isn't needed, but connect it occasionally so that the
-                    // // dungeon isn't singly-connected.
-                    // if (rng.oneIn (extraConnectorChance)) AddJunction (pos);
-
-                    return true;
-                });
-            }
-        }*/
     }
 }

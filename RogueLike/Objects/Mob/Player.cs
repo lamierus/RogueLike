@@ -45,7 +45,7 @@ namespace RogueLike {
             if (obj is Item) {
                 return PickUpItem (obj as Item, out message);
             }
-            if (obj is Wall) {
+            if (obj is Wall || obj is NullSpace) {
                 return true;
             }
             if (obj is Door) {
