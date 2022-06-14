@@ -65,7 +65,7 @@ namespace RogueLike {
             return Grid[obj.XY.X, obj.XY.Y];
         }
 
-        public List<Object> GetAdjacent(Position pos){
+        public List<Object> GetAdjacentObjects(Position pos){
             List<Object> adjacents = new List<Object>();
             foreach (Position dir in Direction.Cardinals){
                 adjacents.Add(GetObject(pos + dir));
@@ -73,7 +73,7 @@ namespace RogueLike {
             return adjacents;
         }
 
-        public List<Object> GetAdjacent(Object obj){
+        public List<Object> GetAdjacentObjects(Object obj){
             List<Object> adjacents = new List<Object>();
             foreach (Position dir in Direction.Cardinals){
                 adjacents.Add(GetObject(obj.XY + dir));
@@ -91,18 +91,7 @@ namespace RogueLike {
         }
 
         public void MoveObject (Object objToMove, Position newXY) {
-            // if (objToMove is Player) {
-            //     var oldXY = new Position (objToMove.XY);
-            //     var objOnSPace = GetObject (newXY);
-            //     if (objOnSPace is Floor) {
-            //         Grid[oldXY.X, oldXY.Y] = new Floor (oldXY.X, oldXY.Y);
-            //     } else if (objOnSPace is Door) {
-            //         if (!(objOnSPace as Door).Locked) {
-            //             Grid[oldXY.X, oldXY.Y] = new Door (oldXY, false, true);
-            //         }
-            //     }
-            //     Grid[newXY.X, newXY.Y] = objToMove as Player;
-            // }
+            
         }
     }
 }

@@ -7,7 +7,7 @@ namespace RogueLike {
     public class Player : Mob {
         private Backpack Inventory;
         public int GoldAmt = 0;
-
+        public Object underFoot;
         public Player () {
             Inventory = new Backpack (8);
             ID = 0;

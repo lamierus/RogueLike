@@ -1,6 +1,12 @@
 using System.Collections.Generic;
 
 namespace RogueLike {
+    public enum Directions{
+        North,
+        East,
+        South,
+        West
+    }
     public struct Direction {
         public static Position North = new Position (-1, 0);
         public static Position East = new Position (0, 1);
@@ -12,7 +18,6 @@ namespace RogueLike {
         }
 
         public static Position whichDirection(Position lhs, Position rhs){
-            
             int X = lhs.X - rhs.X;
             int Y = lhs.Y - rhs.Y;
             if (X == 0){

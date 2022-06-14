@@ -7,8 +7,7 @@ using ConsoleGameEngine;
 namespace RogueLike {
     public class DungeonFloor {
         private Random Rand = new Random ();
-        private readonly int Width, Height, X = 0, Y = 0, MinWidth = 16, MinHeight = 8,
-            MinRoomWidth, MinRoomHeight, NumRoomTries = 50, roomExtraSize = 4, WindingPercent = 0;
+        private readonly int Width, Height, MinRoomWidth = 10, MinRoomHeight = 10, NumRoomTries = 100, roomExtraSize = 4;
         private int CurrentRegion = -1;
         private int[, ] Regions;
         public List<(Room room, int region)> Rooms { get; private set; } = new List<ValueTuple<Room, int>> ();
@@ -17,8 +16,6 @@ namespace RogueLike {
         public DungeonFloor (int fullWidth, int fullHeight) {
             Width = fullWidth;
             Height = fullHeight;
-            MinRoomWidth = MinWidth;
-            MinRoomHeight = MinHeight;
             Regions = new int[Width, Height];
         }
 
@@ -72,7 +69,7 @@ namespace RogueLike {
                 //Check to see if this new room overlaps any previous rooms added
                 var overlaps = false;
                 foreach (var other in Rooms) {
-                    if (other.Item1.IsIntersectedBy (newRoom)) {
+                    if (other.room.IsIntersectedBy (newRoom)) {
                         overlaps = true;
                         break;
                     }
@@ -96,7 +93,9 @@ namespace RogueLike {
         public void GenerateHalls (ref FloorGrid floor) {
             //go through each room and probe out from each direction to attempt to find hallways in straight lines
             foreach (var tR in Rooms){
-                for (int dir = 0; dir < 4; dir++){
+                int dir = 0;
+                int retry = roomExtraSize;
+                while (dir < 4 && retry > 0){
                     List<Position> Wall = tR.room.GetRoomWall(dir);
                     int index = Rand.Next(1, Wall.Count - 1);  // shouldn't start at a corner
                     Position start = Wall[index];
@@ -104,14 +103,14 @@ namespace RogueLike {
                     if (SendProbe(start, Direction.whichDirection(dir), ref floor, out newHall)){
                         //we can assume the object at the end of the newHall is a wall, at this point
                         //so, we check if it is a corner and decrement the count to try again
-                        if (!(floor.GetObject(newHall.End) as Wall).isCorner(ref floor)){// ||
-                            //!(floor.GetObject(newHall.Start) as Wall).isCorner(ref floor)){
+                        if (!(floor.GetObject(newHall.End) as Wall).isCorner(ref floor)){
                             tR.room.Doors.Add(start);
                             Halls.Add((newHall,tR.region));
-                        } else{
-                            dir--;
+                            dir++;
+                            retry = roomExtraSize;
                         }
                     }
+                    retry--;
                 }
             }
         }
@@ -144,11 +143,11 @@ namespace RogueLike {
                 foreach (Position pos in tR.room.Rectangle) {
                     if (tR.Item1.IsInRoom (pos)) {
                         if (isVertical()){
-                            Carve (new Floor (pos), ref floor);
+                            Carve (new Floor (pos), tR.region, ref floor);
                         }
-                        else Carve (new Rug(pos, tR.region.ToString()), ref floor);
+                        else Carve (new Rug(pos, tR.region.ToString()), tR.region, ref floor);
                     } else {
-                        Carve (new Wall (pos), ref floor);
+                        Carve (new Wall (pos), tR.region, ref floor);
                     }
                 }
             }
@@ -158,21 +157,18 @@ namespace RogueLike {
             foreach (var H in Halls){
                 foreach (Floor F in H.hall.Hall) {
                     if (F.XY == H.hall.Start || F.XY == H.hall.End){
-                        Carve(new Door(F.XY), ref floor);
+                        Carve(new Door(F.XY), H.region, ref floor);
                     } else {
                         //Carve (F, ref floor);
-                        if (isVertical()){
-                            Carve (F, ref floor);
-                        }
-                        else Carve (new Rug(F.XY, H.region.ToString()), ref floor);
+                        Carve (new Rug(F.XY, H.region.ToString()), H.region, ref floor);
                     }
                 }
             }
         }
 
-        private void Carve (Object obj, ref FloorGrid floor) {
+        private void Carve (Object obj, int region, ref FloorGrid floor) {
             floor.SetObject (obj);
-            Regions[obj.XY.X, obj.XY.Y] = CurrentRegion;
+            Regions[obj.XY.X, obj.XY.Y] = region;
         }
     }
 }

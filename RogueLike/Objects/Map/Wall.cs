@@ -21,9 +21,11 @@ namespace RogueLike {
         }
 
         public bool isCorner (ref FloorGrid floor){
-            List<Object> adjacents = floor.GetAdjacent(this);
-            return (adjacents[0] == adjacents[1] ||
-                    adjacents[2] == adjacents[3]) ? true : false;
+            List<Object> adjacents = floor.GetAdjacentObjects(this);
+            if (adjacents[(int)Directions.North].GetType() == adjacents[(int)Directions.South].GetType() ||
+                adjacents[(int)Directions.East].GetType() == adjacents[(int)Directions.West].GetType())
+                return false;
+            return true;
         }
     }
 }
