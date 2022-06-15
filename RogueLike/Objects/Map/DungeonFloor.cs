@@ -39,9 +39,9 @@ namespace RogueLike {
             }
 
             GenerateRooms (ref floor);
-            CarveRooms(ref floor);
+            //CarveRooms(ref floor);
             GenerateHalls (ref floor);
-            CarveHalls(ref floor);
+            //CarveHalls(ref floor);
         }
 
         private void GenerateRooms (ref FloorGrid floor) {
@@ -141,7 +141,7 @@ namespace RogueLike {
         private void CarveRooms(ref FloorGrid floor){
             foreach (var tR in Rooms){
                 foreach (Position pos in tR.room.Rectangle) {
-                    if (tR.Item1.IsInRoom (pos)) {
+                    if (tR.room.IsInRoom (pos)) {
                         if (isVertical()){
                             Carve (new Floor (pos), tR.region, ref floor);
                         }
@@ -154,6 +154,36 @@ namespace RogueLike {
         }
 
         private void CarveHalls(ref FloorGrid floor){
+            foreach (var H in Halls){
+                foreach (Floor F in H.hall.Hall) {
+                    if (F.XY == H.hall.Start || F.XY == H.hall.End){
+                        Carve(new Door(F.XY), H.region, ref floor);
+                    } else {
+                        //Carve (F, ref floor);
+                        Carve (new Rug(F.XY, H.region.ToString()), H.region, ref floor);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     
+        /// </summary>
+        /// <param name="floor"> referenced floor plan from the program</param>
+        private void CarveLevel(ref FloorGrid floor){
+            foreach (var tR in Rooms){
+                foreach (Position pos in tR.room.Rectangle) {
+                    if (tR.room.IsInRoom (pos)) {
+                        if (isVertical()){
+                            Carve (new Floor (pos), tR.region, ref floor);
+                        }
+                        else Carve (new Rug(pos, tR.region.ToString()), tR.region, ref floor);
+                    } else {
+                        Carve (new Wall (pos), tR.region, ref floor);
+                    }
+                }
+            }
+
             foreach (var H in Halls){
                 foreach (Floor F in H.hall.Hall) {
                     if (F.XY == H.hall.Start || F.XY == H.hall.End){
