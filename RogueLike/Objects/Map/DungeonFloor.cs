@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Xml.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,10 +40,10 @@ namespace RogueLike {
             }
 
             GenerateRooms (ref floor);
-            CarveRooms(ref floor);
+            //CarveRooms(ref floor);
             GenerateHalls (ref floor);
-            CarveHalls(ref floor);
-            ConnectRegions(ref floor);
+            //CarveHalls(ref floor);
+            //ConnectRegions(ref floor);
         }
 
         private void GenerateRooms (ref FloorGrid floor) {
@@ -82,6 +83,16 @@ namespace RogueLike {
 
                 StartNewRegion ();
                 Rooms.Add((newRoom, CurrentRegion));
+                foreach (Position pos in newRoom.Rectangle) {
+                    if (newRoom.IsInRoom (pos)) {
+                        if (isVertical()){
+                            Carve (new Floor (pos), CurrentRegion, ref floor);
+                        }
+                        else Carve (new Rug(pos, CurrentRegion.ToString()), CurrentRegion, ref floor);
+                    } else {
+                        Carve (new Wall (pos), CurrentRegion, ref floor);
+                    }
+                }
             }
         }
 
@@ -133,24 +144,28 @@ namespace RogueLike {
             CurrentRegion++;
         }
 
+        private void RemoveRegion () {
+            CurrentRegion--;
+        }
+
         /// <summary>
         ///     
         /// </summary>
         /// <param name="floor"> referenced floor plan from the program</param>
-        private void CarveRooms(ref FloorGrid floor){
-            foreach (var tR in Rooms){
-                foreach (Position pos in tR.room.Rectangle) {
-                    if (tR.room.IsInRoom (pos)) {
-                        if (isVertical()){
-                            Carve (new Floor (pos), tR.region, ref floor);
-                        }
-                        else Carve (new Rug(pos, tR.region.ToString()), tR.region, ref floor);
-                    } else {
-                        Carve (new Wall (pos), tR.region, ref floor);
-                    }
-                }
-            }
-        }
+        // private void CarveRooms(ref FloorGrid floor){
+        //     foreach (var tR in Rooms){
+        //         foreach (Position pos in tR.room.Rectangle) {
+        //             if (tR.room.IsInRoom (pos)) {
+        //                 if (isVertical()){
+        //                     Carve (new Floor (pos), tR.region, ref floor);
+        //                 }
+        //                 else Carve (new Rug(pos, tR.region.ToString()), tR.region, ref floor);
+        //             } else {
+        //                 Carve (new Wall (pos), tR.region, ref floor);
+        //             }
+        //         }
+        //     }
+        // }
 
         private void CarveHalls(ref FloorGrid floor){
             foreach (var H in Halls){
@@ -169,7 +184,7 @@ namespace RogueLike {
         ///     
         /// </summary>
         /// <param name="floor"> referenced floor plan from the program</param>
-        private void ConnectRegions(ref FloorGrid floor){
+        private void ConnectRegions((Room, int) first, (Room, int) connect){
             // TODO: recursion down through all rooms, skipping ones without doors or halls
         }
 
