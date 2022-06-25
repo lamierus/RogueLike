@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
+using System.Xml.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,7 @@ namespace RogueLike {
         private int CurrentRegion = -1;
         private int[, ] Regions;
         public List<(Room room, int region)> Rooms { get; private set; } = new List<ValueTuple<Room, int>> ();
-        public List<(Hallway hall, int region)> Halls { get; private set; } = new List<ValueTuple<Hallway, int>>();
+        //public List<(Hallway hall, int region)> Halls { get; private set; } = new List<ValueTuple<Hallway, int>>();
 
         public DungeonFloor (int fullWidth, int fullHeight) {
             Width = fullWidth;
@@ -40,10 +42,8 @@ namespace RogueLike {
             }
 
             GenerateRooms (ref floor);
-            //CarveRooms(ref floor);
             GenerateHalls (ref floor);
-            //CarveHalls(ref floor);
-            //ConnectRegions(ref floor);
+            RemoveDisconnectedRooms(ref floor);
         }
 
         private void GenerateRooms (ref FloorGrid floor) {
@@ -103,49 +103,64 @@ namespace RogueLike {
         public void GenerateHalls (ref FloorGrid floor) {
             //go through each room and probe out from each direction to attempt to find hallways in straight lines
             foreach (var tR in Rooms){
-                int dir = 0;
+                int direction = 0;
                 int retry = roomExtraSize;
-                while (dir < 4 && retry > 0){
-                    List<Position> Wall = tR.room.GetRoomWall(dir);
-                    int index = Rand.Next(1, Wall.Count - 1);  // shouldn't start at a corner
-                    Position start = Wall[index];
-                    Hallway newHall;
-                    if (SendProbe(start, Direction.whichDirection(dir), ref floor, out newHall)){
-                        //we can assume the object at the end of the newHall is a wall, at this point
-                        //so, we check if it is a corner and do not add to the direction count to try again
-                        if (floor.GetObject(newHall.End) is Wall){
-                            //need to check if it is a Wall object, first, then if it is a corner 
-                            //this way hallways can connect to hallways, too
-                            if (!(floor.GetObject(newHall.End) as Wall).isCorner(ref floor)){
-                                tR.room.Doors.Add(start);
-                                //Halls.Add((newHall,tR.region));
-                                foreach (Floor F in newHall.Hall) {
-                                    if (F.XY == newHall.Start || F.XY == newHall.End){
-                                        Carve(new Door(F.XY), tR.region, ref floor);
-                                    } else {
-                                        //Carve (F, ref floor);
-                                        Carve (new Rug(F.XY, tR.region.ToString()), tR.region, ref floor);
+                while (direction < 4 && retry > 0){
+                    List<Position> Wall = tR.room.GetRoomWall(direction);
+                    if(!(Wall.Any(pos => tR.room.Doors.Any(door => pos == door)))){
+                        int index = Rand.Next(1, Wall.Count - 1);  // shouldn't start at a corner
+                        Position start = Wall[index];
+                        Hallway newHall;
+                        int connectedRegion;
+                        if (SendProbe(start, direction, ref floor, out newHall, out connectedRegion)){
+                            //we can assume the object at the end of the newHall is a wall, at this point
+                            //so, we check if it is a corner and do not add to the direction count to try again
+                            if (floor.GetObject(newHall.End) is Wall){
+                                //need to check if it is a Wall object, first, then if it is a corner 
+                                //this way hallways can connect to hallways, too
+                                if (!(floor.GetObject(newHall.End) as Wall).isCorner(ref floor)){
+                                    //add the door to the starting room
+                                    tR.room.Doors.Add(start);
+                                    //add the door at the end of the hallway to the connected room/region
+                                    Rooms.ElementAt(connectedRegion).room.Doors.Add(newHall.End);
+                                    foreach (Floor F in newHall.Hall) {
+                                        if (F.XY == newHall.Start || F.XY == newHall.End){
+                                            Carve(new Door(F.XY), tR.region, ref floor);
+                                        } else {
+                                            //Carve (F, ref floor);
+                                            Carve (new Rug(F.XY, tR.region.ToString()), tR.region, ref floor);
+                                        }
                                     }
+                                    direction++;
+                                    retry = roomExtraSize;
                                 }
-                                dir++;
-                                retry = roomExtraSize;
                             }
                         }
+                        retry--;
                     }
-                    retry--;
+                    else {
+                        direction++;
+                    }
                 }
             }
         }
 
-        private bool SendProbe(Position start, Position direction, ref FloorGrid floor, out Hallway newHall){
-            Position probe = start + direction;
+        private bool SendProbe(Position start, int direction, ref FloorGrid floor,
+                                out Hallway newHall, out int connectedRegion){
+            Position probe = start + Direction.whichDirection(direction);
             newHall = new Hallway(start, start);
+            connectedRegion = -1;
             while (floor.IsInBounds(probe)){
                 Object obj = floor.GetObject(probe);
                 if ((obj is NullSpace)){
                     probe += direction;
                 } else {
                     newHall = new Hallway(start, probe);
+                    if(newHall.Hall.Count <= 2 && 
+                        Rooms[Regions[newHall.End.X, newHall.End.Y]].room.IsCorner(newHall.End)){
+                        return false;
+                    }
+                    connectedRegion = Regions[probe.X, probe.Y];
                     return true;
                 }
             }
@@ -159,50 +174,21 @@ namespace RogueLike {
         private void RemoveRegion () {
             CurrentRegion--;
         }
-
-        /// <summary>
-        ///     
-        /// </summary>
-        /// <param name="floor"> referenced floor plan from the program</param>
-        // private void CarveRooms(ref FloorGrid floor){
-        //     foreach (var tR in Rooms){
-        //         foreach (Position pos in tR.room.Rectangle) {
-        //             if (tR.room.IsInRoom (pos)) {
-        //                 if (isVertical()){
-        //                     Carve (new Floor (pos), tR.region, ref floor);
-        //                 }
-        //                 else Carve (new Rug(pos, tR.region.ToString()), tR.region, ref floor);
-        //             } else {
-        //                 Carve (new Wall (pos), tR.region, ref floor);
-        //             }
-        //         }
-        //     }
-        // }
-
-        private void CarveHalls(ref FloorGrid floor){
-            foreach (var H in Halls){
-                foreach (Floor F in H.hall.Hall) {
-                    if (F.XY == H.hall.Start || F.XY == H.hall.End){
-                        Carve(new Door(F.XY), H.region, ref floor);
-                    } else {
-                        //Carve (F, ref floor);
-                        Carve (new Rug(F.XY, H.region.ToString()), H.region, ref floor);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        ///     
-        /// </summary>
-        /// <param name="floor"> referenced floor plan from the program</param>
-        private void ConnectRegions((Room, int) first, (Room, int) connect){
-            // TODO: recursion down through all rooms, skipping ones without doors or halls
-        }
-
+        
         private void Carve (Object obj, int region, ref FloorGrid floor) {
             floor.SetObject (obj);
             Regions[obj.XY.X, obj.XY.Y] = region;
+        }
+
+        private void RemoveDisconnectedRooms(ref FloorGrid floor){
+            foreach(var tR in Rooms){
+                if (tR.room.Doors.Count == 0){
+                    foreach(Position pos in tR.room.Rectangle){
+                        Regions[pos.X, pos.Y] = -1;
+                        floor.SetObject(new NullSpace());
+                    }
+                }
+            }
         }
     }
 }

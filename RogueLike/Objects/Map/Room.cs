@@ -6,6 +6,8 @@ using ConsoleGameEngine;
 namespace RogueLike {
     public class Room : IComparable<Room> {
         public List<Position> Rectangle { get; private set; } = new List<Position> ();
+        
+        public List<Position> Doors { get; set; } = new List<Position>();
         public Position TopLeft { get; private set; }
         public Position BottomRight { get; private set; }
         public int X { get; private set; }
@@ -22,7 +24,6 @@ namespace RogueLike {
         public Floor GetMapObject (int x, int y) {
             return new Floor (x, y);
         }
-        public List<Position> Doors { get; set; } = new List<Position>();
 
         public Room (int width, int height, int x, int y) {
             TopLeft = new Position (x, y);
@@ -87,6 +88,15 @@ namespace RogueLike {
 
         public bool IsIntersectedBy (Room other) {
             return other.Rectangle.Exists (pt => IsInBounds (pt));
+        }
+
+        public bool IsCorner(Position pos){
+            if ((pos == TopLeft || pos == BottomRight) ||
+                (pos == new Position(TopLeft.X, BottomRight.Y) ||
+                 pos == new Position(BottomRight.X, TopLeft.Y))){
+                    return true;
+                }
+            return false;
         }
 
         public Position Center(){

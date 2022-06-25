@@ -17,5 +17,11 @@ namespace RogueLike {
             FloorToCeiling = true;
             XY = pos;
         }
+        public NullSpace () {
+            Color = 0;
+            SolidCharacter = ConsoleCharacter.Null;
+            Immovable = true;
+            FloorToCeiling = true;
+        }
     }
 }
